@@ -1,0 +1,1 @@
+print(movement_df.isnull().sum())
