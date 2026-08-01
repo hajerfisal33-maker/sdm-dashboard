@@ -27,7 +27,7 @@ password = urllib.parse.quote_plus("#123Hajerfisal")
 
 engine = create_engine(
 
-    f"mysql+pymysql://root:{password}@localhost:3306/sdm_database",
+    f"mysql+pymysql://root:{password}@https://sdm-dashboard-pe46.onrender.com:3306/sdm_database",
 
     pool_pre_ping=True,
 
