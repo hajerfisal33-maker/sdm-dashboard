@@ -25,8 +25,9 @@ exports.movementsByCountry = async (req, res) => {
 
         console.log(error);
 
-        res.status(500).json(error);
-
+    res.status(500).json({
+            error: error.message
+        });
     }
 
 };

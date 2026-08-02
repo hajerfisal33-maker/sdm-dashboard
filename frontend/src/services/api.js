@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
 
-  baseURL: "sdm-dashboard-pe46.onrender.com/api"
+  baseURL: "https://sdm-dashboard-pe46.onrender.com/api"
 
 });
 

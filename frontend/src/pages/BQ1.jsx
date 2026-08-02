@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import BarChartComponent from "../charts/BarChartComponent";
-import { Container, Row, Col, Card, Badge } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Spinner } from "react-bootstrap";
 
 function BQ1() {
     const [countryData, setCountryData] = useState([]);
     const [regionData, setRegionData] = useState([]);
     const [yearData, setYearData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         loadData();
@@ -17,13 +18,30 @@ function BQ1() {
             const country = await api.get("/country");
             const region = await api.get("/region");
             const year = await api.get("/year");
-            setCountryData(country.data);
-            setRegionData(region.data);
-            setYearData(year.data);
+            
+            // التأكد من أن البيانات المراجعة عبارة عن Array
+            setCountryData(Array.isArray(country.data) ? country.data : []);
+            setRegionData(Array.isArray(region.data) ? region.data : []);
+            setYearData(Array.isArray(year.data) ? year.data : []);
         }
         catch(error){
-            console.log(error);
+            console.log("Error loading data:", error);
         }
+        finally {
+            setLoading(false); // إيقاف التحميل بعد وصول البيانات
+        }
+    }
+
+    // 🛡️ حماية: عرض شاشة تحميل أثناء استرجاع البيانات لمنع انهيار الرسم البياني
+    if (loading) {
+        return (
+            <Container className="d-flex justify-content-center align-items-center style-loading" style={{ minHeight: "60vh" }}>
+                <div className="text-center">
+                    <Spinner animation="border" variant="primary" role="status" className="mb-3" />
+                    <h5 className="text-muted">Loading dashboard data...</h5>
+                </div>
+            </Container>
+        );
     }
 
     return (
@@ -48,11 +66,15 @@ function BQ1() {
                             Distribution by Country
                         </h4>
                         <p className="text-muted small mb-3">Total number of identified self-determination movements per sovereign country</p>
-                        <BarChartComponent
-                            data={countryData}
-                            xKey="country_name"
-                            yKey="total_movements"
-                        />
+                        {countryData.length > 0 ? (
+                            <BarChartComponent
+                                data={countryData}
+                                xKey="country_name"
+                                yKey="total_movements"
+                            />
+                        ) : (
+                            <p className="text-muted">No country data available</p>
+                        )}
                     </Card>
                 </Col>
 
@@ -62,11 +84,15 @@ function BQ1() {
                             Distribution by Region
                         </h4>
                         <p className="text-muted small mb-3">Comparative volume of active movements across global geographic regions</p>
-                        <BarChartComponent
-                            data={regionData}
-                            xKey="region"
-                            yKey="total_movements"
-                        />
+                        {regionData.length > 0 ? (
+                            <BarChartComponent
+                                data={regionData}
+                                xKey="region"
+                                yKey="total_movements"
+                            />
+                        ) : (
+                            <p className="text-muted">No region data available</p>
+                        )}
                     </Card>
                 </Col>
 
@@ -76,11 +102,15 @@ function BQ1() {
                             Historical Distribution Over Time
                         </h4>
                         <p className="text-muted small mb-3">Annual frequency breakdown of active self-determination movements (1945–2020)</p>
-                        <BarChartComponent
-                            data={yearData}
-                            xKey="year"
-                            yKey="active_movements"
-                        />
+                        {yearData.length > 0 ? (
+                            <BarChartComponent
+                                data={yearData}
+                                xKey="year"
+                                yKey="active_movements"
+                            />
+                        ) : (
+                            <p className="text-muted">No temporal data available</p>
+                        )}
                     </Card>
                 </Col>
             </Row>

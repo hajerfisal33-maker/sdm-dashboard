@@ -5,7 +5,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip,             
   Legend
 } from "recharts";
 
@@ -37,4 +37,4 @@ function LineChartComponent({ data, xKey, yKey }) {
   );
 }
 
-export default LineChartComponent;
+export default LineChartComponent; 

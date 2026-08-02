@@ -1,4 +1,4 @@
-import {
+ import {
   BarChart,
   Bar,
   XAxis,
@@ -23,4 +23,4 @@ function BarChartComponent({ data, xKey, yKey }) {
   );
 }
 
-export default BarChartComponent;
+export default BarChartComponent;                              
