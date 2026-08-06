@@ -9,7 +9,7 @@ const MAPPED_LABELS = {
     null: "Not Available"
 };
 
-function BQ4() {
+function PatternsOfViolence() {
 
     const [violentData, setViolentData] = useState([]);
     const [escalationData, setEscalationData] = useState([]);
@@ -285,4 +285,4 @@ function BQ4() {
 
 }
 
-export default BQ4;
+export default PatternsOfViolence;

@@ -15,7 +15,7 @@ import BarChartComponent from "../charts/BarChartComponent";
 import PieChartComponent from "../charts/PieChartComponent";
 
 
-function BQ7() {
+function GroupCharacteristics() {
 
     const [allGroups, setAllGroups] = useState([]);
 
@@ -591,4 +591,4 @@ function BQ7() {
 
 }
 
-export default BQ7;
+export default GroupCharacteristics;

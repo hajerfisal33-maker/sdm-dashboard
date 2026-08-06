@@ -160,7 +160,7 @@ function ChiSquareResults() {
   );
 }
 
-function BQ3() {
+function SovereigntyDeclarations() {
 
   const [sovereignty, setSovereignty] = useState([]);
   const [claims, setClaims] = useState([]);
@@ -322,4 +322,4 @@ function BQ3() {
 
 }
 
-export default BQ3;
+export default SovereigntyDeclarations;

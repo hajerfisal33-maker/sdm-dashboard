@@ -5,7 +5,7 @@ import BarChartComponent from "../charts/BarChartComponent";
 import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
 import DashboardFilters from "../components/DashboardFilters";
 
-function BQ2() {
+function ClaimsAndMovementDuration() {
 
     const [claimTypes, setClaimTypes] = useState([]);
     const [claimDuration, setClaimDuration] = useState([]);
@@ -264,4 +264,4 @@ const [filters, setFilters] = useState({
 
 }
 
-export default BQ2;
+export default ClaimsAndMovementDuration;

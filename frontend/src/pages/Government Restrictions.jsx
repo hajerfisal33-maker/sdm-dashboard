@@ -314,7 +314,7 @@ function ChiSquareResultsBQ6() {
 // Main BQ6 Component
 // =====================================================
 
-function BQ6() {
+function GovernmentRestrictions() {
 
     const [summaryData, setSummaryData] = useState([]);
 
@@ -920,4 +920,4 @@ function BQ6() {
 
 }
 
-export default BQ6;
+export default GovernmentRestrictions;

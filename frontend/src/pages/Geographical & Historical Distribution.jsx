@@ -9,7 +9,7 @@ import {
   Spinner
 } from "react-bootstrap";
 
-function BQ1() {
+function GeographicalAndHistoricalDistribution() {
 
     const [countryData,setCountryData]=useState([]);
     const [regionData,setRegionData]=useState([]);
@@ -329,4 +329,4 @@ decreased levels of self-determination activity worldwide.
 
 }
 
-export default BQ1;
+export default GeographicalAndHistoricalDistribution;

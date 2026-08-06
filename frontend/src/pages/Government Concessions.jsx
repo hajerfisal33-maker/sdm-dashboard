@@ -225,7 +225,7 @@ function ChiSquareResultsBQ5() {
 // Main Component
 // =====================================================
 
-function BQ5() {
+function GovernmentConcessions() {
 
     const [totalConcessions, setTotalConcessions] = useState([]);
 
@@ -627,5 +627,5 @@ function BQ5() {
 
 }
 
-export default BQ5;
+export default GovernmentConcessions;
 
