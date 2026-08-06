@@ -452,9 +452,57 @@ exports.independenceConcessions = async (req, res) => {
 
 };
 
+
 // =========================
-// BQ5 Chi Square
+// BQ5 Concession Movements
 // =========================
+
+exports.concessionMovements = async (req, res) => {
+    console.log("BQ5 CONCESSION MOVEMENTS");
+
+    try {
+        const [rows] = await db.query(
+            queries.concessionMovements
+        );
+
+        console.log(rows);
+        res.json(rows);
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json(error);
+
+    }
+};
+
+
+// =========================
+// BQ5 Concession Movements By Claim
+// =========================
+
+exports.concessionMovementsByClaim = async (req, res) => {
+    console.log("BQ5 CONCESSION MOVEMENTS BY CLAIM");
+
+    try {
+
+        const [rows] = await db.query(
+            queries.concessionMovementsByClaim
+        );
+
+        console.log(rows);
+        res.json(rows);
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json(error);
+
+    }
+};
+
+
+
 // =========================
 // BQ5 Chi Square
 // =========================
@@ -590,6 +638,55 @@ exports.independenceRestrictions = async (req, res) => {
 
     }
 
+};
+
+// =========================
+// BQ6 Restriction Movements
+// =========================
+
+exports.restrictionMovements = async (req, res) => {
+    console.log("BQ6 RESTRICTION MOVEMENTS");
+
+    try {
+
+        const [rows] = await db.query(
+            queries.restrictionMovements
+        );
+
+        console.log(rows);
+        res.json(rows);
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json(error);
+
+    }
+};
+
+
+// =========================
+// BQ6 Restriction Movements By Claim
+// =========================
+
+exports.restrictionMovementsByClaim = async (req, res) => {
+    console.log("BQ6 RESTRICTION MOVEMENTS BY CLAIM");
+
+    try {
+
+        const [rows] = await db.query(
+            queries.restrictionMovementsByClaim
+        );
+
+        console.log(rows);
+        res.json(rows);
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json(error);
+
+    }
 };
 
 
