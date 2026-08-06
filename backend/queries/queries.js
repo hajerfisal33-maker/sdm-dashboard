@@ -48,21 +48,21 @@ const queries = {
         ORDER BY total_movements DESC;
     `,
 
-    claimDuration: `
-        SELECT
-            group_id,
-            domclaim,
-            sdm_startdate1,
-            sdm_enddate1,
-            CASE
-                WHEN sdm_enddate1 IN (8888,9999)
-                THEN NULL
-                ELSE (sdm_enddate1-sdm_startdate1)
-            END AS duration
-        FROM movement_observations
-        WHERE sdm_startdate1 IS NOT NULL
-        AND sdm_enddate1 IS NOT NULL;
-    `,
+   claimDuration: `
+SELECT
+    domclaim,
+    AVG(
+        CASE
+            WHEN sdm_enddate1 = 9999 THEN 2020 - sdm_startdate1
+            WHEN sdm_enddate1 = 8888 THEN NULL
+            ELSE sdm_enddate1 - sdm_startdate1
+        END
+    ) AS avg_duration
+FROM movement_observations
+WHERE sdm_startdate1 IS NOT NULL
+GROUP BY domclaim
+ORDER BY domclaim;
+`,
 
     // ===============================
     // BQ3
@@ -99,31 +99,41 @@ ORDER BY year;
     // BQ4
     // ===============================
 
-    violentMovements: `
-        SELECT
-            violsd,
-            COUNT(*) AS total
-        FROM movement_observations
-        GROUP BY violsd;
-    `,
+violentMovements: `
+SELECT
+    violsd,
+    COUNT(DISTINCT group_id) AS total
+FROM movement_observations
+WHERE violsd IS NOT NULL
+GROUP BY violsd;
+`,
 
-    violentEscalation: `
-        SELECT
-            viol_escal,
-            COUNT(*) AS total
-        FROM movement_observations
-        GROUP BY viol_escal;
-    `,
+violentEscalation: `
+SELECT
+CASE
+    WHEN violsd = 0 THEN 'Stayed Peaceful'
+    WHEN violsd = 1 AND viol_escal = 0 THEN 'Started Violent'
+    WHEN violsd = 1 AND viol_escal = 1 THEN 'Escalated'
+END AS category,
 
-    violenceOnset: `
-        SELECT
-            violsd_onset,
-            COUNT(*) AS total
-        FROM movement_observations
-        WHERE violsd_onset IS NOT NULL
-        GROUP BY violsd_onset
-        ORDER BY violsd_onset;
-    `,
+COUNT(DISTINCT group_id) AS total
+
+FROM movement_observations
+
+WHERE violsd IS NOT NULL
+
+GROUP BY category;
+`,
+
+violenceOnset: `
+SELECT
+    violsd_onset,
+    COUNT(DISTINCT group_id) AS total
+FROM movement_observations
+WHERE violsd_onset IS NOT NULL
+GROUP BY violsd_onset
+ORDER BY violsd_onset;
+`,
 
     // ===============================
     // BQ5
@@ -161,6 +171,35 @@ ORDER BY year;
         GROUP BY domclaim;
     `,
 
+    // عدد الحركات التي مُنحت أي تنازل
+
+concessionMovements: `
+SELECT
+    COUNT(DISTINCT group_id) AS total_movements
+FROM movement_observations
+WHERE
+      con = 1
+   OR cultcon = 1
+   OR autcon = 1
+   OR indcon = 1;
+`,
+
+// عدد الحركات حسب نوع المطالبة التي تلقت تنازلات
+
+concessionMovementsByClaim: `
+SELECT
+    domclaim,
+    COUNT(DISTINCT group_id) AS movements
+FROM movement_observations
+WHERE
+      con = 1
+   OR cultcon = 1
+   OR autcon = 1
+   OR indcon = 1
+GROUP BY domclaim
+ORDER BY movements DESC;
+`,
+
     concessionsChiSquare: `
         SELECT
             domclaim,
@@ -196,7 +235,37 @@ ORDER BY year;
         FROM movement_observations;
     `,
 
-    restrictionsChiSquare: `
+   
+
+    // عدد الحركات التي فُرضت عليها قيود
+
+restrictionMovements: `
+SELECT
+    COUNT(DISTINCT group_id) AS total_movements
+FROM movement_observations
+WHERE
+      res = 1
+   OR cultres = 1
+   OR autres = 1
+   OR indres = 1;
+`,
+
+// عدد الحركات حسب نوع المطالبة التي تعرضت لقيود
+
+restrictionMovementsByClaim: `
+SELECT
+    domclaim,
+    COUNT(DISTINCT group_id) AS movements
+FROM movement_observations
+WHERE
+      res = 1
+   OR cultres = 1
+   OR autres = 1
+   OR indres = 1
+GROUP BY domclaim
+ORDER BY movements DESC;
+`,
+ restrictionsChiSquare: `
         SELECT
             domclaim,
             res
@@ -206,30 +275,115 @@ ORDER BY year;
     // ===============================
     // BQ7
     // ===============================
+groupSize: `
+SELECT
+    group_name,
+    MAX(group_size) AS group_size
+FROM movement_observations mo
+JOIN ethnic_groups eg
+ON mo.group_id = eg.group_id
+GROUP BY group_name
+ORDER BY group_size DESC;
+`,
 
-    groupSize: `
-        SELECT
-            group_name,
-            group_size
-        FROM ethnic_groups
-        ORDER BY group_size DESC;
-    `,
+geographicConcentration: `
+SELECT
+    group_con,
+    COUNT(DISTINCT group_id) AS total_groups
+FROM movement_observations
+WHERE group_con IS NOT NULL
+GROUP BY group_con;
+`,
 
-    geographicConcentration: `
-        SELECT
-            group_con,
-            COUNT(*) AS total_groups
-        FROM ethnic_groups
-        GROUP BY group_con;
-    `,
+powerParticipation: `
+SELECT
+    pwrstat,
+    COUNT(DISTINCT group_id) AS total_groups
+FROM movement_observations
+WHERE pwrstat IS NOT NULL
+GROUP BY pwrstat;
+`
+,
+// ===============================
+// FILTER OPTIONS
+// ===============================
 
-    powerParticipation: `
-        SELECT
-            pwrstat,
-            COUNT(*) AS total_groups
-        FROM ethnic_groups
-        GROUP BY pwrstat;
-    `
+filterCountries: `
+    SELECT DISTINCT
+        c.country_id,
+        c.country_name
+    FROM countries c
+    JOIN ethnic_groups eg
+        ON c.country_id = eg.country_id
+    ORDER BY c.country_name;
+`,
+
+filterRegions: `
+    SELECT DISTINCT
+        region
+    FROM ethnic_groups
+    WHERE region IS NOT NULL
+    ORDER BY region;
+`,
+
+filterClaims: `
+    SELECT DISTINCT
+        domclaim
+    FROM movement_observations
+    WHERE domclaim IS NOT NULL
+    ORDER BY domclaim;
+`,
+
+filterYears: `
+    SELECT DISTINCT
+        year
+    FROM movement_observations
+    WHERE year IS NOT NULL
+    ORDER BY year;
+`,
+
+// ===============================
+// FILTER OPTIONS
+// ===============================
+
+// جميع الدول
+filterCountries: `
+SELECT DISTINCT
+    c.country_id,
+    c.country_name
+FROM countries c
+JOIN ethnic_groups eg
+ON c.country_id = eg.country_id
+ORDER BY c.country_name;
+`,
+
+// جميع الأقاليم
+filterRegions: `
+SELECT DISTINCT
+    region
+FROM ethnic_groups
+WHERE region IS NOT NULL
+ORDER BY region;
+`,
+
+// جميع أنواع المطالبات
+filterClaims: `
+SELECT DISTINCT
+    domclaim
+FROM movement_observations
+WHERE domclaim IS NOT NULL
+ORDER BY domclaim;
+`,
+
+// جميع السنوات
+filterYears: `
+SELECT DISTINCT
+    year
+FROM movement_observations
+WHERE year IS NOT NULL
+ORDER BY year;
+`
+
 
 };
 

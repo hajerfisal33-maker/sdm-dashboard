@@ -714,3 +714,87 @@ exports.powerParticipation = async (req, res) => {
     }
 
 };
+
+// ========================================
+// Dashboard Filters
+// ========================================
+
+// Countries
+exports.filterCountries = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                country_id,
+                country_name
+            FROM countries
+            ORDER BY country_name;
+        `);
+
+        res.json(rows);
+    }
+
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
+// Regions
+exports.filterRegions = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT DISTINCT
+                region
+            FROM countries
+            WHERE region IS NOT NULL
+            ORDER BY region;
+        `);
+
+        res.json(rows);
+    }
+
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
+// Years
+exports.filterYears = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT DISTINCT
+                year
+            FROM movement_observations
+            WHERE year IS NOT NULL
+            ORDER BY year;
+        `);
+
+        res.json(rows);
+    }
+
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
+// Claim Types
+exports.filterClaims = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT DISTINCT
+                domclaim
+            FROM movement_observations
+            WHERE domclaim IS NOT NULL
+            ORDER BY domclaim;
+        `);
+
+        res.json(rows);
+    }
+
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};

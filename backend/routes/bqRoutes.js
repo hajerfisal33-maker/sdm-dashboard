@@ -38,6 +38,10 @@ router.get("/autonomy-concessions", controller.autonomyConcessions);
 
 router.get("/independence-concessions", controller.independenceConcessions);
 
+router.get("/concession-movements", controller.concessionMovements);
+
+router.get("/concession-movements-by-claim", controller.concessionMovementsByClaim);
+
 router.get("/concessions-chi-square", controller.concessionsChiSquare);
 // BQ6
 router.get("/restrictions", controller.restrictions);
@@ -48,6 +52,10 @@ router.get("/autonomy-restrictions", controller.autonomyRestrictions);
 
 router.get("/independence-restrictions", controller.independenceRestrictions);
 
+router.get("/restriction-movements", controller.restrictionMovements);
+
+router.get("/restriction-movements-by-claim", controller.restrictionMovementsByClaim);
+
 router.get("/restrictions-chi-square", controller.restrictionsChiSquare);
 // BQ7
 router.get("/group-size", controller.groupSize);
@@ -55,5 +63,17 @@ router.get("/group-size", controller.groupSize);
 router.get("/geographic-concentration", controller.geographicConcentration);
 
 router.get("/power-participation", controller.powerParticipation);
+
+// ===============================
+// Dashboard Filters
+// ===============================
+
+router.get("/filters/countries", controller.filterCountries);
+
+router.get("/filters/regions", controller.filterRegions);
+
+router.get("/filters/years", controller.filterYears);
+
+router.get("/filters/claims", controller.filterClaims);
 
 module.exports = router;
