@@ -1,5 +1,4 @@
 import { Navbar, Nav, Container } from "react-bootstrap";
-
 import { Link } from "react-router-dom";
 
 function NavbarComponent() {
@@ -33,31 +32,31 @@ function NavbarComponent() {
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq1">
-                            BQ1
+                            Geographical & Historical Distribution
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq2">
-                            BQ2
+                            Claims & Movement Duration
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq3">
-                            BQ3
+                            Sovereignty Declarations
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq4">
-                            BQ4
+                            Patterns of Violence
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq5">
-                            BQ5
+                            Government Concessions
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq6">
-                            BQ6
+                            Government Restrictions
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/bq7">
-                            BQ7
+                            Group Characteristics
                         </Nav.Link>
 
                     </Nav>
