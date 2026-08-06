@@ -3,6 +3,7 @@ import api from "../services/api";
 import PieChartComponent from "../charts/PieChartComponent";
 import BarChartComponent from "../charts/BarChartComponent";
 import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
+import DashboardFilters from "../components/DashboardFilters";
 
 function BQ2() {
 
@@ -10,9 +11,16 @@ function BQ2() {
     const [claimDuration, setClaimDuration] = useState([]);
     const [loading, setLoading] = useState(true);
 
+const [filters, setFilters] = useState({
+  country: "",
+  region: "",
+  year: "",
+  claim: ""
+});
+
     useEffect(() => {
         loadData();
-    }, []);
+    }, [filters]);
 
     async function loadData() {
 
@@ -42,7 +50,12 @@ function BQ2() {
 
     if (loading) {
 
-        return (
+        return
+        <DashboardFilters
+    filters={filters}
+    setFilters={setFilters}
+/>
+        (
 
             <Container className="text-center mt-5">
 
