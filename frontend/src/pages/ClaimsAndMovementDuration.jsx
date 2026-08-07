@@ -85,16 +85,6 @@ const duration = await api.get("/claim-duration", {
 
 }
 
-            <Container className="text-center mt-5">
-
-                <Spinner animation="border" />
-
-            </Container>
-
-        
-
-    }
-
     return (
 
         <Container className="mt-5 mb-5">
@@ -296,6 +286,7 @@ const duration = await api.get("/claim-duration", {
 
     );
 
-
+}
 
 export default ClaimsAndMovementDuration;
+
