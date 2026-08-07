@@ -11,11 +11,13 @@ function ClaimsAndMovementDuration() {
     const [claimDuration, setClaimDuration] = useState([]);
     const [loading, setLoading] = useState(true);
 
+
+
 const [filters, setFilters] = useState({
-  country: "",
-  region: "",
-  year: "",
-  claim: ""
+    country: "",
+    region: "",
+    year: "",
+    claim: ""
 });
 
     useEffect(() => {
@@ -26,8 +28,20 @@ const [filters, setFilters] = useState({
 
         try {
 
-            const claims = await api.get("/claim-types");
-            const duration = await api.get("/claim-duration");
+          const params = {};
+
+if (filters.country) params.country = filters.country;
+if (filters.region) params.region = filters.region;
+if (filters.year) params.year = filters.year;
+if (filters.claim) params.claim = filters.claim;
+
+const claims = await api.get("/claim-types", {
+    params
+});
+
+const duration = await api.get("/claim-duration", {
+    params
+});
 
             setClaimTypes(claims.data || []);
             setClaimDuration(duration.data || []);
@@ -48,14 +62,28 @@ const [filters, setFilters] = useState({
 
     }
 
-    if (loading) {
+   if (loading) {
 
-        return
-        <DashboardFilters
-    filters={filters}
-    setFilters={setFilters}
-/>
-        (
+    return (
+
+        <Container className="mt-5">
+
+            <DashboardFilters
+                filters={filters}
+                setFilters={setFilters}
+            />
+
+            <div className="text-center mt-5">
+
+                <Spinner animation="border" />
+
+            </div>
+
+        </Container>
+
+    );
+
+}
 
             <Container className="text-center mt-5">
 
@@ -63,13 +91,17 @@ const [filters, setFilters] = useState({
 
             </Container>
 
-        );
+        
 
     }
 
     return (
 
         <Container className="mt-5 mb-5">
+            <DashboardFilters
+    filters={filters}
+    setFilters={setFilters}
+/>
 
             {/* ================= Header ================= */}
 
@@ -167,6 +199,7 @@ const [filters, setFilters] = useState({
                             principal objective pursued by each movement, such as demands
                             for independence, territorial autonomy, or other forms of
                             political self-government.
+                            Methodological Note: Because a movement's dominant claim may change over time, the same movement can contribute to more than one claim category across different years. Therefore, the combined total across all claim categories exceeds the total number of unique movements in the SDM dataset.
 
                         </p>
 
@@ -239,6 +272,7 @@ const [filters, setFilters] = useState({
                                 until the end of the observation period (2020), while
                                 movements coded with 8888 are excluded because their
                                 duration cannot be calculated consistently.
+                                Methodological Note: Because a movement may pursue different dominant claims during its lifetime, the same movement can contribute to more than one claim category. Consequently, average durations are calculated within each claim category rather than assigning each movement to a single fixed claim.
 
                             </li>
 
@@ -262,6 +296,6 @@ const [filters, setFilters] = useState({
 
     );
 
-}
+
 
 export default ClaimsAndMovementDuration;

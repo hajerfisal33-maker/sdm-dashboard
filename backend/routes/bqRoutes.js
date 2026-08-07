@@ -28,7 +28,6 @@ router.get("/violent-movements", controller.violentMovements);
 
 router.get("/violent-escalation", controller.violentEscalation);
 
-router.get("/violenceOnset", controller.violenceOnset);
 // BQ5
 router.get("/concessions", controller.concessions);
 

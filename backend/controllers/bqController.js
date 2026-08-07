@@ -316,32 +316,7 @@ exports.violentEscalation = async (req, res) => {
 };
 
 
-// =========================
-// Onset
-// =========================
 
-exports.violenceOnset = async (req, res) => {
-     console.log("BQ4 VIOLENT ONSET");
-    try{
-
-        const [rows] = await db.query(
-            queries.violenceOnset
-        );
-       
-        console.log(rows);
-        res.json(rows);
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        res.status(500).json(error);
-
-    }
-
-};
 
 // =========================
 // BQ5 Total Concessions

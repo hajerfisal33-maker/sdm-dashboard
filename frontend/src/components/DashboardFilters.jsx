@@ -8,6 +8,7 @@ function DashboardFilters({ filters, setFilters }) {
   const [claims, setClaims] = useState([]);
   const [years, setYears] = useState([]);
 
+  
   useEffect(() => {
     loadFilters();
   }, []);

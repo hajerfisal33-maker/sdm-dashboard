@@ -51,16 +51,29 @@ const queries = {
    claimDuration: `
 SELECT
     domclaim,
-    AVG(
+    AVG(duration) AS avg_duration
+FROM (
+
+    SELECT DISTINCT
+        group_id,
+        domclaim,
+
         CASE
             WHEN sdm_enddate1 = 9999 THEN 2020 - sdm_startdate1
             WHEN sdm_enddate1 = 8888 THEN NULL
             ELSE sdm_enddate1 - sdm_startdate1
-        END
-    ) AS avg_duration
-FROM movement_observations
-WHERE sdm_startdate1 IS NOT NULL
+        END AS duration
+
+    FROM movement_observations
+
+    WHERE sdm_startdate1 IS NOT NULL
+
+) t
+
+WHERE duration IS NOT NULL
+
 GROUP BY domclaim
+
 ORDER BY domclaim;
 `,
 
@@ -102,38 +115,54 @@ ORDER BY year;
 violentMovements: `
 SELECT
     violsd,
-    COUNT(DISTINCT group_id) AS total
-FROM movement_observations
-WHERE violsd IS NOT NULL
+    COUNT(*) AS total
+FROM (
+    SELECT
+        group_id,
+        MAX(violsd) AS violsd
+    FROM movement_observations
+    GROUP BY group_id
+) t
 GROUP BY violsd;
 `,
 
 violentEscalation: `
 SELECT
 CASE
-    WHEN violsd = 0 THEN 'Stayed Peaceful'
-    WHEN violsd = 1 AND viol_escal = 0 THEN 'Started Violent'
-    WHEN violsd = 1 AND viol_escal = 1 THEN 'Escalated'
+    WHEN max_violsd = 0 THEN 'Stayed Peaceful'
+    WHEN first_violsd = 0 AND max_violsd = 1 THEN 'Escalated to Violence'
+    WHEN first_violsd = 1 THEN 'Violent from Start'
 END AS category,
 
-COUNT(DISTINCT group_id) AS total
+COUNT(*) AS total
 
-FROM movement_observations
+FROM (
 
-WHERE violsd IS NOT NULL
+SELECT
+    group_id,
+
+    MIN(year) AS first_year,
+
+    (
+        SELECT violsd
+        FROM movement_observations m2
+        WHERE m2.group_id = m1.group_id
+        ORDER BY year ASC
+        LIMIT 1
+    ) AS first_violsd,
+
+    MAX(violsd) AS max_violsd
+
+FROM movement_observations m1
+
+GROUP BY group_id
+
+) t
 
 GROUP BY category;
 `,
 
-violenceOnset: `
-SELECT
-    violsd_onset,
-    COUNT(DISTINCT group_id) AS total
-FROM movement_observations
-WHERE violsd_onset IS NOT NULL
-GROUP BY violsd_onset
-ORDER BY violsd_onset;
-`,
+
 
     // ===============================
     // BQ5
@@ -342,47 +371,7 @@ filterYears: `
     ORDER BY year;
 `,
 
-// ===============================
-// FILTER OPTIONS
-// ===============================
 
-// جميع الدول
-filterCountries: `
-SELECT DISTINCT
-    c.country_id,
-    c.country_name
-FROM countries c
-JOIN ethnic_groups eg
-ON c.country_id = eg.country_id
-ORDER BY c.country_name;
-`,
-
-// جميع الأقاليم
-filterRegions: `
-SELECT DISTINCT
-    region
-FROM ethnic_groups
-WHERE region IS NOT NULL
-ORDER BY region;
-`,
-
-// جميع أنواع المطالبات
-filterClaims: `
-SELECT DISTINCT
-    domclaim
-FROM movement_observations
-WHERE domclaim IS NOT NULL
-ORDER BY domclaim;
-`,
-
-// جميع السنوات
-filterYears: `
-SELECT DISTINCT
-    year
-FROM movement_observations
-WHERE year IS NOT NULL
-ORDER BY year;
-`
 
 
 };
