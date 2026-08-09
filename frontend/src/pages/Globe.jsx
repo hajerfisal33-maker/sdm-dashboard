@@ -3,7 +3,7 @@ import Globe from "react-globe.gl";
 import { Container, Card, Spinner, Alert } from "react-bootstrap";
 
 import api from "../services/api";
-import countriesGeoJSON from "../data/countries.geojson";
+import countriesGeoJSON from "../data/countries.json";
 
 function GlobePage() {
 
