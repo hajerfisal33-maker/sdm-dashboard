@@ -869,22 +869,21 @@ exports.filterClaims = async (req, res) => {
         console.log(error);
         res.status(500).json(error);
     }
+
+    //=========================
+
 };
-//Globe Country==============================================
 exports.globeCountries = async (req, res) => {
     try {
-
         const [rows] = await db.query(queries.globeCountries);
-
         res.json(rows);
-
     } catch (error) {
+        console.error("🔴 Globe Countries Error:", error);
 
-        console.error(error);
-
+        // 👈 غيري هذا السطر مؤقتاً لتشاهدي سبب الخطأ مباشرة في المتصفح أو Console
         res.status(500).json({
-            message: "Failed to load globe countries"
+            message: "Failed to load globe countries",
+            error: error.message || error
         });
-
     }
 };
