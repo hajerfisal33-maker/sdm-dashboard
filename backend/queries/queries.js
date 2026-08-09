@@ -374,7 +374,7 @@ globeCountries: `
     SELECT DISTINCT
         c.country_id,
         c.country_name,
-        c.region
+        eg.region
     FROM countries c
     INNER JOIN ethnic_groups eg
         ON c.country_id = eg.country_id
