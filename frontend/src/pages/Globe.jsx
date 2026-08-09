@@ -152,31 +152,35 @@ function Globe() {
                     <span className="text-muted small">Click on a country dot to expand details</span>
                 </Card.Header>
 
-                <div style={{ width: "100%", height: "550px", position: "relative" }}>
+                <div style={{ width: "100%", height: "580px", position: "relative" }}>
                     <GlobeComponent
                         width={window.innerWidth > 1200 ? 1200 : window.innerWidth - 60}
-                        height={550}
-                        backgroundColor="#0b0e14"
-                        globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
+                        height={580}
+                        backgroundColor="#050811"
+                        
+                        // صورة الكرة المضيئة بالنهار
+                        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
                         bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+                        
+                        // الغلاف الجوي والإضاءة الزاهية
                         showAtmosphere={true}
                         atmosphereColor="#00d2ff"
-                        atmosphereAltitude={0.2}
+                        atmosphereAltitude={0.25}
 
+                        // النقاط والتحديد
                         pointsData={countriesData}
                         pointLat="lat"
                         pointLng="lng"
-                        pointAltitude={(d) => (selectedCountry?.name === d.name ? 0.08 : 0.03)}
-                        pointRadius={(d) => (selectedCountry?.name === d.name ? 0.8 : 0.5)}
-                        pointColor={(d) => (selectedCountry?.name === d.name ? "#ff3366" : "#00f2fe")}
+                        pointAltitude={(d) => (selectedCountry?.name === d.name ? 0.1 : 0.04)}
+                        pointRadius={(d) => (selectedCountry?.name === d.name ? 1.0 : 0.6)}
+                        pointColor={(d) => (selectedCountry?.name === d.name ? "#ff0055" : "#ffd700")}
                         pointLabel={(d) => `
-                            <div style="background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #00f2fe;">
-                                <strong style="color: #00f2fe;">${d.name}</strong>
+                            <div style="background: rgba(10, 15, 30, 0.9); color: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.5);">
+                                <strong style="color: #ffd700; font-size: 15px;">${d.name}</strong><br/>
+                                <span style="font-size: 12px; color: #ddd;">Click to view 3-Level Data</span>
                             </div>
                         `}
-                        onPointClick={(country) => {
-                            setSelectedCountry(country);
-                        }}
+                        onPointClick={(country) => setSelectedCountry(country)}
                     />
                 </div>
             </Card>
