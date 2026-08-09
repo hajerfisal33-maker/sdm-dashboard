@@ -870,6 +870,23 @@ exports.filterClaims = async (req, res) => {
         res.status(500).json(error);
     }
 };
+//  الحقول في قاعدة البيانات وأسماء الحقول التي نريد إرسالها للفرونت إند
+
+const countryMapping = {
+  "Bosnia": "Bosnia and Herz.",
+  "Central African Republic": "Central African Rep.",
+  "Congo-Zaire": "Dem. Rep. Congo",
+  "Cote d'Ivoire": "Côte d'Ivoire",
+  "Czechia": "Czech Rep.",
+  "Equatorial Guinea": "Eq. Guinea",
+  "Laos": "Lao PDR",
+  "Russia (USSR)": "Russia",
+  "Serbia (Yugoslavia)": "Serbia",
+  "Solomon Islands": "Solomon Is.",
+  "South Sudan": "S. Sudan",
+  "Trinidad & Tobago": "Trinidad and Tobago",
+  "South Vietnam": "Vietnam"
+};
 
    //Globe Country==============================================
 exports.globeCountries = async (req, res) => {
@@ -877,7 +894,16 @@ exports.globeCountries = async (req, res) => {
 
         const [rows] = await db.query(queries.globeCountries);
 
-        res.json(rows);
+        // Apply country name mapping
+        const mappedRows = rows.map(row => {
+            const mappedName = countryMapping[row.country_name];
+            return {
+                ...row,
+                country_name: mappedName || row.country_name
+            };
+        });
+
+        res.json(mappedRows);
 
     } catch (error) {
 
