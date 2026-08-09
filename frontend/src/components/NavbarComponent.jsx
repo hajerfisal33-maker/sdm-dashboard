@@ -59,6 +59,10 @@ function NavbarComponent() {
                             Group Characteristics
                         </Nav.Link>
 
+                        <Nav.Link as={Link} to="/globe">
+                            Globe
+                        </Nav.Link>
+
                     </Nav>
 
                 </Navbar.Collapse>
