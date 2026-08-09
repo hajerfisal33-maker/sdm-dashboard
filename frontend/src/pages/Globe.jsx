@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Globe from "react-globe.gl";
-import { Container, Card, Spinner, Alert, Offcanvas, Badge, Row, Col } from "react-bootstrap";
+import { Container, Card, Spinner, Alert, Row, Col } from "react-bootstrap";
 
 import api from "../services/api";
-import countriesGeoJSON from "../data/countries.json";
+import countriesGeoJSON from "../data/countries.geojson";
 
 function GlobePage() {
 
@@ -12,14 +12,17 @@ function GlobePage() {
     // ========================================
 
     const [countries, setCountries] = useState([]);
+
+    const [selectedCountry, setSelectedCountry] = useState(null);
+
+    const [countryDetails, setCountryDetails] = useState(null);
+
     const [loading, setLoading] = useState(true);
+
+    const [detailsLoading, setDetailsLoading] = useState(false);
+
     const [error, setError] = useState(null);
 
-    // الزيادة الخاصة بالتفاعل والتفاصيل (Level 2 & Level 3)
-    const globeRef = useRef();
-    const [selectedCountry, setSelectedCountry] = useState(null);
-    const [countryDetails, setCountryDetails] = useState(null);
-    const [detailsLoading, setDetailsLoading] = useState(false);
     const [detailsError, setDetailsError] = useState(null);
 
 
@@ -65,6 +68,7 @@ function GlobePage() {
 
     }, []);
 
+
     // ========================================
     // Match database countries
     // with GeoJSON countries
@@ -108,45 +112,64 @@ function GlobePage() {
 
 
     // ========================================
-    // Handle Country Click (Level 1 -> Level 2 & 3)
+    // Load selected country details
     // ========================================
 
-    const handlePolygonClick = async (countryFeature) => {
+    async function handleCountryClick(country) {
 
-        const countryName = countryFeature.properties?.name;
+        const countryName =
+            country.properties?.name;
 
-        if (!countryName) return;
+        if (!countryName) {
+            return;
+        }
+
+        console.log(
+            "Selected country:",
+            countryName
+        );
 
         setSelectedCountry(countryName);
-        setDetailsLoading(true);
-        setDetailsError(null);
+
         setCountryDetails(null);
 
-        // توجيه الكرة الأرضية نحو الدولة المحددة
-        if (globeRef.current) {
-            globeRef.current.pointOfView(
-                { lat: 0, lng: 0, altitude: 2 },
-                1000
-            );
-        }
+        setDetailsError(null);
+
+        setDetailsLoading(true);
 
         try {
 
-            const response = await api.get(`/country-details/${encodeURIComponent(countryName)}`);
-            setCountryDetails(response.data);
+            const response =
+                await api.get(
+                    `/country-details/${encodeURIComponent(countryName)}`
+                );
 
-        } catch (err) {
+            setCountryDetails(
+                response.data
+            );
 
-            console.error("Failed to load country details:", err);
-            setDetailsError("Failed to load details for " + countryName);
+        }
 
-        } finally {
+        catch (err) {
+
+            console.error(
+                "Failed to load country details:",
+                err
+            );
+
+            setDetailsError(
+                "Failed to load data for this country."
+            );
+
+        }
+
+        finally {
 
             setDetailsLoading(false);
 
         }
 
-    };
+    }
 
 
     // ========================================
@@ -176,6 +199,7 @@ function GlobePage() {
 
     }
 
+
     // ========================================
     // Error
     // ========================================
@@ -198,6 +222,65 @@ function GlobePage() {
 
     }
 
+
+    // ========================================
+    // Helper for binary values
+    // ========================================
+
+    function binaryLabel(value) {
+
+        if (value === 1 || value === "1") {
+            return "Yes";
+        }
+
+        if (value === 0 || value === "0") {
+            return "No";
+        }
+
+        return "N/A";
+
+    }
+
+
+    // ========================================
+    // Helper for end year
+    // ========================================
+
+    function formatEndYear(value) {
+
+        if (
+            value === 9999 ||
+            value === "9999"
+        ) {
+
+            return "2020";
+
+        }
+
+        if (
+            value === 8888 ||
+            value === "8888"
+        ) {
+
+            return "N/A";
+
+        }
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+
+            return "N/A";
+
+        }
+
+        return value;
+
+    }
+
+
     // ========================================
     // Main Page
     // ========================================
@@ -206,11 +289,14 @@ function GlobePage() {
 
         <Container className="mt-5 mb-5">
 
+
             {/* ========================================
                 Page Header
             ======================================== */}
 
-            <Card className="shadow-sm border-0 rounded-4 p-4 mb-4">
+            <Card
+                className="shadow-sm border-0 rounded-4 p-4 mb-4"
+            >
 
                 <h2 className="fw-bold text-primary">
 
@@ -222,7 +308,11 @@ function GlobePage() {
                 <p className="text-muted mb-0">
 
                     Explore the geographical distribution of
-                    self-determination movements across countries. Click on any country to inspect details.
+                    self-determination movements across countries.
+
+                    Click on a country to explore its
+                    self-determination movements and related
+                    characteristics.
 
                 </p>
 
@@ -246,8 +336,6 @@ function GlobePage() {
                 >
 
                     <Globe
-
-                        ref={globeRef}
 
                         // --------------------------------
                         // Globe appearance
@@ -277,8 +365,21 @@ function GlobePage() {
                         // Country appearance
                         // --------------------------------
 
-                        polygonCapColor={() =>
-                            "#4dabf7"
+                        polygonCapColor={
+                            (country) => {
+
+                                if (
+                                    selectedCountry ===
+                                    country.properties?.name
+                                ) {
+
+                                    return "#ff922b";
+
+                                }
+
+                                return "#4dabf7";
+
+                            }
                         }
 
                         polygonSideColor={() =>
@@ -289,7 +390,22 @@ function GlobePage() {
                             "#ffffff"
                         }
 
-                        polygonAltitude={0.01}
+                        polygonAltitude={
+                            (country) => {
+
+                                if (
+                                    selectedCountry ===
+                                    country.properties?.name
+                                ) {
+
+                                    return 0.04;
+
+                                }
+
+                                return 0.01;
+
+                            }
+                        }
 
 
                         // --------------------------------
@@ -299,19 +415,26 @@ function GlobePage() {
                         polygonLabel={(country) => {
 
                             return `
+
                                 <div
                                     style="
                                         padding: 6px 10px;
                                         background: white;
                                         border-radius: 6px;
                                         color: #222;
-                                        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                                        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                                     "
                                 >
+
                                     <strong>
-                                        ${country.properties?.name || "Unknown"}
+                                        ${
+                                            country.properties?.name ||
+                                            "Unknown"
+                                        }
                                     </strong>
+
                                 </div>
+
                             `;
 
                         }}
@@ -321,7 +444,9 @@ function GlobePage() {
                         // Country click
                         // --------------------------------
 
-                        onPolygonClick={handlePolygonClick}
+                        onPolygonClick={
+                            handleCountryClick
+                        }
 
                     />
 
@@ -362,132 +487,624 @@ function GlobePage() {
 
 
             {/* ========================================
-                Country Details Side Panel (Offcanvas)
+                Selected Country
             ======================================== */}
 
-            <Offcanvas
-                show={!!selectedCountry}
-                onHide={() => setSelectedCountry(null)}
-                placement="end"
-                className="rounded-start-4 shadow-lg"
-                style={{ width: "420px" }}
-            >
-                <Offcanvas.Header closeButton className="border-bottom">
-                    <Offcanvas.Title className="fw-bold text-primary">
-                        🌍 {selectedCountry}
-                    </Offcanvas.Title>
-                </Offcanvas.Header>
+            {selectedCountry && (
 
-                <Offcanvas.Body>
+                <Card
+                    className="shadow-sm border-0 rounded-4 p-4 mt-4"
+                >
+
+                    <h3 className="fw-bold text-primary mb-3">
+
+                        {selectedCountry}
+
+                    </h3>
+
+
+                    {/* ========================================
+                        Details Loading
+                    ======================================== */}
 
                     {detailsLoading && (
-                        <div className="text-center py-5">
-                            <Spinner animation="border" variant="primary" />
-                            <p className="mt-2 text-muted">Loading country details...</p>
+
+                        <div className="text-center py-4">
+
+                            <Spinner
+                                animation="border"
+                                variant="primary"
+                            />
+
+                            <p className="text-muted mt-3">
+
+                                Loading country information...
+
+                            </p>
+
                         </div>
+
                     )}
+
+
+                    {/* ========================================
+                        Details Error
+                    ======================================== */}
 
                     {detailsError && (
-                        <Alert variant="warning">
+
+                        <Alert variant="danger">
+
                             {detailsError}
+
                         </Alert>
+
                     )}
 
-                    {countryDetails?.summary && (
+
+                    {/* ========================================
+                        Country Details
+                    ======================================== */}
+
+                    {countryDetails &&
+                        !detailsLoading &&
+                        !detailsError && (
+
                         <>
-                            {/* Level 2: Country Summary Card */}
-                            <Card className="border-0 bg-light rounded-3 p-3 mb-4">
-                                <h6 className="fw-bold text-dark mb-3">Country Summary</h6>
 
-                                <p className="small mb-2">
-                                    <strong>Ethnic Groups: </strong>
-                                    <span className="text-muted">{countryDetails.summary.ethnic_groups || "N/A"}</span>
-                                </p>
+                            {/* ========================================
+                                Level 2 - Country Summary
+                            ======================================== */}
 
-                                <hr className="my-2" />
+                            <h4 className="fw-bold mb-3">
 
-                                <Row className="g-2 text-center mt-1">
-                                    <Col xs={6}>
-                                        <div className="p-2 bg-white rounded border">
-                                            <div className="small text-muted">Total SDMs</div>
-                                            <div className="fw-bold fs-5 text-primary">{countryDetails.summary.total_sdms || 0}</div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="p-2 bg-white rounded border">
-                                            <div className="small text-muted">Sovereignty</div>
-                                            <div className="fw-bold fs-5 text-success">{countryDetails.summary.sovereignty_count || 0}</div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="p-2 bg-white rounded border">
-                                            <div className="small text-muted">Violent</div>
-                                            <div className="fw-bold fs-5 text-danger">{countryDetails.summary.violent_count || 0}</div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="p-2 bg-white rounded border">
-                                            <div className="small text-muted">Peaceful</div>
-                                            <div className="fw-bold fs-5 text-info">{countryDetails.summary.remained_peaceful_count || 0}</div>
-                                        </div>
-                                    </Col>
-                                </Row>
+                                Country Summary
 
-                                <div className="d-flex justify-content-between mt-3 small">
-                                    <span>Concessions: <strong>{countryDetails.summary.concessions_count || 0}</strong></span>
-                                    <span>Restrictions: <strong>{countryDetails.summary.restrictions_count || 0}</strong></span>
-                                </div>
-                            </Card>
+                            </h4>
 
-                            {/* Level 3: Movement Records List */}
-                            <h6 className="fw-bold text-dark mb-3">
-                                Movement Records ({countryDetails.movements?.length || 0})
-                            </h6>
 
-                            {countryDetails.movements?.length === 0 ? (
-                                <p className="text-muted small">No movement records found.</p>
-                            ) : (
-                                countryDetails.movements?.map((m, idx) => (
-                                    <Card key={idx} className="mb-3 border-start border-4 border-primary shadow-sm rounded-3">
-                                        <Card.Body className="p-3">
-                                            <h6 className="fw-bold text-primary mb-2">{m.group_name}</h6>
+                            <Row className="g-3">
 
-                                            <div className="small mb-1">
-                                                <strong>Claim:</strong> {m.domclaim || "N/A"}
-                                            </div>
 
-                                            <div className="small mb-1">
-                                                <strong>Group Size:</strong> {m.groupsize || "N/A"}
-                                            </div>
+                                {/* Ethnic Groups */}
 
-                                            <div className="small mb-1">
-                                                <strong>Power Status:</strong> {m.pwrstat || "N/A"}
-                                            </div>
+                                <Col md={12}>
 
-                                            <div className="d-flex gap-1 flex-wrap my-2">
-                                                <Badge bg={m.sovdec === 1 ? "success" : "secondary"}>
-                                                    Sov Dec: {m.sovdec === 1 ? "Yes" : "No"}
-                                                </Badge>
-                                                <Badge bg={m.violsd === 1 ? "danger" : "info"}>
-                                                    Violence: {m.violsd === 1 ? "Yes" : "No"}
-                                                </Badge>
-                                                <Badge bg={m.con === 1 ? "primary" : "secondary"}>
-                                                    Concession: {m.con === 1 ? "Yes" : "No"}
-                                                </Badge>
-                                            </div>
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
 
-                                            <div className="text-muted mt-2" style={{ fontSize: "11px" }}>
-                                                Duration: {m.start_year || "N/A"} - {m.end_year || "Present"}
-                                            </div>
-                                        </Card.Body>
+                                        <h6 className="fw-bold">
+
+                                            Ethnic Groups
+
+                                        </h6>
+
+                                        <p className="mb-0">
+
+                                            {
+                                                countryDetails.summary?.ethnic_groups ||
+                                                "N/A"
+                                            }
+
+                                        </p>
+
                                     </Card>
-                                ))
+
+                                </Col>
+
+
+                                {/* Total SDMs */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Total SDMs
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.total_sdms ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Sovereignty */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Sovereignty Declarations
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.sovereignty_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Violence */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Movements Experiencing Violence
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.violent_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Started Violence */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Movements Starting Violence
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.started_violent_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Peaceful */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Remained Peaceful
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.remained_peaceful_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Concessions */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Concessions Received
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.concessions_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+
+                                {/* Restrictions */}
+
+                                <Col md={4}>
+
+                                    <Card
+                                        className="border-0 bg-light p-3 h-100"
+                                    >
+
+                                        <h6 className="fw-bold">
+
+                                            Restrictions Faced
+
+                                        </h6>
+
+                                        <h3>
+
+                                            {
+                                                countryDetails.summary?.restrictions_count ??
+                                                0
+                                            }
+
+                                        </h3>
+
+                                    </Card>
+
+                                </Col>
+
+                            </Row>
+
+
+                            {/* ========================================
+                                Level 3 - Movement Records
+                            ======================================== */}
+
+                            <hr className="my-5" />
+
+                            <h4 className="fw-bold mb-2">
+
+                                Movement Records
+
+                            </h4>
+
+                            <p className="text-muted">
+
+                                Each movement is shown once. Claim types
+                                include all distinct claims recorded during
+                                the movement's observed period.
+
+                            </p>
+
+
+                            {/* Methodological Note */}
+
+                            <Alert
+                                variant="light"
+                                className="border"
+                            >
+
+                                <strong>
+                                    Methodological Note:
+                                </strong>
+
+                                <br />
+
+                                Group size, group concentration, and
+                                power status represent the latest recorded
+                                values for each movement in the SDM dataset.
+                                These values are taken from the most recent
+                                available observation year for each movement.
+
+                                <br />
+                                <br />
+
+                                Claim types include all distinct claims
+                                recorded across the movement's observed
+                                period.
+
+                                <br />
+                                <br />
+
+                                For movements that were still ongoing at
+                                the end of the study period, an end year
+                                of 2020 indicates that the movement remained
+                                active through the end of the dataset.
+                                Cases coded as 8888 are displayed as
+                                unavailable because a consistent end year
+                                could not be determined.
+
+                            </Alert>
+
+
+                            {/* ========================================
+                                Movement Records
+                            ======================================== */}
+
+                            {countryDetails.movements &&
+                                countryDetails.movements.length > 0 ? (
+
+                                <div className="table-responsive">
+
+                                    <table
+                                        className="table table-bordered table-hover align-middle"
+                                    >
+
+                                        <thead className="table-light">
+
+                                            <tr>
+
+                                                <th>
+                                                    Ethnic Group
+                                                </th>
+
+                                                <th>
+                                                    Region
+                                                </th>
+
+                                                <th>
+                                                    Claim Types
+                                                </th>
+
+                                                <th>
+                                                    Group Size
+                                                </th>
+
+                                                <th>
+                                                    Group Concentration
+                                                </th>
+
+                                                <th>
+                                                    Power Status
+                                                </th>
+
+                                                <th>
+                                                    Sovereignty
+                                                </th>
+
+                                                <th>
+                                                    Experienced Violence
+                                                </th>
+
+                                                <th>
+                                                    Started Violence
+                                                </th>
+
+                                                <th>
+                                                    Concession
+                                                </th>
+
+                                                <th>
+                                                    Restriction
+                                                </th>
+
+                                                <th>
+                                                    Start Year
+                                                </th>
+
+                                                <th>
+                                                    End Year
+                                                </th>
+
+                                            </tr>
+
+                                        </thead>
+
+
+                                        <tbody>
+
+                                            {
+                                                countryDetails.movements.map(
+                                                    (movement, index) => (
+
+                                                        <tr
+                                                            key={
+                                                                movement.group_id ||
+                                                                index
+                                                            }
+                                                        >
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.group_name ||
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.region ||
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.claim_types ||
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.group_size ??
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.group_concentration ??
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.power_status ??
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    binaryLabel(
+                                                                        movement.sovereignty_declared
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    binaryLabel(
+                                                                        movement.experienced_violence
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    binaryLabel(
+                                                                        movement.started_violence
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    binaryLabel(
+                                                                        movement.received_concession
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    binaryLabel(
+                                                                        movement.faced_restriction
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    movement.start_year ??
+                                                                    "N/A"
+                                                                }
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                {
+                                                                    formatEndYear(
+                                                                        movement.end_year
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                    )
+                                                )
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                            ) : (
+
+                                <Alert variant="secondary">
+
+                                    No movement records were found
+                                    for this country.
+
+                                </Alert>
+
                             )}
+
                         </>
+
                     )}
 
-                </Offcanvas.Body>
-            </Offcanvas>
+                </Card>
+
+            )}
 
         </Container>
 

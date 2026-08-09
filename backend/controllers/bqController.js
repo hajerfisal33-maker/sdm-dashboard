@@ -917,9 +917,8 @@ exports.globeCountries = async (req, res) => {
 };
 
 // جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
-import db from "../config/db.js"; // تأكدي من صحة المسار
-import * as queries from "../queries/queries.js"; // تأكدي من صحة المسار
-
+const db = require("../config/db");
+const queries = require("../queries/queries");
 export const getCountryDetails = async (req, res) => {
   try {
     const { countryName } = req.params;
