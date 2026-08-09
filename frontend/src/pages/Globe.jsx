@@ -1,14 +1,56 @@
 import { useState } from "react";
-import { Container, Card, Row, Col, Badge } from "react-bootstrap";
+import GlobeComponent from "react-globe.gl";
+import { Container, Card, Badge } from "react-bootstrap";
 
 function Globe() {
 
     const [selectedCountry, setSelectedCountry] = useState(null);
 
+    // بيانات تجريبية مؤقتة
+    // حنربطها بالـ Node.js API بعدين
+    const countries = [
+        {
+            id: 1,
+            name: "Sudan",
+            lat: 15.5007,
+            lng: 32.5599,
+            movements: 5
+        },
+        {
+            id: 2,
+            name: "United Kingdom",
+            lat: 55.3781,
+            lng: -3.4360,
+            movements: 8
+        },
+        {
+            id: 3,
+            name: "India",
+            lat: 20.5937,
+            lng: 78.9629,
+            movements: 12
+        },
+        {
+            id: 4,
+            name: "Spain",
+            lat: 40.4637,
+            lng: -3.7492,
+            movements: 4
+        },
+        {
+            id: 5,
+            name: "Canada",
+            lat: 56.1304,
+            lng: -106.3468,
+            movements: 6
+        }
+    ];
+
     return (
         <Container className="mt-5 mb-5">
 
-            {/* Header */}
+            {/* ================= Header ================= */}
+
             <div className="mb-4">
 
                 <Badge
@@ -30,44 +72,105 @@ function Globe() {
 
             </div>
 
-            {/* Globe */}
-            <Card className="shadow-sm border-0 rounded-4 p-4 mb-4">
 
-                <h4 className="fw-bold mb-3">
+            {/* ================= Globe ================= */}
+
+            <Card className="shadow-sm border-0 rounded-4 p-3 mb-4">
+
+                <h4 className="fw-bold px-2 pt-2">
                     Interactive Globe
                 </h4>
 
+                <p className="text-muted px-2">
+                    Rotate the globe and select a country to explore
+                    self-determination movements.
+                </p>
+
                 <div
                     style={{
-                        height: "600px",
-                        background: "#f8f9fa",
-                        borderRadius: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
+                        width: "100%",
+                        height: "650px",
+                        overflow: "hidden"
                     }}
                 >
 
-                    <h2 className="text-muted">
-                        🌍 Interactive Globe
-                    </h2>
+                    <GlobeComponent
+
+                        width={window.innerWidth > 1200 ? 1100 : 700}
+                        height={600}
+
+                        backgroundColor="#ffffff"
+
+                        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+
+                        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+
+                        showAtmosphere={true}
+
+                        atmosphereColor="#4da6ff"
+
+                        atmosphereAltitude={0.15}
+
+
+                        /* ================= Country Points ================= */
+
+                        pointsData={countries}
+
+                        pointLat="lat"
+
+                        pointLng="lng"
+
+                        pointAltitude={0.02}
+
+                        pointRadius={0.5}
+
+                        pointColor={() => "#dc3545"}
+
+                        pointLabel={(country) => `
+                            <div>
+                                <strong>${country.name}</strong>
+                                <br/>
+                                Movements: ${country.movements}
+                            </div>
+                        `}
+
+                        onPointClick={(country) => {
+
+                            setSelectedCountry(country);
+
+                        }}
+
+                    />
 
                 </div>
 
             </Card>
 
-            {/* Country Information */}
+
+            {/* ================= Selected Country ================= */}
+
             {selectedCountry && (
 
                 <Card className="shadow-sm border-0 rounded-4 p-4">
 
-                    <h3 className="fw-bold">
-                        {selectedCountry}
-                    </h3>
+                    <Badge
+                        bg="success"
+                        className="mb-2"
+                    >
+                        Selected Country
+                    </Badge>
+
+                    <h2 className="fw-bold">
+                        {selectedCountry.name}
+                    </h2>
 
                     <p className="text-muted">
-                        Country information will appear here.
+                        Number of self-determination movements:
                     </p>
+
+                    <h3 className="fw-bold text-primary">
+                        {selectedCountry.movements}
+                    </h3>
 
                 </Card>
 
