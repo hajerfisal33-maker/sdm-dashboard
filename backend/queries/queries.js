@@ -371,14 +371,11 @@ filterYears: `
     ORDER BY year;
 `,
 globeCountries: `
-    SELECT DISTINCT
-        c.country_id,
-        c.country_name,
-        eg.region
-    FROM countries c
-    INNER JOIN ethnic_groups eg
-        ON c.country_id = eg.country_id
-    ORDER BY c.country_name;
+  SELECT DISTINCT
+    c.country_id,
+    c.country_name
+  FROM countries c
+  ORDER BY c.country_name;
 `,
 
 
