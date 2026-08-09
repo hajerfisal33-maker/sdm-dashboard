@@ -60,33 +60,27 @@ function GlobePage() {
     }, []);
 
     // ========================================
-    // Match database countries
-    // with GeoJSON countries
-    // ========================================
+// Match database countries
+// with GeoJSON countries
+// ========================================
 
-    const globeCountries = useMemo(() => {
-
-        if (!countries.length) {
-            return [];
-        }
-
-      const globeCountries = useMemo(() => {
+const globeCountries = useMemo(() => {
 
     if (!countries.length) {
         return [];
     }
 
-    const countryMap = new Map(
-        countries.map(country => [
-            country.country_name
-                ?.trim()
-                .toLowerCase(),
-            country
-        ])
-    );
+    const databaseCountryNames =
+        new Set(
+            countries.map(country =>
+                country.country_name
+                    ?.trim()
+                    .toLowerCase()
+            )
+        );
 
-    return countriesGeoJSON.features
-        .filter(feature => {
+    return countriesGeoJSON.features.filter(
+        feature => {
 
             const geoName =
                 feature.properties?.name;
@@ -95,31 +89,16 @@ function GlobePage() {
                 return false;
             }
 
-            return countryMap.has(
+            return databaseCountryNames.has(
                 geoName
                     .trim()
                     .toLowerCase()
             );
 
-        })
-        .map(feature => {
-
-            const geoName =
-                feature.properties?.name
-                    ?.trim()
-                    .toLowerCase();
-
-            return {
-                ...feature,
-                databaseCountry:
-                    countryMap.get(geoName)
-            };
-
-        });
+        }
+    );
 
 }, [countries]);
-
-    }, [countries]);
 
     // ========================================
     // Loading
