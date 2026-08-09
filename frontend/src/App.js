@@ -45,6 +45,7 @@ function App() {
 
                 <Route path="/bq7" element={<GroupCharacteristics />} />
 
+                <Route path="/globe" element={<Globe />} />
             </Routes>
 
         </BrowserRouter>
