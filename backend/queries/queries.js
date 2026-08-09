@@ -378,12 +378,12 @@ globeCountries: `
   ORDER BY c.country_name;
 `,
 
-// 1. استعلام ملخص الدولة والإحصائيات (Level 2 Summary)
+// 1. ملخص الدولة (Level 2)
   countrySummary: `
     SELECT 
       c.country_name,
       GROUP_CONCAT(DISTINCT eg.group_name SEPARATOR ', ') AS ethnic_groups,
-      COUNT(DISTINCT mo.sdm_id) AS total_sdms,
+      COUNT(mo.group_id) AS total_sdms,
       SUM(CASE WHEN mo.sovdec = 1 THEN 1 ELSE 0 END) AS sovereignty_count,
       SUM(CASE WHEN mo.violsd = 1 THEN 1 ELSE 0 END) AS violent_count,
       SUM(CASE WHEN mo.violsd_onset = 1 THEN 1 ELSE 0 END) AS started_violent_count,
@@ -397,11 +397,10 @@ globeCountries: `
     GROUP BY c.country_id, c.country_name;
   `,
 
-  // 2. استعلام تفاصيل الحركات الخاصة بالدولة (Level 3 Movement Records)
+  // 2. سجلات الحركات (Level 3)
   countryMovements: `
     SELECT 
       eg.group_name,
-      mo.sdm_id,
       mo.domclaim,
       mo.groupsize,
       mo.pwrstat,
@@ -417,8 +416,7 @@ globeCountries: `
     INNER JOIN movement_observations mo ON eg.group_id = mo.group_id
     WHERE c.country_name = ?
     ORDER BY mo.sdm_startdate1 ASC;
-  `
-
+  `,
 
 
 };
