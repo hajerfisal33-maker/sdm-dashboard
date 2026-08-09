@@ -13,6 +13,7 @@ import PatternsOfViolence from "./pages/PatternsOfViolence";
 import GovernmentConcessions from "./pages/GovernmentConcessions";
 import GovernmentRestrictions from "./pages/GovernmentRestrictions";
 import GroupCharacteristics from "./pages/GroupCharacteristics";
+import Globe from "./pages/Globe";
 
 function App() {
 
