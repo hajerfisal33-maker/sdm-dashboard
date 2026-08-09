@@ -919,7 +919,7 @@ exports.globeCountries = async (req, res) => {
 // جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
 
 
-exports.getCountryDetails = async (req, res) => {
+exports. countryMovementsDetails = async (req, res) => {
     try {
         const { countryName } = req.params;
 

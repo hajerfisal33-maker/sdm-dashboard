@@ -75,11 +75,17 @@ router.get("/filters/years", controller.filterYears);
 
 router.get("/filters/claims", controller.filterClaims);
 // Route for the Globe page
+
+
 router.get("/globe/countries", controller.globeCountries);
 
-router.get(
-    "/country-details/:countryName",
-    controller.getCountryDetails
-);
+
+
+router.get("/country-details/:countryName",controller.getCountryDetails)
+
+
+
+
+
 
 module.exports = router;

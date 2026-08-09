@@ -380,7 +380,7 @@ globeCountries: `
 
 // 1. ملخص الدولة (Level 2)
   // 1. ملخص الدولة (Level 2)
- countryMovementsQuery: `
+ countrySummaryQuery: `
     WITH movement_claims AS (
         SELECT
             group_id,
@@ -508,10 +508,9 @@ globeCountries: `
     WHERE c.country_name = ?
 
     ORDER BY start_year ASC;
-`,
+  `,
 
-// 2. تفاصيل حركات الدولة (Level 3)
-
+  // 2. تفاصيل حركات الدولة (Level 3)
   countryMovementsQuery: `
     WITH movement_claims AS (
         SELECT
