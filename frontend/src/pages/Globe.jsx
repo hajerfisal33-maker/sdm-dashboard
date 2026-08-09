@@ -3,7 +3,7 @@ import Globe from "react-globe.gl";
 import { Container, Card, Spinner, Alert, Row, Col } from "react-bootstrap";
 
 import api from "../services/api";
-import countriesGeoJSON from "../data/countries.geojson";
+import countriesJSON from "../data/countries.json";
 
 function GlobePage() {
 
@@ -89,7 +89,7 @@ function GlobePage() {
                 )
             );
 
-        return countriesGeoJSON.features.filter(
+        return countriesJSON.features.filter(
             feature => {
 
                 const geoName =
