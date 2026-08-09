@@ -870,3 +870,21 @@ exports.filterClaims = async (req, res) => {
         res.status(500).json(error);
     }
 };
+//Globe Country==============================================
+exports.globeCountries = async (req, res) => {
+    try {
+
+        const [rows] = await db.query(queries.globeCountries);
+
+        res.json(rows);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to load globe countries"
+        });
+
+    }
+};
