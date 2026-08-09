@@ -917,12 +917,14 @@ exports.globeCountries = async (req, res) => {
 };
 
 // جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
-exports.getCountryDetails = async (req, res) => {
+import db from "../config/db.js"; // تأكدي من صحة المسار
+import * as queries from "../queries/queries.js"; // تأكدي من صحة المسار
+
+export const getCountryDetails = async (req, res) => {
   try {
     const { countryName } = req.params;
 
-    // تطبيق الـ Reverse Mapping إذا كانت الدولة قادمة باسم الـ GeoJSON
-    // لضمان استعلام قاعدة البيانات باسمها الأصلي
+    // تطبيق الـ Reverse Mapping
     const reverseMapping = {
       "Bosnia and Herz.": "Bosnia",
       "Central African Rep.": "Central African Republic",
@@ -945,16 +947,17 @@ exports.getCountryDetails = async (req, res) => {
     const [summaryRows] = await db.query(queries.countrySummaryQuery, [dbCountryName]);
     const [movementRows] = await db.query(queries.countryMovementsQuery, [dbCountryName]);
 
-    if (!summaryRows || summaryRows.length === 0) {
+    if (!summaryRows || summaryRows.length === 0 || !summaryRows[0].country_name) {
       return res.status(404).json({ message: "لم يتم العثور على بيانات لهذه الدولة" });
     }
 
     return res.json({
       summary: summaryRows[0],
-      movements: movementRows
+      movements: movementRows || []
     });
+
   } catch (error) {
     console.error("Error fetching country details:", error);
-    res.status(500).json({ error: "حدث خطأ أثناء استرجاع بيانات الدولة" });
+    res.status(500).json({ error: error.message || "حدث خطأ أثناء استرجاع بيانات الدولة" });
   }
 };
