@@ -379,45 +379,46 @@ globeCountries: `
 `,
 
 // 1. ملخص الدولة (Level 2)
-  countrySummary: `
-    SELECT 
-      c.country_name,
-      GROUP_CONCAT(DISTINCT eg.group_name SEPARATOR ', ') AS ethnic_groups,
-      COUNT(mo.group_id) AS total_sdms,
-      SUM(CASE WHEN mo.sovdec = 1 THEN 1 ELSE 0 END) AS sovereignty_count,
-      SUM(CASE WHEN mo.violsd = 1 THEN 1 ELSE 0 END) AS violent_count,
-      SUM(CASE WHEN mo.violsd_onset = 1 THEN 1 ELSE 0 END) AS started_violent_count,
-      SUM(CASE WHEN mo.violsd = 0 THEN 1 ELSE 0 END) AS remained_peaceful_count,
-      SUM(CASE WHEN mo.con = 1 THEN 1 ELSE 0 END) AS concessions_count,
-      SUM(CASE WHEN mo.res = 1 THEN 1 ELSE 0 END) AS restrictions_count
-    FROM countries c
-    LEFT JOIN ethnic_groups eg ON c.country_id = eg.country_id
-    LEFT JOIN movement_observations mo ON eg.group_id = mo.group_id
-    WHERE c.country_name = ?
-    GROUP BY c.country_id, c.country_name;
-  `,
+  // 1. ملخص الدولة (Level 2)
+ countrySummaryQuery :`
+  SELECT 
+    c.country_name,
+    GROUP_CONCAT(DISTINCT eg.group_name SEPARATOR ', ') AS ethnic_groups,
+    COUNT(DISTINCT mo.group_id) AS total_sdms,
+    SUM(CASE WHEN mo.sovdec = 1 THEN 1 ELSE 0 END) AS sovereignty_count,
+    SUM(CASE WHEN mo.violsd = 1 THEN 1 ELSE 0 END) AS violent_count,
+    SUM(CASE WHEN mo.violsd_onset = 1 THEN 1 ELSE 0 END) AS started_violent_count,
+    SUM(CASE WHEN mo.violsd = 0 THEN 1 ELSE 0 END) AS remained_peaceful_count,
+    SUM(CASE WHEN mo.con = 1 THEN 1 ELSE 0 END) AS concessions_count,
+    SUM(CASE WHEN mo.res = 1 THEN 1 ELSE 0 END) AS restrictions_count
+  FROM countries c
+  LEFT JOIN ethnic_groups eg ON c.country_id = eg.country_id
+  LEFT JOIN movement_observations mo ON eg.group_id = mo.group_id
+  WHERE c.country_name = ?
+  GROUP BY c.country_id, c.country_name;
+`,
 
-  // 2. سجلات الحركات (Level 3)
-  countryMovements: `
-    SELECT 
-      eg.group_name,
-      mo.domclaim,
-      mo.groupsize,
-      mo.pwrstat,
-      mo.sovdec,
-      mo.violsd,
-      mo.violsd_onset,
-      mo.con,
-      mo.res,
-      mo.sdm_startdate1 AS start_year,
-      mo.sdm_enddate1 AS end_year
-    FROM countries c
-    INNER JOIN ethnic_groups eg ON c.country_id = eg.country_id
-    INNER JOIN movement_observations mo ON eg.group_id = mo.group_id
-    WHERE c.country_name = ?
-    ORDER BY mo.sdm_startdate1 ASC;
-  `,
-
+// 2. تفاصيل حركات الدولة (Level 3)
+ countryMovementsQuery : `
+  SELECT 
+    eg.group_name,
+    eg.region,
+    mo.domclaim,
+    mo.groupsize,
+    mo.pwrstat,
+    mo.sovdec,
+    mo.violsd,
+    mo.violsd_onset,
+    mo.con,
+    mo.res,
+    mo.sdm_startdate1 AS start_year,
+    mo.sdm_enddate1 AS end_year
+  FROM countries c
+  INNER JOIN ethnic_groups eg ON c.country_id = eg.country_id
+  INNER JOIN movement_observations mo ON eg.group_id = mo.group_id
+  WHERE c.country_name = ?
+  ORDER BY mo.sdm_startdate1 ASC;
+`,
 
 };
 

@@ -942,8 +942,8 @@ exports.getCountryDetails = async (req, res) => {
     const dbCountryName = reverseMapping[countryName] || countryName;
 
     // تنفيذ الاستعلامين
-    const [summaryRows] = await db.query(queries.countrySummary, [dbCountryName]);
-    const [movementRows] = await db.query(queries.countryMovements, [dbCountryName]);
+    const [summaryRows] = await db.query(queries.countrySummaryQuery, [dbCountryName]);
+    const [movementRows] = await db.query(queries.countryMovementsQuery, [dbCountryName]);
 
     if (!summaryRows || summaryRows.length === 0) {
       return res.status(404).json({ message: "لم يتم العثور على بيانات لهذه الدولة" });
