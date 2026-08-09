@@ -917,46 +917,71 @@ exports.globeCountries = async (req, res) => {
 };
 
 // جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
-const db = require("../config/db");
-const queries = require("../queries/queries");
-export const getCountryDetails = async (req, res) => {
-  try {
-    const { countryName } = req.params;
 
-    // تطبيق الـ Reverse Mapping
-    const reverseMapping = {
-      "Bosnia and Herz.": "Bosnia",
-      "Central African Rep.": "Central African Republic",
-      "Dem. Rep. Congo": "Congo-Zaire",
-      "Côte d'Ivoire": "Cote d'Ivoire",
-      "Czech Rep.": "Czechia",
-      "Eq. Guinea": "Equatorial Guinea",
-      "Lao PDR": "Laos",
-      "Russia": "Russia (USSR)",
-      "Serbia": "Serbia (Yugoslavia)",
-      "Solomon Is.": "Solomon Islands",
-      "S. Sudan": "South Sudan",
-      "Trinidad and Tobago": "Trinidad & Tobago",
-      "Vietnam": "South Vietnam"
-    };
 
-    const dbCountryName = reverseMapping[countryName] || countryName;
+exports.getCountryDetails = async (req, res) => {
+    try {
+        const { countryName } = req.params;
 
-    // تنفيذ الاستعلامين
-    const [summaryRows] = await db.query(queries.countrySummaryQuery, [dbCountryName]);
-    const [movementRows] = await db.query(queries.countryMovementsQuery, [dbCountryName]);
+        // تطبيق الـ Reverse Mapping
+        const reverseMapping = {
+            "Bosnia and Herz.": "Bosnia",
+            "Central African Rep.": "Central African Republic",
+            "Dem. Rep. Congo": "Congo-Zaire",
+            "Côte d'Ivoire": "Cote d'Ivoire",
+            "Czech Rep.": "Czechia",
+            "Eq. Guinea": "Equatorial Guinea",
+            "Lao PDR": "Laos",
+            "Russia": "Russia (USSR)",
+            "Serbia": "Serbia (Yugoslavia)",
+            "Solomon Is.": "Solomon Islands",
+            "S. Sudan": "South Sudan",
+            "Trinidad and Tobago": "Trinidad & Tobago",
+            "Vietnam": "South Vietnam"
+        };
 
-    if (!summaryRows || summaryRows.length === 0 || !summaryRows[0].country_name) {
-      return res.status(404).json({ message: "لم يتم العثور على بيانات لهذه الدولة" });
+        const dbCountryName =
+            reverseMapping[countryName] || countryName;
+
+        // تنفيذ الاستعلامين
+        const [summaryRows] = await db.query(
+            queries.countrySummaryQuery,
+            [dbCountryName]
+        );
+
+        const [movementRows] = await db.query(
+            queries.countryMovementsQuery,
+            [dbCountryName]
+        );
+
+        // التأكد من وجود بيانات الدولة
+        if (
+            !summaryRows ||
+            summaryRows.length === 0 ||
+            !summaryRows[0].country_name
+        ) {
+            return res.status(404).json({
+                message: "لم يتم العثور على بيانات لهذه الدولة"
+            });
+        }
+
+        // إرسال البيانات للـ Frontend
+        return res.json({
+            summary: summaryRows[0],
+            movements: movementRows || []
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error fetching country details:",
+            error
+        );
+
+        res.status(500).json({
+            error:
+                error.message ||
+                "حدث خطأ أثناء استرجاع بيانات الدولة"
+        });
     }
-
-    return res.json({
-      summary: summaryRows[0],
-      movements: movementRows || []
-    });
-
-  } catch (error) {
-    console.error("Error fetching country details:", error);
-    res.status(500).json({ error: error.message || "حدث خطأ أثناء استرجاع بيانات الدولة" });
-  }
 };
