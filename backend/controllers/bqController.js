@@ -915,3 +915,46 @@ exports.globeCountries = async (req, res) => {
 
     }
 };
+
+// جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
+export const getCountryDetails = async (req, res) => {
+  try {
+    const { countryName } = req.params;
+
+    // تطبيق الـ Reverse Mapping إذا كانت الدولة قادمة باسم الـ GeoJSON
+    // لضمان استعلام قاعدة البيانات باسمها الأصلي
+    const reverseMapping = {
+      "Bosnia and Herz.": "Bosnia",
+      "Central African Rep.": "Central African Republic",
+      "Dem. Rep. Congo": "Congo-Zaire",
+      "Côte d'Ivoire": "Cote d'Ivoire",
+      "Czech Rep.": "Czechia",
+      "Eq. Guinea": "Equatorial Guinea",
+      "Lao PDR": "Laos",
+      "Russia": "Russia (USSR)",
+      "Serbia": "Serbia (Yugoslavia)",
+      "Solomon Is.": "Solomon Islands",
+      "S. Sudan": "South Sudan",
+      "Trinidad and Tobago": "Trinidad & Tobago",
+      "Vietnam": "South Vietnam"
+    };
+
+    const dbCountryName = reverseMapping[countryName] || countryName;
+
+    // تنفيذ الاستعلامين
+    const [summaryRows] = await db.query(queries.countrySummary, [dbCountryName]);
+    const [movementRows] = await db.query(queries.countryMovements, [dbCountryName]);
+
+    if (!summaryRows || summaryRows.length === 0) {
+      return res.status(404).json({ message: "لم يتم العثور على بيانات لهذه الدولة" });
+    }
+
+    return res.json({
+      summary: summaryRows[0],
+      movements: movementRows
+    });
+  } catch (error) {
+    console.error("Error fetching country details:", error);
+    res.status(500).json({ error: "حدث خطأ أثناء استرجاع بيانات الدولة" });
+  }
+};
