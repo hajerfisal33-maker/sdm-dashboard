@@ -801,10 +801,7 @@ function GlobePage() {
                                         >
 
                                    <small className="text-muted">
-    Latest Status:{" "}
-    {movement.remained_peaceful === 1
-        ? "Remained Peaceful"
-        : "Violence Recorded"}
+    Movements with Peaceful Latest Status
 </small>
 
                                             <h3 className="fw-bold">
