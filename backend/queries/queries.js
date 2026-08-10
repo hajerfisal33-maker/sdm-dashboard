@@ -543,6 +543,12 @@ globeCountries: `
             THEN 1
             ELSE 0
         END AS started_violence,
+/* Peaceful in the latest recorded observation */
+        CASE
+    WHEN lo.violsd = 0
+        THEN 1
+    ELSE 0
+END AS remained_peaceful,
 
         /* Concession received at any point */
         CASE

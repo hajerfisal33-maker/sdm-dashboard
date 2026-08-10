@@ -802,7 +802,7 @@ function GlobePage() {
 
                                             <small className="text-muted">
 
-                                                Remained Peaceful
+                                                 Latest Status
 
                                             </small>
 
