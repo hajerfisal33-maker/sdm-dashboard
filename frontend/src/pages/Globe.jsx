@@ -651,227 +651,271 @@ function GlobePage() {
                                 LEVEL 2
                             ==================================== */}
 
-                            <div className="mb-4">
+                           {/* ====================================
+    COUNTRY OVERVIEW
+==================================== */}
 
-                                <h5 className="fw-bold text-primary mb-3">
+<div>
 
-                                    Country Overview
+    <h5 className="fw-bold text-primary mb-3">
+        Country Overview
+    </h5>
 
-                                </h5>
 
+    {/* ====================================
+        Ethnic Groups
+    ==================================== */}
 
-                                {/* Ethnic Groups */}
+    <Card
+        className="border-0 bg-light rounded-3 p-3 mb-3"
+    >
 
-                                <Card
-                                    className="border-0 bg-light rounded-3 p-3 mb-3"
-                                >
+        <h6 className="fw-bold mb-2">
+            Ethnic Groups
+        </h6>
 
-                                    <h6 className="fw-bold">
+        <p className="mb-0">
+            {
+                countryDetails.summary?.ethnic_groups ||
+                "N/A"
+            }
+        </p>
 
-                                        Ethnic Groups
+    </Card>
 
-                                    </h6>
 
-                                    <p className="mb-0">
+    {/* ====================================
+        Statistics
+    ==================================== */}
 
-                                        {
-                                            countryDetails.summary
-                                                ?.ethnic_groups ||
-                                            "N/A"
-                                        }
+    <Row className="g-2">
 
-                                    </p>
 
-                                </Card>
+        {/* Total SDMs */}
 
+        <Col xs={6}>
 
-                                {/* Statistics */}
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
-                                <Row className="g-2">
+                <small className="text-muted">
+                    Total SDMs
+                </small>
 
+                <h3 className="fw-bold text-primary mb-0">
+                    {
+                        countryDetails.summary
+                            ?.total_sdms ?? 0
+                    }
+                </h3>
 
-                                    <Col xs={6}>
+            </Card>
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+        </Col>
 
-                                            <small className="text-muted">
 
-                                                Total SDMs
+        {/* Sovereignty */}
 
-                                            </small>
+        <Col xs={6}>
 
-                                            <h3 className="fw-bold text-primary">
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.total_sdms ?? 0
-                                                }
+                <small className="text-muted">
+                    Sovereignty Declarations
+                </small>
 
-                                            </h3>
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.sovereignty_count ?? 0
+                    }
+                </h3>
 
-                                        </Card>
+            </Card>
 
-                                    </Col>
+        </Col>
 
 
-                                    <Col xs={6}>
+        {/* Experienced Violence */}
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+        <Col xs={6}>
 
-                                            <small className="text-muted">
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
-                                                Sovereignty Declarations
+                <small className="text-muted">
+                    Experienced Violence
+                </small>
 
-                                            </small>
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.violent_count ?? 0
+                    }
+                </h3>
 
-                                            <h3 className="fw-bold">
+                <small className="text-muted">
+                    At any point during the observed period
+                </small>
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.sovereignty_count ?? 0
-                                                }
+            </Card>
 
-                                            </h3>
+        </Col>
 
-                                        </Card>
 
-                                    </Col>
+        {/* Started Violence */}
 
+        <Col xs={6}>
 
-                                    <Col xs={6}>
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+                <small className="text-muted">
+                    Started Violence
+                </small>
 
-                                            <small className="text-muted">
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.started_violent_count ?? 0
+                    }
+                </h3>
 
-                                                Experienced Violence
+                <small className="text-muted">
+                    At any point during the observed period
+                </small>
 
-                                            </small>
+            </Card>
 
-                                            <h3 className="fw-bold">
+        </Col>
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.violent_count ?? 0
-                                                }
 
-                                            </h3>
+        {/* Latest Peaceful Status */}
 
-                                        </Card>
+        <Col xs={6}>
 
-                                    </Col>
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
+                <small className="text-muted">
+                    Peaceful Latest Status
+                </small>
 
-                                    <Col xs={6}>
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.remained_peaceful_count ?? 0
+                    }
+                </h3>
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+                <small className="text-muted">
+                    Based on the latest observation
+                </small>
 
-                                            <small className="text-muted">
+            </Card>
 
-                                                Started Violence
+        </Col>
 
-                                            </small>
 
-                                            <h3 className="fw-bold">
+        {/* Concessions */}
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.started_violent_count ?? 0
-                                                }
+        <Col xs={6}>
 
-                                            </h3>
+            <Card
+                className="border-0 bg-light p-3 text-center h-100"
+            >
 
-                                        </Card>
+                <small className="text-muted">
+                    Concessions Received
+                </small>
 
-                                    </Col>
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.concessions_count ?? 0
+                    }
+                </h3>
 
+                <small className="text-muted">
+                    At any point during the observed period
+                </small>
 
-                                    <Col xs={6}>
+            </Card>
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+        </Col>
 
-                                   <small className="text-muted">
-    Movements with Peaceful Latest Status
-</small>
 
-                                            <h3 className="fw-bold">
+        {/* Restrictions */}
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.remained_peaceful_count ?? 0
-                                                }
+        <Col xs={12}>
 
-                                            </h3>
+            <Card
+                className="border-0 bg-light p-3 text-center"
+            >
 
-                                        </Card>
+                <small className="text-muted">
+                    Restrictions Faced
+                </small>
 
-                                    </Col>
+                <h3 className="fw-bold mb-0">
+                    {
+                        countryDetails.summary
+                            ?.restrictions_count ?? 0
+                    }
+                </h3>
 
+                <small className="text-muted">
+                    At any point during the observed period
+                </small>
 
-                                    <Col xs={6}>
+            </Card>
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center h-100"
-                                        >
+        </Col>
 
-                                            <small className="text-muted">
+    </Row>
 
-                                                Concessions Received
 
-                                            </small>
+    {/* ====================================
+        Interpretation Note
+    ==================================== */}
 
-                                            <h3 className="fw-bold">
+    <Alert
+        variant="light"
+        className="border small mt-3 mb-0"
+    >
 
-                                                {
-                                                    countryDetails.summary
-                                                        ?.concessions_count ?? 0
-                                                }
+        <strong>
+            How to read these statistics:
+        </strong>
 
-                                            </h3>
+        <br />
 
-                                        </Card>
+        <strong>Experienced Violence</strong> counts movements
+        that recorded violence at least once during their observed
+        period.
 
-                                    </Col>
+        <br />
 
+        <strong>Started Violence</strong> counts movements for which
+        the onset of violence was recorded at least once.
 
-                                    <Col xs={12}>
+        <br />
 
-                                        <Card
-                                            className="border-0 bg-light p-3 text-center"
-                                        >
+        <strong>Peaceful Latest Status</strong> counts movements whose
+        <strong> most recent observation</strong> recorded
+        <code>violsd = 0</code>. Therefore, a movement may have
+        experienced violence earlier and still appear in this
+        category if its latest recorded status was peaceful.
 
-                                            <small className="text-muted">
+    </Alert>
 
-                                                Restrictions Faced
-
-                                            </small>
-
-                                            <h3 className="fw-bold">
-
-                                                {
-                                                    countryDetails.summary
-                                                        ?.restrictions_count ?? 0
-                                                }
-
-                                            </h3>
-
-                                        </Card>
-
-                                    </Col>
-
-                                </Row>
-
-                            </div>
+</div>
 
 
                             {/* ====================================
