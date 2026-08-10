@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import Globe from "react-globe.gl";
-import { Container, Card, Spinner, Alert, Row, Col } from "react-bootstrap";
+import {
+    Container,
+    Card,
+    Spinner,
+    Alert,
+    Row,
+    Col,
+    Offcanvas,
+    Badge,
+    Button
+} from "react-bootstrap";
 
 import api from "../services/api";
 import countriesJSON from "../data/countries.json";
@@ -25,9 +35,11 @@ function GlobePage() {
 
     const [detailsError, setDetailsError] = useState(null);
 
+    const [showPanel, setShowPanel] = useState(false);
+
 
     // ========================================
-    // Load countries from database
+    // Load countries
     // ========================================
 
     useEffect(() => {
@@ -41,9 +53,7 @@ function GlobePage() {
 
                 setCountries(response.data || []);
 
-            }
-
-            catch (err) {
+            } catch (err) {
 
                 console.error(
                     "Failed to load globe countries:",
@@ -54,9 +64,7 @@ function GlobePage() {
                     "Failed to load countries from the database."
                 );
 
-            }
-
-            finally {
+            } finally {
 
                 setLoading(false);
 
@@ -70,8 +78,7 @@ function GlobePage() {
 
 
     // ========================================
-    // Match database countries
-    // with GeoJSON countries
+    // Match database countries with JSON
     // ========================================
 
     const globeCountries = useMemo(() => {
@@ -112,7 +119,7 @@ function GlobePage() {
 
 
     // ========================================
-    // Load selected country details
+    // Country click
     // ========================================
 
     async function handleCountryClick(country) {
@@ -137,6 +144,8 @@ function GlobePage() {
 
         setDetailsLoading(true);
 
+        setShowPanel(true);
+
         try {
 
             const response =
@@ -148,9 +157,7 @@ function GlobePage() {
                 response.data
             );
 
-        }
-
-        catch (err) {
+        } catch (err) {
 
             console.error(
                 "Failed to load country details:",
@@ -161,13 +168,80 @@ function GlobePage() {
                 "Failed to load data for this country."
             );
 
-        }
-
-        finally {
+        } finally {
 
             setDetailsLoading(false);
 
         }
+
+    }
+
+
+    // ========================================
+    // Close country panel
+    // ========================================
+
+    function handleClosePanel() {
+
+        setShowPanel(false);
+
+    }
+
+
+    // ========================================
+    // Binary values
+    // ========================================
+
+    function binaryLabel(value) {
+
+        if (
+            value === 1 ||
+            value === "1"
+        ) {
+            return "Yes";
+        }
+
+        if (
+            value === 0 ||
+            value === "0"
+        ) {
+            return "No";
+        }
+
+        return "N/A";
+
+    }
+
+
+    // ========================================
+    // End year
+    // ========================================
+
+    function formatEndYear(value) {
+
+        if (
+            value === 9999 ||
+            value === "9999"
+        ) {
+            return "2020";
+        }
+
+        if (
+            value === 8888 ||
+            value === "8888"
+        ) {
+            return "N/A";
+        }
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "N/A";
+        }
+
+        return value;
 
     }
 
@@ -188,9 +262,7 @@ function GlobePage() {
                 />
 
                 <h5 className="mt-3">
-
                     Loading countries...
-
                 </h5>
 
             </Container>
@@ -211,72 +283,12 @@ function GlobePage() {
             <Container className="mt-5">
 
                 <Alert variant="danger">
-
                     {error}
-
                 </Alert>
 
             </Container>
 
         );
-
-    }
-
-
-    // ========================================
-    // Helper for binary values
-    // ========================================
-
-    function binaryLabel(value) {
-
-        if (value === 1 || value === "1") {
-            return "Yes";
-        }
-
-        if (value === 0 || value === "0") {
-            return "No";
-        }
-
-        return "N/A";
-
-    }
-
-
-    // ========================================
-    // Helper for end year
-    // ========================================
-
-    function formatEndYear(value) {
-
-        if (
-            value === 9999 ||
-            value === "9999"
-        ) {
-
-            return "2020";
-
-        }
-
-        if (
-            value === 8888 ||
-            value === "8888"
-        ) {
-
-            return "N/A";
-
-        }
-
-        if (
-            value === null ||
-            value === undefined ||
-            value === ""
-        ) {
-
-            return "N/A";
-
-        }
-
-        return value;
 
     }
 
@@ -298,7 +310,7 @@ function GlobePage() {
                 className="shadow-sm border-0 rounded-4 p-4 mb-4"
             >
 
-                <h2 className="fw-bold text-primary">
+                <h2 className="fw-bold text-primary mb-2">
 
                     Global Distribution of
                     Self-Determination Movements
@@ -309,10 +321,8 @@ function GlobePage() {
 
                     Explore the geographical distribution of
                     self-determination movements across countries.
-
-                    Click on a country to explore its
-                    self-determination movements and related
-                    characteristics.
+                    Click on a country to view its movements,
+                    claims, political characteristics and outcomes.
 
                 </p>
 
@@ -328,7 +338,7 @@ function GlobePage() {
             >
 
                 <div
-                    className="d-flex justify-content-center"
+                    className="d-flex justify-content-center align-items-center"
                     style={{
                         width: "100%",
                         minHeight: "650px"
@@ -336,10 +346,6 @@ function GlobePage() {
                 >
 
                     <Globe
-
-                        // --------------------------------
-                        // Globe appearance
-                        // --------------------------------
 
                         width={900}
 
@@ -353,7 +359,7 @@ function GlobePage() {
 
 
                         // --------------------------------
-                        // Country polygons
+                        // Countries
                         // --------------------------------
 
                         polygonsData={
@@ -362,11 +368,11 @@ function GlobePage() {
 
 
                         // --------------------------------
-                        // Country appearance
+                        // Country colour
                         // --------------------------------
 
                         polygonCapColor={
-                            (country) => {
+                            country => {
 
                                 if (
                                     selectedCountry ===
@@ -382,16 +388,23 @@ function GlobePage() {
                             }
                         }
 
+
                         polygonSideColor={() =>
                             "rgba(0, 0, 0, 0.15)"
                         }
+
 
                         polygonStrokeColor={() =>
                             "#ffffff"
                         }
 
+
+                        // --------------------------------
+                        // Selected country height
+                        // --------------------------------
+
                         polygonAltitude={
-                            (country) => {
+                            country => {
 
                                 if (
                                     selectedCountry ===
@@ -412,32 +425,37 @@ function GlobePage() {
                         // Country label
                         // --------------------------------
 
-                        polygonLabel={(country) => {
+                        polygonLabel={
+                            country => {
 
-                            return `
+                                return `
 
-                                <div
-                                    style="
-                                        padding: 6px 10px;
-                                        background: white;
-                                        border-radius: 6px;
-                                        color: #222;
-                                        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                                    "
-                                >
+                                    <div
+                                        style="
+                                            padding: 7px 12px;
+                                            background: white;
+                                            border-radius: 7px;
+                                            color: #222;
+                                            box-shadow:
+                                                0 3px 12px
+                                                rgba(0,0,0,0.18);
+                                            font-size: 13px;
+                                        "
+                                    >
 
-                                    <strong>
-                                        ${
-                                            country.properties?.name ||
-                                            "Unknown"
-                                        }
-                                    </strong>
+                                        <strong>
+                                            ${
+                                                country.properties?.name ||
+                                                "Unknown"
+                                            }
+                                        </strong>
 
-                                </div>
+                                    </div>
 
-                            `;
+                                `;
 
-                        }}
+                            }
+                        }
 
 
                         // --------------------------------
@@ -452,64 +470,140 @@ function GlobePage() {
 
                 </div>
 
+
+                {/* ========================================
+                    Globe Instructions
+                ======================================== */}
+
+                <div className="text-center mt-2 mb-2">
+
+                    <small className="text-muted">
+
+                        🌍 Drag the globe to explore countries.
+                        Click a country to view detailed SDM information.
+
+                    </small>
+
+                </div>
+
             </Card>
 
 
             {/* ========================================
-                Temporary information
+                Dataset Information
             ======================================== */}
 
             <Card
                 className="shadow-sm border-0 rounded-4 p-4 mt-4"
             >
 
-                <h5 className="fw-bold">
+                <Row className="g-3">
 
-                    Countries Available
+                    <Col md={6}>
 
-                </h5>
+                        <div className="text-center">
 
-                <p className="text-muted mb-0">
+                            <h6 className="text-muted">
+                                Countries in SDM Dataset
+                            </h6>
 
-                    {countries.length} countries are
-                    available in the SDM dataset.
+                            <h3 className="fw-bold text-primary">
 
-                </p>
+                                {countries.length}
 
-                <p className="text-muted mb-0">
+                            </h3>
 
-                    {globeCountries.length} countries
-                    are currently displayed on the globe.
+                        </div>
 
-                </p>
+                    </Col>
+
+
+                    <Col md={6}>
+
+                        <div className="text-center">
+
+                            <h6 className="text-muted">
+                                Countries Displayed
+                            </h6>
+
+                            <h3 className="fw-bold text-primary">
+
+                                {globeCountries.length}
+
+                            </h3>
+
+                        </div>
+
+                    </Col>
+
+                </Row>
 
             </Card>
 
 
-            {/* ========================================
-                Selected Country
-            ======================================== */}
+            {/* =====================================================
+                COUNTRY SIDE PANEL
+            ===================================================== */}
 
-            {selectedCountry && (
+            <Offcanvas
+                show={showPanel}
+                onHide={handleClosePanel}
+                placement="end"
+                scroll
+                backdrop
+                style={{
+                    width: "520px"
+                }}
+            >
 
-                <Card
-                    className="shadow-sm border-0 rounded-4 p-4 mt-4"
+                {/* ========================================
+                    Panel Header
+                ======================================== */}
+
+                <Offcanvas.Header
+                    closeButton
+                    className="border-bottom"
                 >
 
-                    <h3 className="fw-bold text-primary mb-3">
+                    <Offcanvas.Title>
 
-                        {selectedCountry}
+                        <div>
 
-                    </h3>
+                            <div
+                                className="text-primary fw-bold"
+                                style={{
+                                    fontSize: "24px"
+                                }}
+                            >
+
+                                {selectedCountry}
+
+                            </div>
+
+                            <small className="text-muted">
+
+                                Self-Determination Movement
+                                Information
+
+                            </small>
+
+                        </div>
+
+                    </Offcanvas.Title>
+
+                </Offcanvas.Header>
+
+
+                <Offcanvas.Body>
 
 
                     {/* ========================================
-                        Details Loading
+                        Loading Country Details
                     ======================================== */}
 
                     {detailsLoading && (
 
-                        <div className="text-center py-4">
+                        <div className="text-center py-5">
 
                             <Spinner
                                 animation="border"
@@ -528,7 +622,7 @@ function GlobePage() {
 
 
                     {/* ========================================
-                        Details Error
+                        Error
                     ======================================== */}
 
                     {detailsError && (
@@ -543,7 +637,7 @@ function GlobePage() {
 
 
                     {/* ========================================
-                        Country Details
+                        Country Data
                     ======================================== */}
 
                     {countryDetails &&
@@ -552,538 +646,638 @@ function GlobePage() {
 
                         <>
 
-                            {/* ========================================
-                                Level 2 - Country Summary
-                            ======================================== */}
 
-                            <h4 className="fw-bold mb-3">
+                            {/* ====================================
+                                LEVEL 2
+                            ==================================== */}
 
-                                Country Summary
+                            <div className="mb-4">
 
-                            </h4>
+                                <h5 className="fw-bold text-primary mb-3">
 
+                                    Country Overview
 
-                            <Row className="g-3">
+                                </h5>
 
 
                                 {/* Ethnic Groups */}
 
-                                <Col md={12}>
+                                <Card
+                                    className="border-0 bg-light rounded-3 p-3 mb-3"
+                                >
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                    <h6 className="fw-bold">
 
-                                        <h6 className="fw-bold">
+                                        Ethnic Groups
 
-                                            Ethnic Groups
+                                    </h6>
 
-                                        </h6>
+                                    <p className="mb-0">
 
-                                        <p className="mb-0">
+                                        {
+                                            countryDetails.summary
+                                                ?.ethnic_groups ||
+                                            "N/A"
+                                        }
 
-                                            {
-                                                countryDetails.summary?.ethnic_groups ||
-                                                "N/A"
-                                            }
+                                    </p>
 
-                                        </p>
+                                </Card>
 
-                                    </Card>
 
-                                </Col>
+                                {/* Statistics */}
 
+                                <Row className="g-2">
 
-                                {/* Total SDMs */}
 
-                                <Col md={4}>
+                                    <Col xs={6}>
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
-                                        <h6 className="fw-bold">
+                                            <small className="text-muted">
 
-                                            Total SDMs
+                                                Total SDMs
 
-                                        </h6>
+                                            </small>
 
-                                        <h3>
+                                            <h3 className="fw-bold text-primary">
 
-                                            {
-                                                countryDetails.summary?.total_sdms ??
-                                                0
-                                            }
+                                                {
+                                                    countryDetails.summary
+                                                        ?.total_sdms ?? 0
+                                                }
 
-                                        </h3>
+                                            </h3>
 
-                                    </Card>
+                                        </Card>
 
-                                </Col>
+                                    </Col>
 
 
-                                {/* Sovereignty */}
+                                    <Col xs={6}>
 
-                                <Col md={4}>
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                            <small className="text-muted">
 
-                                        <h6 className="fw-bold">
+                                                Sovereignty Declarations
 
-                                            Sovereignty Declarations
+                                            </small>
 
-                                        </h6>
+                                            <h3 className="fw-bold">
 
-                                        <h3>
+                                                {
+                                                    countryDetails.summary
+                                                        ?.sovereignty_count ?? 0
+                                                }
 
-                                            {
-                                                countryDetails.summary?.sovereignty_count ??
-                                                0
-                                            }
+                                            </h3>
 
-                                        </h3>
+                                        </Card>
 
-                                    </Card>
+                                    </Col>
 
-                                </Col>
 
+                                    <Col xs={6}>
 
-                                {/* Violence */}
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
-                                <Col md={4}>
+                                            <small className="text-muted">
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                                Experienced Violence
 
-                                        <h6 className="fw-bold">
+                                            </small>
 
-                                            Movements Experiencing Violence
+                                            <h3 className="fw-bold">
 
-                                        </h6>
+                                                {
+                                                    countryDetails.summary
+                                                        ?.violent_count ?? 0
+                                                }
 
-                                        <h3>
+                                            </h3>
 
-                                            {
-                                                countryDetails.summary?.violent_count ??
-                                                0
-                                            }
+                                        </Card>
 
-                                        </h3>
+                                    </Col>
 
-                                    </Card>
 
-                                </Col>
+                                    <Col xs={6}>
 
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
-                                {/* Started Violence */}
+                                            <small className="text-muted">
 
-                                <Col md={4}>
+                                                Started Violence
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                            </small>
 
-                                        <h6 className="fw-bold">
+                                            <h3 className="fw-bold">
 
-                                            Movements Starting Violence
+                                                {
+                                                    countryDetails.summary
+                                                        ?.started_violent_count ?? 0
+                                                }
 
-                                        </h6>
+                                            </h3>
 
-                                        <h3>
+                                        </Card>
 
-                                            {
-                                                countryDetails.summary?.started_violent_count ??
-                                                0
-                                            }
+                                    </Col>
 
-                                        </h3>
 
-                                    </Card>
+                                    <Col xs={6}>
 
-                                </Col>
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
+                                            <small className="text-muted">
 
-                                {/* Peaceful */}
+                                                Remained Peaceful
 
-                                <Col md={4}>
+                                            </small>
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                            <h3 className="fw-bold">
 
-                                        <h6 className="fw-bold">
+                                                {
+                                                    countryDetails.summary
+                                                        ?.remained_peaceful_count ?? 0
+                                                }
 
-                                            Remained Peaceful
+                                            </h3>
 
-                                        </h6>
+                                        </Card>
 
-                                        <h3>
+                                    </Col>
 
-                                            {
-                                                countryDetails.summary?.remained_peaceful_count ??
-                                                0
-                                            }
 
-                                        </h3>
+                                    <Col xs={6}>
 
-                                    </Card>
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center h-100"
+                                        >
 
-                                </Col>
+                                            <small className="text-muted">
 
+                                                Concessions Received
 
-                                {/* Concessions */}
+                                            </small>
 
-                                <Col md={4}>
+                                            <h3 className="fw-bold">
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                                {
+                                                    countryDetails.summary
+                                                        ?.concessions_count ?? 0
+                                                }
 
-                                        <h6 className="fw-bold">
+                                            </h3>
 
-                                            Concessions Received
+                                        </Card>
 
-                                        </h6>
+                                    </Col>
 
-                                        <h3>
 
-                                            {
-                                                countryDetails.summary?.concessions_count ??
-                                                0
-                                            }
+                                    <Col xs={12}>
 
-                                        </h3>
+                                        <Card
+                                            className="border-0 bg-light p-3 text-center"
+                                        >
 
-                                    </Card>
+                                            <small className="text-muted">
 
-                                </Col>
+                                                Restrictions Faced
 
+                                            </small>
 
-                                {/* Restrictions */}
+                                            <h3 className="fw-bold">
 
-                                <Col md={4}>
+                                                {
+                                                    countryDetails.summary
+                                                        ?.restrictions_count ?? 0
+                                                }
 
-                                    <Card
-                                        className="border-0 bg-light p-3 h-100"
-                                    >
+                                            </h3>
 
-                                        <h6 className="fw-bold">
+                                        </Card>
 
-                                            Restrictions Faced
+                                    </Col>
 
-                                        </h6>
+                                </Row>
 
-                                        <h3>
+                            </div>
 
-                                            {
-                                                countryDetails.summary?.restrictions_count ??
-                                                0
-                                            }
 
-                                        </h3>
+                            {/* ====================================
+                                LEVEL 3
+                            ==================================== */}
 
-                                    </Card>
+                            <hr className="my-4" />
 
-                                </Col>
 
-                            </Row>
+                            <div className="mb-3">
 
+                                <h5 className="fw-bold text-primary">
 
-                            {/* ========================================
-                                Level 3 - Movement Records
-                            ======================================== */}
+                                    Movement Records
 
-                            <hr className="my-5" />
+                                </h5>
 
-                            <h4 className="fw-bold mb-2">
+                                <p className="text-muted small">
 
-                                Movement Records
+                                    Each movement is shown once.
+                                    Claim types include all distinct
+                                    claims recorded during the movement's
+                                    observed period.
 
-                            </h4>
+                                </p>
 
-                            <p className="text-muted">
+                            </div>
 
-                                Each movement is shown once. Claim types
-                                include all distinct claims recorded during
-                                the movement's observed period.
 
-                            </p>
-
-
-                            {/* Methodological Note */}
+                            {/* ====================================
+                                Methodological Note
+                            ==================================== */}
 
                             <Alert
                                 variant="light"
-                                className="border"
+                                className="border small"
                             >
 
                                 <strong>
-                                    Methodological Note:
+                                    Note:
                                 </strong>
 
                                 <br />
 
-                                Group size, group concentration, and
-                                power status represent the latest recorded
-                                values for each movement in the SDM dataset.
-                                These values are taken from the most recent
-                                available observation year for each movement.
+                                Group size, group concentration,
+                                and power status represent the
+                                <strong>
+                                    {" "}latest recorded values
+                                </strong>
+                                {" "}for each movement.
 
                                 <br />
                                 <br />
 
-                                Claim types include all distinct claims
-                                recorded across the movement's observed
-                                period.
+                                Claim types include all distinct
+                                claims recorded during the movement's
+                                observed period.
 
                                 <br />
                                 <br />
 
-                                For movements that were still ongoing at
-                                the end of the study period, an end year
-                                of 2020 indicates that the movement remained
-                                active through the end of the dataset.
+                                An end year of
+                                <strong> 2020 </strong>
+                                means that the movement was still active
+                                at the end of the study period.
+
+                                <br />
+                                <br />
+
                                 Cases coded as 8888 are displayed as
-                                unavailable because a consistent end year
-                                could not be determined.
+                                unavailable because a consistent end
+                                year could not be determined.
 
                             </Alert>
 
 
-                            {/* ========================================
-                                Movement Records
-                            ======================================== */}
+                            {/* ====================================
+                                Movement Cards
+                            ==================================== */}
 
                             {countryDetails.movements &&
-                                countryDetails.movements.length > 0 ? (
+                            countryDetails.movements.length > 0 ? (
 
-                                <div className="table-responsive">
+                                <div>
 
-                                    <table
-                                        className="table table-bordered table-hover align-middle"
-                                    >
+                                    {countryDetails.movements.map(
+                                        (movement, index) => (
 
-                                        <thead className="table-light">
+                                            <Card
+                                                key={
+                                                    movement.group_id ||
+                                                    index
+                                                }
+                                                className="border-0 shadow-sm rounded-4 mb-3"
+                                            >
 
-                                            <tr>
-
-                                                <th>
-                                                    Ethnic Group
-                                                </th>
-
-                                                <th>
-                                                    Region
-                                                </th>
-
-                                                <th>
-                                                    Claim Types
-                                                </th>
-
-                                                <th>
-                                                    Group Size
-                                                </th>
-
-                                                <th>
-                                                    Group Concentration
-                                                </th>
-
-                                                <th>
-                                                    Power Status
-                                                </th>
-
-                                                <th>
-                                                    Sovereignty
-                                                </th>
-
-                                                <th>
-                                                    Experienced Violence
-                                                </th>
-
-                                                <th>
-                                                    Started Violence
-                                                </th>
-
-                                                <th>
-                                                    Concession
-                                                </th>
-
-                                                <th>
-                                                    Restriction
-                                                </th>
-
-                                                <th>
-                                                    Start Year
-                                                </th>
-
-                                                <th>
-                                                    End Year
-                                                </th>
-
-                                            </tr>
-
-                                        </thead>
+                                                <Card.Body>
 
 
-                                        <tbody>
+                                                    {/* Movement Name */}
 
-                                            {
-                                                countryDetails.movements.map(
-                                                    (movement, index) => (
+                                                    <div
+                                                        className="d-flex justify-content-between align-items-start mb-3"
+                                                    >
 
-                                                        <tr
-                                                            key={
-                                                                movement.group_id ||
-                                                                index
-                                                            }
-                                                        >
+                                                        <div>
 
-                                                            <td>
+                                                            <h6 className="fw-bold mb-1">
 
                                                                 {
                                                                     movement.group_name ||
-                                                                    "N/A"
+                                                                    "Unknown Movement"
                                                                 }
 
-                                                            </td>
+                                                            </h6>
 
-
-                                                            <td>
+                                                            <small className="text-muted">
 
                                                                 {
                                                                     movement.region ||
                                                                     "N/A"
                                                                 }
 
-                                                            </td>
+                                                            </small>
+
+                                                        </div>
+
+                                                        <Badge
+                                                            bg="primary"
+                                                        >
+
+                                                            Movement
+
+                                                        </Badge>
+
+                                                    </div>
 
 
-                                                            <td>
+                                                    {/* Claims */}
 
-                                                                {
-                                                                    movement.claim_types ||
-                                                                    "N/A"
+                                                    <div className="mb-3">
+
+                                                        <small className="text-muted d-block">
+
+                                                            Claim Types
+
+                                                        </small>
+
+                                                        <strong>
+
+                                                            {
+                                                                movement.claim_types ||
+                                                                "N/A"
+                                                            }
+
+                                                        </strong>
+
+                                                    </div>
+
+
+                                                    {/* Characteristics */}
+
+                                                    <Row className="g-2 mb-3">
+
+
+                                                        <Col xs={4}>
+
+                                                            <div className="bg-light rounded-3 p-2 text-center">
+
+                                                                <small className="text-muted d-block">
+
+                                                                    Group Size
+
+                                                                </small>
+
+                                                                <strong>
+
+                                                                    {
+                                                                        movement.group_size ??
+                                                                        "N/A"
+                                                                    }
+
+                                                                </strong>
+
+                                                            </div>
+
+                                                        </Col>
+
+
+                                                        <Col xs={4}>
+
+                                                            <div className="bg-light rounded-3 p-2 text-center">
+
+                                                                <small className="text-muted d-block">
+
+                                                                    Concentration
+
+                                                                </small>
+
+                                                                <strong>
+
+                                                                    {
+                                                                        movement.group_concentration ??
+                                                                        "N/A"
+                                                                    }
+
+                                                                </strong>
+
+                                                            </div>
+
+                                                        </Col>
+
+
+                                                        <Col xs={4}>
+
+                                                            <div className="bg-light rounded-3 p-2 text-center">
+
+                                                                <small className="text-muted d-block">
+
+                                                                    Power Status
+
+                                                                </small>
+
+                                                                <strong>
+
+                                                                    {
+                                                                        movement.power_status ??
+                                                                        "N/A"
+                                                                    }
+
+                                                                </strong>
+
+                                                            </div>
+
+                                                        </Col>
+
+                                                    </Row>
+
+
+                                                    {/* Movement Characteristics */}
+
+                                                    <div className="mb-3">
+
+                                                        <small className="text-muted d-block mb-2">
+
+                                                            Movement Characteristics
+
+                                                        </small>
+
+
+                                                        <div className="d-flex flex-wrap gap-2">
+
+
+                                                            <Badge
+                                                                bg={
+                                                                    movement.sovereignty_declared == 1
+                                                                        ? "success"
+                                                                        : "secondary"
                                                                 }
+                                                            >
 
-                                                            </td>
-
-
-                                                            <td>
-
-                                                                {
-                                                                    movement.group_size ??
-                                                                    "N/A"
-                                                                }
-
-                                                            </td>
-
-
-                                                            <td>
-
-                                                                {
-                                                                    movement.group_concentration ??
-                                                                    "N/A"
-                                                                }
-
-                                                            </td>
-
-
-                                                            <td>
-
-                                                                {
-                                                                    movement.power_status ??
-                                                                    "N/A"
-                                                                }
-
-                                                            </td>
-
-
-                                                            <td>
-
+                                                                Sovereignty:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.sovereignty_declared
                                                                     )
                                                                 }
 
-                                                            </td>
+                                                            </Badge>
 
 
-                                                            <td>
+                                                            <Badge
+                                                                bg={
+                                                                    movement.experienced_violence == 1
+                                                                        ? "danger"
+                                                                        : "secondary"
+                                                                }
+                                                            >
 
+                                                                Violence:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.experienced_violence
                                                                     )
                                                                 }
 
-                                                            </td>
+                                                            </Badge>
 
 
-                                                            <td>
+                                                            <Badge
+                                                                bg={
+                                                                    movement.started_violence == 1
+                                                                        ? "danger"
+                                                                        : "secondary"
+                                                                }
+                                                            >
 
+                                                                Started Violence:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.started_violence
                                                                     )
                                                                 }
 
-                                                            </td>
+                                                            </Badge>
 
 
-                                                            <td>
+                                                            <Badge
+                                                                bg={
+                                                                    movement.received_concession == 1
+                                                                        ? "success"
+                                                                        : "secondary"
+                                                                }
+                                                            >
 
+                                                                Concession:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.received_concession
                                                                     )
                                                                 }
 
-                                                            </td>
+                                                            </Badge>
 
 
-                                                            <td>
+                                                            <Badge
+                                                                bg={
+                                                                    movement.faced_restriction == 1
+                                                                        ? "warning"
+                                                                        : "secondary"
+                                                                }
+                                                            >
 
+                                                                Restriction:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.faced_restriction
                                                                     )
                                                                 }
 
-                                                            </td>
+                                                            </Badge>
+
+                                                        </div>
+
+                                                    </div>
 
 
-                                                            <td>
+                                                    {/* Dates */}
 
-                                                                {
-                                                                    movement.start_year ??
-                                                                    "N/A"
-                                                                }
+                                                    <div className="border-top pt-3">
 
-                                                            </td>
+                                                        <Row>
+
+                                                            <Col xs={6}>
+
+                                                                <small className="text-muted d-block">
+
+                                                                    Start Year
+
+                                                                </small>
+
+                                                                <strong>
+
+                                                                    {
+                                                                        movement.start_year ??
+                                                                        "N/A"
+                                                                    }
+
+                                                                </strong>
+
+                                                            </Col>
 
 
-                                                            <td>
+                                                            <Col xs={6}>
 
-                                                                {
-                                                                    formatEndYear(
-                                                                        movement.end_year
-                                                                    )
-                                                                }
+                                                                <small className="text-muted d-block">
 
-                                                            </td>
+                                                                    End Year
 
-                                                        </tr>
+                                                                </small>
 
-                                                    )
-                                                )
-                                            }
+                                                                <strong>
 
-                                        </tbody>
+                                                                    {
+                                                                        formatEndYear(
+                                                                            movement.end_year
+                                                                        )
+                                                                    }
 
-                                    </table>
+                                                                </strong>
+
+                                                            </Col>
+
+                                                        </Row>
+
+                                                    </div>
+
+
+                                                </Card.Body>
+
+                                            </Card>
+
+                                        )
+                                    )}
 
                                 </div>
 
@@ -1102,9 +1296,10 @@ function GlobePage() {
 
                     )}
 
-                </Card>
+                </Offcanvas.Body>
 
-            )}
+            </Offcanvas>
+
 
         </Container>
 
