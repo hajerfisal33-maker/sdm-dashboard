@@ -77,14 +77,15 @@ router.get("/filters/claims", controller.filterClaims);
 // Route for the Globe page
 
 
-router.get("/globe/countries", controller.globeCountries);
+router.get(
+    "/globe/countries",
+    controller.globeCountries
+);
 
-
-
-router.get("/country-details/:countryName",controller.getCountryDetails)
-
-
-
+router.get(
+    "/country-details/:countryName",
+    controller.getCountryDetails
+);
 
 
 
