@@ -800,11 +800,12 @@ function GlobePage() {
                                             className="border-0 bg-light p-3 text-center h-100"
                                         >
 
-                                            <small className="text-muted">
-
-                                                 Latest Status: Remained Peaceful
-
-                                            </small>
+                                   <small className="text-muted">
+    Latest Status:{" "}
+    {movement.remained_peaceful === 1
+        ? "Remained Peaceful"
+        : "Violence Recorded"}
+</small>
 
                                             <h3 className="fw-bold">
 
