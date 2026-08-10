@@ -449,52 +449,66 @@ globeCountries: `
         c.country_name;
 `,
   // 2. تفاصيل حركات الدولة (Level 3)
-  countryMovementsQuery: `
+ countryMovementsQuery: `
     WITH movement_claims AS (
+
         SELECT
             group_id,
+
             GROUP_CONCAT(
                 DISTINCT domclaim
                 ORDER BY domclaim
                 SEPARATOR ', '
             ) AS claim_types
+
         FROM movement_observations
+
         WHERE domclaim IS NOT NULL
+
         GROUP BY group_id
     ),
 
     latest_observation AS (
+
         SELECT
             mo.group_id,
-            mo.groupsize,
-            mo.groupcon,
+
+            mo.group_size,
+            mo.group_con,
             mo.pwrstat,
+
             mo.sovdec,
             mo.violsd,
             mo.violsd_onset,
             mo.con,
             mo.res,
+
             mo.sdm_startdate1,
             mo.sdm_enddate1,
             mo.year,
+
             ROW_NUMBER() OVER (
                 PARTITION BY mo.group_id
                 ORDER BY mo.year DESC
             ) AS rn
+
         FROM movement_observations mo
     )
 
     SELECT
+
         eg.group_id,
         eg.group_name,
         eg.region,
 
         mc.claim_types,
 
-        lo.groupsize AS group_size,
-        lo.groupcon AS group_concentration,
+        /* Latest values */
+        lo.group_size AS group_size,
+        lo.group_con AS group_concentration,
         lo.pwrstat AS power_status,
 
+        /* Sovereignty declared at any point */
         CASE
             WHEN EXISTS (
                 SELECT 1
@@ -506,6 +520,7 @@ globeCountries: `
             ELSE 0
         END AS sovereignty_declared,
 
+        /* Violence experienced at any point */
         CASE
             WHEN EXISTS (
                 SELECT 1
@@ -517,6 +532,7 @@ globeCountries: `
             ELSE 0
         END AS experienced_violence,
 
+        /* Violence started at any point */
         CASE
             WHEN EXISTS (
                 SELECT 1
@@ -528,6 +544,7 @@ globeCountries: `
             ELSE 0
         END AS started_violence,
 
+        /* Concession received at any point */
         CASE
             WHEN EXISTS (
                 SELECT 1
@@ -539,6 +556,7 @@ globeCountries: `
             ELSE 0
         END AS received_concession,
 
+        /* Restriction faced at any point */
         CASE
             WHEN EXISTS (
                 SELECT 1
@@ -550,15 +568,21 @@ globeCountries: `
             ELSE 0
         END AS faced_restriction,
 
+        /* First recorded movement year */
         (
             SELECT MIN(x.sdm_startdate1)
             FROM movement_observations x
             WHERE x.group_id = eg.group_id
         ) AS start_year,
 
+        /* Last recorded movement year */
         CASE
-            WHEN lo.sdm_enddate1 = 9999 THEN 2020
-            WHEN lo.sdm_enddate1 = 8888 THEN NULL
+            WHEN lo.sdm_enddate1 = 9999
+                THEN 2020
+
+            WHEN lo.sdm_enddate1 = 8888
+                THEN NULL
+
             ELSE lo.sdm_enddate1
         END AS end_year
 
@@ -577,7 +601,7 @@ globeCountries: `
     WHERE c.country_name = ?
 
     ORDER BY start_year ASC;
-  `
+`
 };
 
 module.exports = queries;
