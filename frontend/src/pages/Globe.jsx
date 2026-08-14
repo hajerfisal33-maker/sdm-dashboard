@@ -787,7 +787,7 @@ function GlobePage() {
                 </h3>
 
                 <small className="text-muted">
-                    At any point during the observed period
+                    First Emergence as violent SDM
                 </small>
 
             </Card>
@@ -815,7 +815,7 @@ function GlobePage() {
                 </h3>
 
                 <small className="text-muted">
-                    Based on the latest observation
+                    Movements with Peaceful Latest Status
                 </small>
 
             </Card>
@@ -843,7 +843,7 @@ function GlobePage() {
                 </h3>
 
                 <small className="text-muted">
-                    At any point during the observed period
+                    Number of Movements that Received Concessions
                 </small>
 
             </Card>
@@ -871,7 +871,7 @@ function GlobePage() {
                 </h3>
 
                 <small className="text-muted">
-                    At any point during the observed period
+                    Number of Movements that Faced Restrictions
                 </small>
 
             </Card>

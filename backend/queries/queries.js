@@ -379,7 +379,7 @@ globeCountries: `
 `,
 // ===============================
 countrySummaryQuery: `
-WITH latest_observation AS (
+WITH first_observation AS (
 
     SELECT
         mo.group_id,
@@ -387,7 +387,7 @@ WITH latest_observation AS (
 
         ROW_NUMBER() OVER (
             PARTITION BY mo.group_id
-            ORDER BY mo.year DESC
+            ORDER BY mo.year ASC
         ) AS rn
 
     FROM movement_observations mo
@@ -424,24 +424,25 @@ SELECT
         END
     ) AS violent_count,
 
-    /* Violence started at any point */
+    /* Movements that started directly with violence */
     COUNT(
         DISTINCT CASE
-            WHEN mo.violsd_onset = 1
-            THEN mo.group_id
+            WHEN fo.rn = 1
+             AND fo.violsd = 1
+            THEN fo.group_id
         END
     ) AS started_violent_count,
 
-    /* Peaceful in the latest recorded observation */
+    /* Movements whose latest recorded status was peaceful */
     COUNT(
         DISTINCT CASE
-            WHEN lo.rn = 1
-             AND lo.violsd = 0
-            THEN lo.group_id
+            WHEN fo_latest.rn = 1
+             AND fo_latest.violsd = 0
+            THEN fo_latest.group_id
         END
     ) AS remained_peaceful_count,
 
-    /* Concession received at any point */
+    /* Concessions received at any point */
     COUNT(
         DISTINCT CASE
             WHEN mo.con = 1
@@ -449,7 +450,7 @@ SELECT
         END
     ) AS concessions_count,
 
-    /* Restriction faced at any point */
+    /* Restrictions faced at any point */
     COUNT(
         DISTINCT CASE
             WHEN mo.res = 1
@@ -465,9 +466,27 @@ LEFT JOIN ethnic_groups eg
 LEFT JOIN movement_observations mo
     ON eg.group_id = mo.group_id
 
-LEFT JOIN latest_observation lo
-    ON eg.group_id = lo.group_id
-   AND lo.rn = 1
+/* First recorded observation */
+LEFT JOIN first_observation fo
+    ON eg.group_id = fo.group_id
+   AND fo.rn = 1
+
+/* Latest recorded observation */
+LEFT JOIN (
+    SELECT
+        mo.group_id,
+        mo.violsd,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year DESC
+        ) AS rn
+
+    FROM movement_observations mo
+) fo_latest
+
+    ON eg.group_id = fo_latest.group_id
+   AND fo_latest.rn = 1
 
 WHERE c.country_name = ?
 
@@ -475,7 +494,6 @@ GROUP BY
     c.country_id,
     c.country_name;
 `,
-
 // 2. تفاصيل حركات الدولة (Level 3)
 
 countryMovementsQuery: `
