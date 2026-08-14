@@ -903,7 +903,7 @@ function GlobePage() {
         <br />
 
         <strong>Started Violence</strong> counts movements for which
-        the onset of violence was recorded at least once.
+        their first observed status was violence.
 
         <br />
 
@@ -912,6 +912,8 @@ function GlobePage() {
         <code>violsd = 0</code>. Therefore, a movement may have
         experienced violence earlier and still appear in this
         category if its latest recorded status was peaceful.
+         <br />
+         in concentration field 1=concentrated, 0=dispersed 
 
     </Alert>
 
@@ -973,6 +975,7 @@ function GlobePage() {
                                 Claim types include all distinct
                                 claims recorded during the movement's
                                 observed period.
+
 
                                 <br />
                                 <br />
@@ -1177,7 +1180,7 @@ function GlobePage() {
                                                                 }
                                                             >
 
-                                                                Sovereignty:{" "}
+                                                                Declared Sovereignty:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.sovereignty_declared
@@ -1195,7 +1198,7 @@ function GlobePage() {
                                                                 }
                                                             >
 
-                                                                Violence:{" "}
+                                                                Experienced Violence:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.experienced_violence
@@ -1231,7 +1234,7 @@ function GlobePage() {
                                                                 }
                                                             >
 
-                                                                Concession:{" "}
+                                                               Received Concession:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.received_concession
@@ -1249,7 +1252,7 @@ function GlobePage() {
                                                                 }
                                                             >
 
-                                                                Restriction:{" "}
+                                                                Faced Restriction:{" "}
                                                                 {
                                                                     binaryLabel(
                                                                         movement.faced_restriction

@@ -515,6 +515,20 @@ WITH movement_claims AS (
     GROUP BY group_id
 ),
 
+first_observation AS (
+
+    SELECT
+        mo.group_id,
+        mo.violsd,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year ASC
+        ) AS rn
+
+    FROM movement_observations mo
+),
+
 latest_observation AS (
 
     SELECT
@@ -550,7 +564,7 @@ SELECT
 
     mc.claim_types,
 
-    /* Latest values */
+    /* Latest recorded values */
     lo.group_size AS group_size,
     lo.group_con AS group_concentration,
     lo.pwrstat AS power_status,
@@ -579,14 +593,10 @@ SELECT
         ELSE 0
     END AS experienced_violence,
 
-    /* Violence started at any point */
+    /* Movement started directly with violence */
     CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM movement_observations x
-            WHERE x.group_id = eg.group_id
-              AND x.violsd_onset = 1
-        )
+        WHEN fo.rn = 1
+         AND fo.violsd = 1
         THEN 1
         ELSE 0
     END AS started_violence,
@@ -644,6 +654,10 @@ FROM countries c
 
 INNER JOIN ethnic_groups eg
     ON c.country_id = eg.country_id
+
+INNER JOIN first_observation fo
+    ON eg.group_id = fo.group_id
+   AND fo.rn = 1
 
 INNER JOIN latest_observation lo
     ON eg.group_id = lo.group_id
