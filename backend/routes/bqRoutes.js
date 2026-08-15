@@ -14,7 +14,7 @@ router.get("/region",controller.movementsByRegion);
 router.get("/year",controller.movementsByYear);
 // BQ2
 
-router.get("/claim-types-test", controller.claimTypes);
+router.get("/claim-types", controller.claimTypes);
 
 router.get("/claim-duration", controller.claimDuration);
 // BQ3
