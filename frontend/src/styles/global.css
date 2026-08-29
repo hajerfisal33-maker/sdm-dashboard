@@ -220,3 +220,163 @@ h5 {
     }
 
 }
+
+/* ================================
+   Global Responsive Fix
+================================ */
+
+html,
+body,
+#root {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Prevent containers and rows from becoming wider than screen */
+
+.container,
+.container-fluid,
+.row {
+    max-width: 100%;
+}
+
+/* Bootstrap rows can create horizontal overflow because of gutters */
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Cards */
+
+.card {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Images */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Tables */
+
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Long text */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+small,
+span {
+    overflow-wrap: break-word;
+}
+
+/* ================================
+   Responsive Typography
+================================ */
+
+h1 {
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+}
+
+h2 {
+    font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+}
+
+h3 {
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+}
+
+h4 {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+}
+
+h5 {
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+}
+
+h6 {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+/* ================================
+   Mobile
+================================ */
+
+@media (max-width: 768px) {
+
+    .container,
+    .container-fluid {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Prevent wide flex elements */
+
+    .d-flex {
+        min-width: 0;
+    }
+
+    /* Long titles/text */
+
+    .card h1,
+    .card h2,
+    .card h3,
+    .card h4,
+    .card h5,
+    .card h6 {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* ================================
+   Small Phones
+================================ */
+
+@media (max-width: 576px) {
+
+    .container,
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .card-body {
+        padding: 0.85rem;
+    }
+
+    .btn {
+        max-width: 100%;
+        white-space: normal;
+    }
+}
