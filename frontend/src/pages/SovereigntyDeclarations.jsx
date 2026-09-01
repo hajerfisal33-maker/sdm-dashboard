@@ -1,325 +1,730 @@
 import { useEffect, useState } from "react";
+
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Table,
-  Badge,
-  Alert,
-  Spinner
+    Container,
+    Row,
+    Col,
+    Card,
+    Table,
+    Badge,
+    Alert,
+    Spinner
 } from "react-bootstrap";
 
 import api from "../services/api";
 
 import LineChartComponent from "../charts/LineChartComponent";
+
 import PieChartComponent from "../charts/PieChartComponent";
+
+import DashboardFilters from "../components/DashboardFilters";
+
+
+
+/* =====================================
+   CHI-SQUARE RESULTS
+   NOT AFFECTED BY DASHBOARD FILTERS
+===================================== */
 
 function ChiSquareResults() {
 
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await api.get("/declarations-chi-square");
-        setData(res.data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
+    const [loading, setLoading] = useState(true);
+
+
+    useEffect(() => {
+
+        async function fetchData() {
+
+            try {
+
+                const res = await api.get(
+                    "/declarations-chi-square"
+                );
+
+                setData(res.data);
+
+            }
+
+            catch (err) {
+
+                console.log(err);
+
+            }
+
+            finally {
+
+                setLoading(false);
+
+            }
+
+        }
+
+
+        fetchData();
+
+    }, []);
+
+
+
+    if (loading) {
+
+        return (
+
+            <Card className="shadow-sm p-4 text-center">
+
+                <Spinner animation="border" />
+
+            </Card>
+
+        );
+
     }
 
-    fetchData();
-  }, []);
 
-  if (loading) {
+    const significant = data?.pValue < 0.05;
+
+
     return (
-      <Card className="shadow-sm p-4 text-center">
-        <Spinner animation="border" />
-      </Card>
+
+        <Card className="shadow-sm p-4 border-0 rounded-4">
+
+
+            <div className="d-flex justify-content-between align-items-center mb-3">
+
+                <h4 className="fw-bold">
+
+                    Chi-Square Test of Independence
+
+                </h4>
+
+
+                <Badge
+
+                    bg={
+                        significant
+                            ? "success"
+                            : "secondary"
+                    }
+
+                    className="rounded-pill"
+                >
+
+                    {
+                        significant
+                            ? "Statistically Significant"
+                            : "Not Significant"
+                    }
+
+                </Badge>
+
+            </div>
+
+
+            <p className="text-muted">
+
+                This statistical test evaluates whether there is a
+                meaningful association between the dominant political
+                claim pursued by a movement and its decision to issue
+                a unilateral declaration of sovereignty.
+
+            </p>
+
+
+            <Table bordered hover responsive>
+
+                <thead className="table-light">
+
+                    <tr>
+
+                        <th>Statistic</th>
+
+                        <th>Value</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            Chi-Square Statistic
+                        </td>
+
+                        <td>
+                            {Number(
+                                data?.chiSquare || 0
+                            ).toFixed(4)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Degrees of Freedom
+                        </td>
+
+                        <td>
+                            {data?.degreesOfFreedom}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            p-value
+                        </td>
+
+                        <td>
+
+                            {
+                                data?.pValue < 0.001
+                                    ? "< 0.001"
+                                    : Number(
+                                        data?.pValue || 0
+                                    ).toFixed(4)
+                            }
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </Table>
+
+
+            <Alert
+
+                variant={
+                    significant
+                        ? "success"
+                        : "warning"
+                }
+
+                className="mt-3"
+            >
+
+                <Alert.Heading>
+
+                    Interpretation
+
+                </Alert.Heading>
+
+
+                <p className="mb-0">
+
+                    {data?.interpretation}
+
+                </p>
+
+            </Alert>
+
+
+            <div className="mt-4">
+
+                <h6 className="fw-bold">
+
+                    How to interpret this test
+
+                </h6>
+
+
+                <p className="text-muted">
+
+                    A statistically significant result indicates that
+                    sovereignty declarations are not randomly distributed
+                    across claim types.
+
+                </p>
+
+            </div>
+
+        </Card>
+
     );
-  }
 
-  const significant = data?.pValue < 0.05;
-
-  return (
-    <Card className="shadow-sm p-4 border-0 rounded-4">
-
-      <div className="d-flex justify-content-between align-items-center mb-3">
-
-        <h4 className="fw-bold">
-          Chi-Square Test of Independence
-        </h4>
-
-        <Badge
-          bg={significant ? "success" : "secondary"}
-          className="rounded-pill"
-        >
-          {significant
-            ? "Statistically Significant"
-            : "Not Significant"}
-        </Badge>
-
-      </div>
-
-      <p className="text-muted">
-
-        This statistical test evaluates whether there is a meaningful association between the dominant political claim pursued by a movement and its decision to issue a unilateral declaration of sovereignty.
-
-      </p>
-
-      <Table bordered hover responsive>
-
-        <thead className="table-light">
-
-          <tr>
-
-            <th>Statistic</th>
-
-            <th>Value</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          <tr>
-
-            <td>Chi-Square Statistic</td>
-
-            <td>{Number(data.chiSquare).toFixed(4)}</td>
-
-          </tr>
-
-          <tr>
-
-            <td>Degrees of Freedom</td>
-
-            <td>{data.degreesOfFreedom}</td>
-
-          </tr>
-
-          <tr>
-
-            <td>p-value</td>
-
-            <td>
-
-              {data.pValue < 0.001
-                ? "< 0.001"
-                : Number(data.pValue).toFixed(4)}
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </Table>
-
-      <Alert
-        variant={significant ? "success" : "warning"}
-        className="mt-3"
-      >
-
-        <Alert.Heading>
-
-          Interpretation
-
-        </Alert.Heading>
-
-        <p className="mb-0">
-
-          {data.interpretation}
-
-        </p>
-
-      </Alert>
-
-      <div className="mt-4">
-
-        <h6 className="fw-bold">
-
-          How to interpret this test
-
-        </h6>
-
-        <p className="text-muted">
-
-          A statistically significant result (p-value less than 0.05) indicates that sovereignty declarations are not randomly distributed across claim types. Instead, certain categories of political claims are significantly more likely to issue unilateral sovereignty declarations than others.
-
-        </p>
-
-      </div>
-
-    </Card>
-  );
 }
+
+
+
+/* =====================================
+   MAIN PAGE
+===================================== */
 
 function SovereigntyDeclarations() {
 
-  const [sovereignty, setSovereignty] = useState([]);
-  const [claims, setClaims] = useState([]);
 
-  useEffect(() => {
+    // =========================
+    // Data
+    // =========================
+
+    const [sovereignty, setSovereignty] =
+        useState([]);
+
+    const [claims, setClaims] =
+        useState([]);
+
+
+    // =========================
+    // Loading
+    // =========================
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState(null);
+
+
+    // =========================
+    // Filters
+    // =========================
+
+    const [filters, setFilters] =
+        useState({
+
+            country: "",
+
+            region: "",
+
+            year: "",
+
+            claim: ""
+
+        });
+
+
+
+    // =========================
+    // Reload Data
+    // =========================
+
+    useEffect(() => {
+
+        loadData();
+
+    }, [filters]);
+
+
 
     async function loadData() {
 
-      try {
+        try {
 
-        const s = await api.get("/sovereignty-declarations");
-        const c = await api.get("/declaration-by-claim");
+            setLoading(true);
 
-        setSovereignty(s.data);
-        setClaims(c.data);
+            setError(null);
 
-      } catch (err) {
 
-        console.log(err);
+            const params = {
 
-      }
+                country:
+                    filters.country || "",
+
+                region:
+                    filters.region || "",
+
+                year:
+                    filters.year || "",
+
+                claim:
+                    filters.claim || ""
+
+            };
+
+
+            const [
+
+                sovereigntyResponse,
+
+                claimsResponse
+
+            ] = await Promise.all([
+
+                api.get(
+                    "/sovereignty-declarations",
+                    { params }
+                ),
+
+                api.get(
+                    "/declaration-by-claim",
+                    { params }
+                )
+
+            ]);
+
+
+            setSovereignty(
+                sovereigntyResponse.data || []
+            );
+
+
+            setClaims(
+                claimsResponse.data || []
+            );
+
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+
+            setError(
+                "Failed to load sovereignty declaration data."
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+        }
 
     }
 
-    loadData();
 
-  }, []);
 
-  return (
+    // =========================
+    // Page
+    // =========================
 
-    <Container className="mt-5 mb-5">
+    return (
 
-      <div className="mb-4">
+        <Container className="mt-5 mb-5">
 
-        <Badge
-          bg="primary"
-          className="px-3 py-2 fs-6 mb-2 rounded-pill"
-        >
 
-          Sovereignty Declaration Analysis
+            {/* =========================
+                HEADER
+            ========================= */}
 
-        </Badge>
+            <Card className="shadow-sm border-0 mb-4 p-4">
 
-        <h1 className="fw-bold">
+                <Badge
 
-          Unilateral Sovereignty Declarations
+                    bg="primary"
 
-        </h1>
+                    className="px-3 py-2 fs-6 mb-3 rounded-pill"
 
-        <p className="lead text-muted">
+                >
 
-          This section explores unilateral sovereignty declarations made by self-determination movements contained within the SDM dataset. It examines how declarations evolved historically, which political claim types were associated with these declarations, and whether a statistically significant relationship exists between movement claims and sovereignty declarations.
+                    Sovereignty Declaration Analysis
 
-        </p>
+                </Badge>
 
-      </div>
 
-      <Row className="g-4">
+                <h1 className="fw-bold">
 
-        <Col lg={6}>
+                    Unilateral Sovereignty Declarations
 
-          <Card className="shadow-sm p-4 border-0 rounded-4 h-100">
+                </h1>
 
-            <h4 className="fw-bold">
 
-              Sovereignty Declarations Over Time
+                <p className="lead text-muted">
 
-            </h4>
+                    This section explores unilateral sovereignty
+                    declarations made by self-determination movements
+                    contained within the SDM dataset.
 
-            <p className="text-muted">
+                </p>
 
-              This line chart displays the annual number of unilateral sovereignty declarations recorded between 1945 and 2020. Each point represents the total declarations issued during a specific year.
 
-            </p>
+                <p className="text-muted">
 
-            <LineChartComponent
+                    The visualisations examine how declarations changed
+                    over time and how they were associated with different
+                    political claim types.
 
-              data={sovereignty}
+                </p>
 
-              xKey="year"
+            </Card>
 
-              yKey="declarations"
 
-            />
 
-            <hr />
+            {/* =========================
+                DASHBOARD FILTERS
+            ========================= */}
 
-            <h6 className="fw-bold">
+            <DashboardFilters
 
-              Interpretation
+                filters={filters}
 
-            </h6>
-
-            <p className="text-muted">
-
-              Peaks indicate years in which more movements declared sovereignty, while lower values indicate relatively fewer declarations. Researchers can use this visualization to identify historical periods characterized by increased separatist activity and relate these periods to broader political or international developments.
-
-            </p>
-
-          </Card>
-
-        </Col>
-
-        <Col lg={6}>
-
-          <Card className="shadow-sm p-4 border-0 rounded-4 h-100">
-
-            <h4 className="fw-bold">
-
-              Sovereignty Declarations by Claim Type
-
-            </h4>
-
-            <p className="text-muted">
-
-              This pie chart illustrates the proportion of sovereignty declarations according to the dominant political objective pursued by each movement, such as independence, autonomy, or other claim categories.
-
-            </p>
-
-            <PieChartComponent
-
-              data={claims}
-
-              nameKey="domclaim"
-
-              valueKey="declarations"
+                setFilters={setFilters}
 
             />
 
-            <hr />
 
-            <h6 className="fw-bold">
 
-              Interpretation
+            {/* =========================
+                ERROR
+            ========================= */}
 
-            </h6>
+            {
 
-            <p className="text-muted">
+                error && (
 
-              Larger segments represent claim categories that account for a greater share of sovereignty declarations. The visualization enables researchers to identify which political objectives are most frequently associated with unilateral declarations and compare the relative prominence of each claim type.
+                    <Alert variant="danger">
 
-            </p>
+                        {error}
 
-          </Card>
+                    </Alert>
 
-        </Col>
+                )
 
-        <Col lg={12}>
+            }
 
-          <ChiSquareResults />
 
-        </Col>
 
-      </Row>
+            {/* =========================
+                LOADING
+            ========================= */}
 
-    </Container>
+            {
 
-  );
+                loading
+
+                    ? (
+
+                        <div className="text-center my-5">
+
+                            <Spinner animation="border" />
+
+                            <p className="mt-3 text-muted">
+
+                                Loading dashboard data...
+
+                            </p>
+
+                        </div>
+
+                    )
+
+                    : (
+
+                        <Row className="g-4">
+
+
+                            {/* =========================
+                                DECLARATIONS OVER TIME
+                            ========================= */}
+
+                            <Col lg={6}>
+
+                                <Card className="shadow-sm p-4 border-0 rounded-4 h-100">
+
+                                    <h4 className="fw-bold">
+
+                                        Sovereignty Declarations
+                                        Over Time
+
+                                    </h4>
+
+
+                                    <p className="text-muted">
+
+                                        This line chart displays the
+                                        recorded sovereignty declarations
+                                        across the observation period.
+
+                                    </p>
+
+
+                                    {
+
+                                        sovereignty.length > 0
+
+                                            ? (
+
+                                                <LineChartComponent
+
+                                                    data={sovereignty}
+
+                                                    xKey="year"
+
+                                                    yKey="declarations"
+
+                                                />
+
+                                            )
+
+                                            : (
+
+                                                <Alert variant="info">
+
+                                                    No sovereignty declaration
+                                                    data is available for the
+                                                    selected filters.
+
+                                                </Alert>
+
+                                            )
+
+                                    }
+
+
+                                    <hr />
+
+
+                                    <h6 className="fw-bold">
+
+                                        Interpretation
+
+                                    </h6>
+
+
+                                    <p className="text-muted">
+
+                                        Peaks indicate years in which
+                                        more movements issued sovereignty
+                                        declarations.
+
+                                    </p>
+
+                                </Card>
+
+                            </Col>
+
+
+
+                            {/* =========================
+                                DECLARATIONS BY CLAIM
+                            ========================= */}
+
+                            <Col lg={6}>
+
+                                <Card className="shadow-sm p-4 border-0 rounded-4 h-100">
+
+                                    <h4 className="fw-bold">
+
+                                        Sovereignty Declarations
+                                        by Claim Type
+
+                                    </h4>
+
+
+                                    <p className="text-muted">
+
+                                        This chart compares sovereignty
+                                        declarations across different
+                                        political claim categories.
+
+                                    </p>
+
+
+                                    {
+
+                                        claims.length > 0
+
+                                            ? (
+
+                                                <PieChartComponent
+
+                                                    data={claims}
+
+                                                    nameKey="domclaim"
+
+                                                    valueKey="declarations"
+
+                                                />
+
+                                            )
+
+                                            : (
+
+                                                <Alert variant="info">
+
+                                                    No declaration data is
+                                                    available for the selected
+                                                    filters.
+
+                                                </Alert>
+
+                                            )
+
+                                    }
+
+
+                                    <hr />
+
+
+                                    <h6 className="fw-bold">
+
+                                        Interpretation
+
+                                    </h6>
+
+
+                                    <p className="text-muted">
+
+                                        Larger segments represent claim
+                                        categories associated with a
+                                        greater number of sovereignty
+                                        declarations.
+
+                                    </p>
+
+                                </Card>
+
+                            </Col>
+
+
+
+                            {/* =========================
+                                CHI-SQUARE
+                                NOT FILTERED
+                            ========================= */}
+
+                            <Col lg={12}>
+
+                                <div className="mt-2">
+
+                                    <h5 className="fw-bold mb-3">
+
+                                        Statistical Association Analysis
+
+                                    </h5>
+
+
+                                    <p className="text-muted">
+
+                                        The following Chi-Square result
+                                        is based on the overall dataset
+                                        and is not affected by the
+                                        dashboard filters above.
+
+                                    </p>
+
+
+                                    <ChiSquareResults />
+
+                                </div>
+
+                            </Col>
+
+
+                        </Row>
+
+                    )
+
+            }
+
+
+        </Container>
+
+    );
 
 }
+
 
 export default SovereigntyDeclarations;
