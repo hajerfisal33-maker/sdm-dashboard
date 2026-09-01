@@ -1,674 +1,1577 @@
 
 const queries = {
 
-    // ===============================
+    // =====================================================
+    // FILTER OPTIONS
+    // =====================================================
+
+    filterRegions: `
+        SELECT DISTINCT
+            region
+        FROM ethnic_groups
+        WHERE region IS NOT NULL
+        ORDER BY region;
+    `,
+
+
+    filterCountries: `
+        SELECT
+            country_id,
+            country_name
+        FROM countries
+        ORDER BY country_name;
+    `,
+
+
+    filterYears: `
+        SELECT DISTINCT
+            year
+        FROM movement_observations
+        WHERE year IS NOT NULL
+        ORDER BY year;
+    `,
+
+
+    filterClaimTypes: `
+        SELECT DISTINCT
+            domclaim
+        FROM movement_observations
+        WHERE domclaim IS NOT NULL
+        ORDER BY domclaim;
+    `,
+
+
+    // =====================================================
     // BQ1
-    // ===============================
+    // Geographic and Historical Distribution
+    // =====================================================
 
     movementsByCountry: `
         SELECT
             c.country_name,
-            COUNT(DISTINCT eg.group_id) AS total_movements
+
+            COUNT(
+                DISTINCT eg.group_id
+            ) AS total_movements
+
         FROM countries c
+
         JOIN ethnic_groups eg
-        ON c.country_id = eg.country_id
-        GROUP BY c.country_name
-        ORDER BY total_movements DESC;
+            ON c.country_id = eg.country_id
+
+        JOIN movement_observations mo
+            ON eg.group_id = mo.group_id
+
+        WHERE 1 = 1
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            c.country_id,
+            c.country_name
+
+        ORDER BY
+            total_movements DESC;
     `,
+
 
     movementsByRegion: `
         SELECT
-            region,
-            COUNT(DISTINCT group_id) AS total_movements
-        FROM ethnic_groups
-        GROUP BY region
-        ORDER BY total_movements DESC;
+            eg.region,
+
+            COUNT(
+                DISTINCT eg.group_id
+            ) AS total_movements
+
+        FROM ethnic_groups eg
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        JOIN movement_observations mo
+            ON eg.group_id = mo.group_id
+
+        WHERE
+            eg.region IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            eg.region
+
+        ORDER BY
+            total_movements DESC;
     `,
+
 
     movementsByYear: `
         SELECT
-            year,
-            COUNT(DISTINCT group_id) AS active_movements
-        FROM movement_observations
-        GROUP BY year
-        ORDER BY year;
+            mo.year,
+
+            COUNT(
+                DISTINCT mo.group_id
+            ) AS active_movements
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE 1 = 1
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.year
+
+        ORDER BY
+            mo.year;
     `,
 
-    // ===============================
+
+    // =====================================================
     // BQ2
-    // ===============================
+    // Claims and Duration
+    // =====================================================
 
     claimTypes: `
         SELECT
-            domclaim,
-            COUNT(DISTINCT group_id) AS total_movements
-        FROM movement_observations
-        WHERE domclaim IS NOT NULL
-        GROUP BY domclaim
-        ORDER BY total_movements DESC;
+            mo.domclaim,
+
+            COUNT(
+                DISTINCT mo.group_id
+            ) AS total_movements
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim
+
+        ORDER BY
+            total_movements DESC;
     `,
 
-   claimDuration: `
-SELECT
-    domclaim,
-    AVG(duration) AS avg_duration
-FROM (
 
-    SELECT DISTINCT
-        group_id,
-        domclaim,
+    claimDuration: `
+        SELECT DISTINCT
 
-        CASE
-            WHEN sdm_enddate1 = 9999 THEN 2020 - sdm_startdate1
-            WHEN sdm_enddate1 = 8888 THEN NULL
-            ELSE sdm_enddate1 - sdm_startdate1
-        END AS duration
+            mo.group_id,
 
-    FROM movement_observations
+            mo.domclaim,
 
-    WHERE sdm_startdate1 IS NOT NULL
+            mo.sdm_startdate1,
 
-) t
+            mo.sdm_enddate1,
 
-WHERE duration IS NOT NULL
+            CASE
 
-GROUP BY domclaim
+                WHEN mo.sdm_enddate1 IN (8888, 9999)
 
-ORDER BY domclaim;
-`,
+                    THEN NULL
 
-    // ===============================
+                ELSE
+                    (
+                        mo.sdm_enddate1
+                        -
+                        mo.sdm_startdate1
+                    )
+
+            END AS duration
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+            mo.sdm_startdate1 IS NOT NULL
+
+            AND mo.sdm_enddate1 IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.domclaim = ?
+            );
+    `,
+
+
+    // =====================================================
     // BQ3
-    // ===============================
+    // Sovereignty Declarations
+    // =====================================================
 
     sovereigntyDeclarations: `
-     SELECT
-    year,
-    COUNT(*) AS declarations
-FROM movement_observations
-WHERE sovdec = 1
-GROUP BY year
-ORDER BY year;
+        SELECT
+
+            COUNT(*) AS sovereignty_declarations
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+            mo.sovdec = 1
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
+
 
     declarationByClaim: `
         SELECT
-            domclaim,
+
+            mo.domclaim,
+
             COUNT(*) AS declarations
-        FROM movement_observations
-        WHERE sovdec = 1
-        GROUP BY domclaim;
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+            mo.sovdec = 1
+
+            AND mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim
+
+        ORDER BY
+            declarations DESC;
     `,
+
 
     declarationChiSquare: `
         SELECT
-            domclaim,
-            sovdec
-        FROM movement_observations
-        WHERE domclaim IS NOT NULL;
+
+            mo.domclaim,
+
+            mo.sovdec
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
 
-    // ===============================
+
+    // =====================================================
     // BQ4
-    // ===============================
+    // Violence
+    // =====================================================
 
-violentMovements: `
-SELECT
-    violsd,
-    COUNT(*) AS total
-FROM (
-    SELECT
-        group_id,
-        MAX(violsd) AS violsd
-    FROM movement_observations
-    GROUP BY group_id
-) t
-GROUP BY violsd;
-`,
+    violentMovements: `
+        SELECT
 
-violentEscalation: `
-SELECT
-CASE
-    WHEN max_violsd = 0 THEN 'Stayed Peaceful'
-    WHEN first_violsd = 0 AND max_violsd = 1 THEN 'Escalated to Violence'
-    WHEN first_violsd = 1 THEN 'Violent from Start'
-END AS category,
+            mo.violsd,
 
-COUNT(*) AS total
+            COUNT(*) AS total
 
-FROM (
+        FROM movement_observations mo
 
-SELECT
-    group_id,
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
 
-    MIN(year) AS first_year,
+        JOIN countries c
+            ON eg.country_id = c.country_id
 
-    (
-        SELECT violsd
-        FROM movement_observations m2
-        WHERE m2.group_id = m1.group_id
-        ORDER BY year ASC
-        LIMIT 1
-    ) AS first_violsd,
+        WHERE
 
-    MAX(violsd) AS max_violsd
+            (
+                ? IS NULL
+                OR eg.region = ?
+            )
 
-FROM movement_observations m1
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
 
-GROUP BY group_id
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
 
-) t
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
 
-GROUP BY category;
-`,
+        GROUP BY
+            mo.violsd;
+    `,
 
 
+    violentEscalation: `
+        SELECT
 
-    // ===============================
+            mo.viol_escal,
+
+            COUNT(*) AS total
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.viol_escal IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.viol_escal;
+    `,
+
+
+    // -----------------------------------------------------
+    // Movements that started directly with violence
+    // -----------------------------------------------------
+
+    violenceOnset: `
+        WITH first_observation AS (
+
+            SELECT
+
+                mo.group_id,
+
+                mo.year,
+
+                mo.violsd,
+
+                ROW_NUMBER() OVER (
+
+                    PARTITION BY mo.group_id
+
+                    ORDER BY mo.year ASC
+
+                ) AS rn
+
+            FROM movement_observations mo
+
+        )
+
+        SELECT
+
+            CASE
+
+                WHEN fo.violsd = 1
+
+                    THEN 1
+
+                ELSE 0
+
+            END AS violsd_onset,
+
+            COUNT(
+                DISTINCT fo.group_id
+            ) AS total
+
+        FROM first_observation fo
+
+        JOIN ethnic_groups eg
+            ON fo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            fo.rn = 1
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR fo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR fo.year <= ?
+            )
+
+        GROUP BY
+
+            CASE
+
+                WHEN fo.violsd = 1
+
+                    THEN 1
+
+                ELSE 0
+
+            END
+
+        ORDER BY
+            violsd_onset;
+    `,
+
+
+    // =====================================================
     // BQ5
-    // ===============================
+    // Concessions
+    // =====================================================
 
     concessions: `
         SELECT
-            domclaim,
-            SUM(con) AS concessions
-        FROM movement_observations
-        GROUP BY domclaim;
+
+            mo.domclaim,
+
+            SUM(
+                CASE
+
+                    WHEN mo.con = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS concessions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim;
     `,
+
 
     culturalConcessions: `
         SELECT
-            domclaim,
-            SUM(cultcon) AS cultural_concessions
-        FROM movement_observations
-        GROUP BY domclaim;
+
+            mo.domclaim,
+
+            SUM(
+                CASE
+
+                    WHEN mo.cultcon = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS cultural_concessions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim;
     `,
+
 
     autonomyConcessions: `
         SELECT
-            domclaim,
-            SUM(autcon) AS autonomy_concessions
-        FROM movement_observations
-        GROUP BY domclaim;
+
+            mo.domclaim,
+
+            SUM(
+                CASE
+
+                    WHEN mo.autcon = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS autonomy_concessions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim;
     `,
+
 
     independenceConcessions: `
         SELECT
-            domclaim,
-            SUM(indcon) AS independence_concessions
-        FROM movement_observations
-        GROUP BY domclaim;
+
+            mo.domclaim,
+
+            SUM(
+                CASE
+
+                    WHEN mo.indcon = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS independence_concessions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+        GROUP BY
+            mo.domclaim;
     `,
 
-    // عدد الحركات التي مُنحت أي تنازل
-
-concessionMovements: `
-SELECT
-    COUNT(DISTINCT group_id) AS total_movements
-FROM movement_observations
-WHERE
-      con = 1
-   OR cultcon = 1
-   OR autcon = 1
-   OR indcon = 1;
-`,
-
-// عدد الحركات حسب نوع المطالبة التي تلقت تنازلات
-
-concessionMovementsByClaim: `
-SELECT
-    domclaim,
-    COUNT(DISTINCT group_id) AS movements
-FROM movement_observations
-WHERE
-      con = 1
-   OR cultcon = 1
-   OR autcon = 1
-   OR indcon = 1
-GROUP BY domclaim
-ORDER BY movements DESC;
-`,
 
     concessionsChiSquare: `
         SELECT
-            domclaim,
-            con
-        FROM movement_observations;
+
+            mo.domclaim,
+
+            mo.con
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
 
-    // ===============================
+
+    // =====================================================
     // BQ6
-    // ===============================
+    // Restrictions
+    // =====================================================
 
     restrictions: `
         SELECT
-            SUM(res) AS restrictions
-        FROM movement_observations;
+
+            SUM(
+                CASE
+
+                    WHEN mo.res = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS restrictions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
+
 
     culturalRestrictions: `
         SELECT
-            SUM(cultres) AS cultural_restrictions
-        FROM movement_observations;
+
+            SUM(
+                CASE
+
+                    WHEN mo.cultres = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS cultural_restrictions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
+
 
     autonomyRestrictions: `
         SELECT
-            SUM(autres) AS autonomy_restrictions
-        FROM movement_observations;
+
+            SUM(
+                CASE
+
+                    WHEN mo.autres = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS autonomy_restrictions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
+
 
     independenceRestrictions: `
         SELECT
-            SUM(indres) AS independence_restrictions
-        FROM movement_observations;
+
+            SUM(
+                CASE
+
+                    WHEN mo.indres = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS independence_restrictions
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
 
-   
 
-    // عدد الحركات التي فُرضت عليها قيود
-
-restrictionMovements: `
-SELECT
-    COUNT(DISTINCT group_id) AS total_movements
-FROM movement_observations
-WHERE
-      res = 1
-   OR cultres = 1
-   OR autres = 1
-   OR indres = 1;
-`,
-
-// عدد الحركات حسب نوع المطالبة التي تعرضت لقيود
-
-restrictionMovementsByClaim: `
-SELECT
-    domclaim,
-    COUNT(DISTINCT group_id) AS movements
-FROM movement_observations
-WHERE
-      res = 1
-   OR cultres = 1
-   OR autres = 1
-   OR indres = 1
-GROUP BY domclaim
-ORDER BY movements DESC;
-`,
- restrictionsChiSquare: `
+    restrictionsChiSquare: `
         SELECT
-            domclaim,
-            res
-        FROM movement_observations;
+
+            mo.domclaim,
+
+            mo.res
+
+        FROM movement_observations mo
+
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
+
+        WHERE
+
+            mo.domclaim IS NOT NULL
+
+            AND (
+                ? IS NULL
+                OR eg.region = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR c.country_name = ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            );
     `,
 
-    // ===============================
+
+    // =====================================================
     // BQ7
-    // ===============================
-groupSize: `
-SELECT
-    group_name,
-    MAX(group_size) AS group_size
-FROM movement_observations mo
-JOIN ethnic_groups eg
-ON mo.group_id = eg.group_id
-GROUP BY group_name
-ORDER BY group_size DESC;
-`,
+    // Group Characteristics
+    // =====================================================
 
-geographicConcentration: `
-SELECT
-    group_con,
-    COUNT(DISTINCT group_id) AS total_groups
-FROM movement_observations
-WHERE group_con IS NOT NULL
-GROUP BY group_con;
-`,
 
-powerParticipation: `
-SELECT
-    pwrstat,
-    COUNT(DISTINCT group_id) AS total_groups
-FROM movement_observations
-WHERE pwrstat IS NOT NULL
-GROUP BY pwrstat;
-`
-,
-// ===============================
-// FILTER OPTIONS
-// ===============================
+    // -----------------------------------------------------
+    // Group Size
+    // Returns one record per group_id
+    // -----------------------------------------------------
 
-filterCountries: `
-    SELECT DISTINCT
-        c.country_id,
-        c.country_name
-    FROM countries c
-    JOIN ethnic_groups eg
-        ON c.country_id = eg.country_id
-    ORDER BY c.country_name;
-`,
+    groupSize: `
+        WITH latest_observation AS (
 
-filterRegions: `
-    SELECT DISTINCT
-        region
-    FROM ethnic_groups
-    WHERE region IS NOT NULL
-    ORDER BY region;
-`,
+            SELECT
 
-filterClaims: `
-    SELECT DISTINCT
-        domclaim
-    FROM movement_observations
-    WHERE domclaim IS NOT NULL
-    ORDER BY domclaim;
-`,
+                mo.group_id,
 
-filterYears: `
-    SELECT DISTINCT
-        year
-    FROM movement_observations
-    WHERE year IS NOT NULL
-    ORDER BY year;
-`,
-globeCountries: `
-  SELECT DISTINCT
-    c.country_id,
-    c.country_name
-  FROM countries c
-  ORDER BY c.country_name;
-`,
-// ===============================
-countrySummaryQuery: `
-WITH first_observation AS (
+                mo.group_size,
 
-    SELECT
-        mo.group_id,
-        mo.violsd,
+                mo.year,
 
-        ROW_NUMBER() OVER (
-            PARTITION BY mo.group_id
-            ORDER BY mo.year ASC
-        ) AS rn
+                ROW_NUMBER() OVER (
 
-    FROM movement_observations mo
-)
+                    PARTITION BY mo.group_id
 
-SELECT
+                    ORDER BY mo.year DESC
 
-    c.country_name,
+                ) AS rn
 
-    GROUP_CONCAT(
-        DISTINCT eg.group_name
-        ORDER BY eg.group_name
-        SEPARATOR ', '
-    ) AS ethnic_groups,
+            FROM movement_observations mo
 
-    /* Total number of movements */
-    COUNT(
-        DISTINCT eg.group_id
-    ) AS total_sdms,
+            JOIN ethnic_groups eg
+                ON mo.group_id = eg.group_id
 
-    /* Sovereignty declared at any point */
-    COUNT(
-        DISTINCT CASE
-            WHEN mo.sovdec = 1
-            THEN mo.group_id
-        END
-    ) AS sovereignty_count,
+            JOIN countries c
+                ON eg.country_id = c.country_id
 
-    /* Violence experienced at any point */
-    COUNT(
-        DISTINCT CASE
-            WHEN mo.violsd = 1
-            THEN mo.group_id
-        END
-    ) AS violent_count,
+            WHERE
 
-    /* Movements that started directly with violence */
-    COUNT(
-        DISTINCT CASE
-            WHEN fo.rn = 1
-             AND fo.violsd = 1
-            THEN fo.group_id
-        END
-    ) AS started_violent_count,
+                (
+                    ? IS NULL
+                    OR eg.region = ?
+                )
 
-    /* Movements whose latest recorded status was peaceful */
-    COUNT(
-        DISTINCT CASE
-            WHEN fo_latest.rn = 1
-             AND fo_latest.violsd = 0
-            THEN fo_latest.group_id
-        END
-    ) AS remained_peaceful_count,
+                AND (
+                    ? IS NULL
+                    OR c.country_name = ?
+                )
 
-    /* Concessions received at any point */
-    COUNT(
-        DISTINCT CASE
-            WHEN mo.con = 1
-            THEN mo.group_id
-        END
-    ) AS concessions_count,
+                AND (
+                    ? IS NULL
+                    OR mo.year >= ?
+                )
 
-    /* Restrictions faced at any point */
-    COUNT(
-        DISTINCT CASE
-            WHEN mo.res = 1
-            THEN mo.group_id
-        END
-    ) AS restrictions_count
+                AND (
+                    ? IS NULL
+                    OR mo.year <= ?
+                )
 
-FROM countries c
-
-LEFT JOIN ethnic_groups eg
-    ON c.country_id = eg.country_id
-
-LEFT JOIN movement_observations mo
-    ON eg.group_id = mo.group_id
-
-/* First recorded observation */
-LEFT JOIN first_observation fo
-    ON eg.group_id = fo.group_id
-   AND fo.rn = 1
-
-/* Latest recorded observation */
-LEFT JOIN (
-    SELECT
-        mo.group_id,
-        mo.violsd,
-
-        ROW_NUMBER() OVER (
-            PARTITION BY mo.group_id
-            ORDER BY mo.year DESC
-        ) AS rn
-
-    FROM movement_observations mo
-) fo_latest
-
-    ON eg.group_id = fo_latest.group_id
-   AND fo_latest.rn = 1
-
-WHERE c.country_name = ?
-
-GROUP BY
-    c.country_id,
-    c.country_name;
-`,
-// 2. تفاصيل حركات الدولة (Level 3)
-
-countryMovementsQuery: `
-WITH movement_claims AS (
-
-    SELECT
-        group_id,
-
-        GROUP_CONCAT(
-            DISTINCT domclaim
-            ORDER BY domclaim
-            SEPARATOR ', '
-        ) AS claim_types
-
-    FROM movement_observations
-
-    WHERE domclaim IS NOT NULL
-
-    GROUP BY group_id
-),
-
-first_observation AS (
-
-    SELECT
-        mo.group_id,
-        mo.violsd,
-
-        ROW_NUMBER() OVER (
-            PARTITION BY mo.group_id
-            ORDER BY mo.year ASC
-        ) AS rn
-
-    FROM movement_observations mo
-),
-
-latest_observation AS (
-
-    SELECT
-        mo.group_id,
-
-        mo.group_size,
-        mo.group_con,
-        mo.pwrstat,
-
-        mo.sovdec,
-        mo.violsd,
-        mo.violsd_onset,
-        mo.con,
-        mo.res,
-
-        mo.sdm_startdate1,
-        mo.sdm_enddate1,
-        mo.year,
-
-        ROW_NUMBER() OVER (
-            PARTITION BY mo.group_id
-            ORDER BY mo.year DESC
-        ) AS rn
-
-    FROM movement_observations mo
-)
-
-SELECT
-
-    eg.group_id,
-    eg.group_name,
-    eg.region,
-
-    mc.claim_types,
-
-    /* Latest recorded values */
-    lo.group_size AS group_size,
-    lo.group_con AS group_concentration,
-    lo.pwrstat AS power_status,
-
-    /* Sovereignty declared at any point */
-    CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM movement_observations x
-            WHERE x.group_id = eg.group_id
-              AND x.sovdec = 1
         )
-        THEN 1
-        ELSE 0
-    END AS sovereignty_declared,
 
-    /* Violence experienced at any point */
-    CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM movement_observations x
-            WHERE x.group_id = eg.group_id
-              AND x.violsd = 1
+        SELECT
+
+            eg.group_id,
+
+            eg.group_name,
+
+            lo.group_size
+
+        FROM ethnic_groups eg
+
+        JOIN latest_observation lo
+            ON eg.group_id = lo.group_id
+
+        WHERE
+            lo.rn = 1
+
+        ORDER BY
+            lo.group_size DESC;
+    `,
+
+
+    // -----------------------------------------------------
+    // Geographic Concentration
+    // Uses latest observation for each group
+    // -----------------------------------------------------
+
+    geographicConcentration: `
+        WITH latest_observation AS (
+
+            SELECT
+
+                mo.group_id,
+
+                mo.group_con,
+
+                mo.year,
+
+                ROW_NUMBER() OVER (
+
+                    PARTITION BY mo.group_id
+
+                    ORDER BY mo.year DESC
+
+                ) AS rn
+
+            FROM movement_observations mo
+
+            JOIN ethnic_groups eg
+                ON mo.group_id = eg.group_id
+
+            JOIN countries c
+                ON eg.country_id = c.country_id
+
+            WHERE
+
+                (
+                    ? IS NULL
+                    OR eg.region = ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR c.country_name = ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR mo.year >= ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR mo.year <= ?
+                )
+
         )
-        THEN 1
-        ELSE 0
-    END AS experienced_violence,
 
-    /* Movement started directly with violence */
-    CASE
-        WHEN fo.rn = 1
-         AND fo.violsd = 1
-        THEN 1
-        ELSE 0
-    END AS started_violence,
+        SELECT
 
-    /* Peaceful in the latest recorded observation */
-    CASE
-        WHEN lo.violsd = 0
-        THEN 1
-        ELSE 0
-    END AS remained_peaceful,
+            lo.group_con,
 
-    /* Concession received at any point */
-    CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM movement_observations x
-            WHERE x.group_id = eg.group_id
-              AND x.con = 1
+            COUNT(
+                DISTINCT lo.group_id
+            ) AS total_groups
+
+        FROM latest_observation lo
+
+        WHERE
+
+            lo.rn = 1
+
+            AND lo.group_con IS NOT NULL
+
+        GROUP BY
+            lo.group_con
+
+        ORDER BY
+            lo.group_con;
+    `,
+
+
+    // -----------------------------------------------------
+    // Political Power Participation
+    // Uses latest observation for each group
+    // -----------------------------------------------------
+
+    powerParticipation: `
+        WITH latest_observation AS (
+
+            SELECT
+
+                mo.group_id,
+
+                mo.pwrstat,
+
+                mo.year,
+
+                ROW_NUMBER() OVER (
+
+                    PARTITION BY mo.group_id
+
+                    ORDER BY mo.year DESC
+
+                ) AS rn
+
+            FROM movement_observations mo
+
+            JOIN ethnic_groups eg
+                ON mo.group_id = eg.group_id
+
+            JOIN countries c
+                ON eg.country_id = c.country_id
+
+            WHERE
+
+                (
+                    ? IS NULL
+                    OR eg.region = ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR c.country_name = ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR mo.year >= ?
+                )
+
+                AND (
+                    ? IS NULL
+                    OR mo.year <= ?
+                )
+
         )
-        THEN 1
-        ELSE 0
-    END AS received_concession,
 
-    /* Restriction faced at any point */
-    CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM movement_observations x
-            WHERE x.group_id = eg.group_id
-              AND x.res = 1
+        SELECT
+
+            lo.pwrstat,
+
+            COUNT(
+                DISTINCT lo.group_id
+            ) AS total_groups
+
+        FROM latest_observation lo
+
+        WHERE
+
+            lo.rn = 1
+
+            AND lo.pwrstat IS NOT NULL
+
+        GROUP BY
+            lo.pwrstat
+
+        ORDER BY
+            lo.pwrstat;
+    `,
+
+
+    // =====================================================
+    // COMPARISON
+    // Countries or Regions
+    // =====================================================
+
+    compareEntities: `
+        WITH
+
+        first_observation AS (
+
+            SELECT
+
+                mo.group_id,
+
+                mo.violsd,
+
+                ROW_NUMBER() OVER (
+
+                    PARTITION BY mo.group_id
+
+                    ORDER BY mo.year ASC
+
+                ) AS rn
+
+            FROM movement_observations mo
+
+        ),
+
+
+        latest_observation AS (
+
+            SELECT
+
+                mo.group_id,
+
+                mo.violsd,
+
+                ROW_NUMBER() OVER (
+
+                    PARTITION BY mo.group_id
+
+                    ORDER BY mo.year DESC
+
+                ) AS rn
+
+            FROM movement_observations mo
+
         )
-        THEN 1
-        ELSE 0
-    END AS faced_restriction,
 
-    /* First recorded movement year */
-    (
-        SELECT MIN(x.sdm_startdate1)
-        FROM movement_observations x
-        WHERE x.group_id = eg.group_id
-    ) AS start_year,
 
-    /* Last recorded movement year */
-    CASE
-        WHEN lo.sdm_enddate1 = 9999
-            THEN 2020
+        SELECT
 
-        WHEN lo.sdm_enddate1 = 8888
-            THEN NULL
+            CASE
 
-        ELSE lo.sdm_enddate1
-    END AS end_year
+                WHEN ? = 'country'
 
-FROM countries c
+                    THEN c.country_name
 
-INNER JOIN ethnic_groups eg
-    ON c.country_id = eg.country_id
+                WHEN ? = 'region'
 
-INNER JOIN first_observation fo
-    ON eg.group_id = fo.group_id
-   AND fo.rn = 1
+                    THEN eg.region
 
-INNER JOIN latest_observation lo
-    ON eg.group_id = lo.group_id
-   AND lo.rn = 1
+            END AS entity_name,
 
-LEFT JOIN movement_claims mc
-    ON eg.group_id = mc.group_id
 
-WHERE c.country_name = ?
+            COUNT(
+                DISTINCT eg.group_id
+            ) AS total_movements,
 
-ORDER BY start_year ASC;
-`,}
+
+            COUNT(
+                DISTINCT CASE
+
+                    WHEN mo.sovdec = 1
+
+                        THEN mo.group_id
+
+                END
+            ) AS sovereignty_movements,
+
+
+            COUNT(
+                DISTINCT CASE
+
+                    WHEN mo.violsd = 1
+
+                        THEN mo.group_id
+
+                END
+            ) AS experienced_violence,
+
+
+            COUNT(
+                DISTINCT CASE
+
+                    WHEN fo.rn = 1
+                    AND fo.violsd = 1
+
+                        THEN fo.group_id
+
+                END
+            ) AS started_violence,
+
+
+            COUNT(
+                DISTINCT CASE
+
+                    WHEN lo.rn = 1
+                    AND lo.violsd = 0
+
+                        THEN lo.group_id
+
+                END
+            ) AS latest_peaceful_movements,
+
+
+            SUM(
+                CASE
+
+                    WHEN mo.con = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS total_concessions,
+
+
+            SUM(
+                CASE
+
+                    WHEN mo.res = 1
+
+                        THEN 1
+
+                    ELSE 0
+
+                END
+            ) AS total_restrictions
+
+
+        FROM countries c
+
+        JOIN ethnic_groups eg
+            ON c.country_id = eg.country_id
+
+        JOIN movement_observations mo
+            ON eg.group_id = mo.group_id
+
+        LEFT JOIN first_observation fo
+            ON eg.group_id = fo.group_id
+            AND fo.rn = 1
+
+        LEFT JOIN latest_observation lo
+            ON eg.group_id = lo.group_id
+            AND lo.rn = 1
+
+
+        WHERE
+
+            (
+
+                (
+                    ? = 'country'
+
+                    AND c.country_name IN (?, ?)
+
+                )
+
+                OR
+
+                (
+
+                    ? = 'region'
+
+                    AND eg.region IN (?, ?)
+
+                )
+
+            )
+
+
+            AND (
+                ? IS NULL
+                OR mo.year >= ?
+            )
+
+
+            AND (
+                ? IS NULL
+                OR mo.year <= ?
+            )
+
+
+        GROUP BY
+
+            CASE
+
+                WHEN ? = 'country'
+
+                    THEN c.country_name
+
+                WHEN ? = 'region'
+
+                    THEN eg.region
+
+            END
+
+
+        ORDER BY
+            entity_name;
+    `
+
+};
+
 
 module.exports = queries;

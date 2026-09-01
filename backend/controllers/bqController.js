@@ -315,7 +315,37 @@ exports.violentEscalation = async (req, res) => {
 
 };
 
+// =========================
+// BQ4 Violence Onset
+// =========================
 
+exports.violenceOnset = async (req, res) => {
+
+    console.log("BQ4 VIOLENCE ONSET");
+
+    try {
+
+        const [rows] = await db.query(
+            queries.violenceOnset
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
 
 
 // =========================
@@ -791,9 +821,15 @@ exports.powerParticipation = async (req, res) => {
 // Dashboard Filters
 // ========================================
 
-// Countries
+
+// =========================
+// Countries Filter
+// =========================
+
 exports.filterCountries = async (req, res) => {
+
     try {
+
         const [rows] = await db.query(`
             SELECT
                 country_id,
@@ -803,37 +839,63 @@ exports.filterCountries = async (req, res) => {
         `);
 
         res.json(rows);
+
     }
 
     catch (error) {
+
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 
-// Regions
+
+// =========================
+// Regions Filter
+// =========================
+
 exports.filterRegions = async (req, res) => {
+
     try {
+
         const [rows] = await db.query(`
             SELECT DISTINCT
                 region
-            FROM countries
+            FROM ethnic_groups
             WHERE region IS NOT NULL
             ORDER BY region;
         `);
 
         res.json(rows);
+
     }
 
     catch (error) {
+
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 
-// Years
+
+// =========================
+// Years Filter
+// =========================
+
 exports.filterYears = async (req, res) => {
+
     try {
+
         const [rows] = await db.query(`
             SELECT DISTINCT
                 year
@@ -843,17 +905,30 @@ exports.filterYears = async (req, res) => {
         `);
 
         res.json(rows);
+
     }
 
     catch (error) {
+
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 
-// Claim Types
+
+// =========================
+// Claim Types Filter
+// =========================
+
 exports.filterClaims = async (req, res) => {
+
     try {
+
         const [rows] = await db.query(`
             SELECT DISTINCT
                 domclaim
@@ -863,12 +938,19 @@ exports.filterClaims = async (req, res) => {
         `);
 
         res.json(rows);
+
     }
 
     catch (error) {
+
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 //  الحقول في قاعدة البيانات وأسماء الحقول التي نريد إرسالها للفرونت إند
 
