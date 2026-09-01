@@ -444,44 +444,25 @@ const queries = {
         declarations DESC;
 `,
 
-    declarationChiSquare: `
-        SELECT
+   declarationChiSquare: `
 
-            mo.domclaim,
+    SELECT
 
-            mo.sovdec
+        mo.group_id,
 
-        FROM movement_observations mo
+        mo.domclaim,
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+        mo.sovdec
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    FROM movement_observations mo
 
-        WHERE
-            mo.domclaim IS NOT NULL
+    WHERE
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        mo.domclaim IS NOT NULL
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        AND mo.sovdec IS NOT NULL;
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
+`,
 
 
     // =====================================================
@@ -489,183 +470,98 @@ const queries = {
     // Violence
     // =====================================================
 
-    violentMovements: `
-        SELECT
+  // =====================================================
+// BQ4
+// Violence
+// =====================================================
 
-            mo.violsd,
+violentMovements: `
+    SELECT
 
-            COUNT(*) AS total
+        mo.violsd,
 
-        FROM movement_observations mo
+        COUNT(*) AS total
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    FROM movement_observations mo
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        WHERE
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-        GROUP BY
-            mo.violsd;
-    `,
+    WHERE 1 = 1
+`,
 
 
-    violentEscalation: `
-        SELECT
+violentEscalation: `
+    SELECT
 
-            mo.viol_escal,
+        mo.viol_escal,
 
-            COUNT(*) AS total
+        COUNT(*) AS total
 
-        FROM movement_observations mo
+    FROM movement_observations mo
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-        WHERE
+    WHERE
 
-            mo.viol_escal IS NOT NULL
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-        GROUP BY
-            mo.viol_escal;
-    `,
+        mo.viol_escal IS NOT NULL
+`,
 
 
-    // -----------------------------------------------------
-    // Movements that started directly with violence
-    // -----------------------------------------------------
+violenceOnset: `
+    SELECT
 
-    violenceOnset: `
-        WITH first_observation AS (
+        mo.violsd_onset,
 
-            SELECT
+        COUNT(
+            DISTINCT mo.group_id
+        ) AS total
 
-                mo.group_id,
+    FROM movement_observations mo
 
-                mo.year,
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-                mo.violsd,
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-                ROW_NUMBER() OVER (
+    WHERE
 
-                    PARTITION BY mo.group_id
+        mo.violsd_onset IS NOT NULL
 
-                    ORDER BY mo.year ASC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
+        AND (
+            ? IS NULL
+            OR eg.region = ?
         )
 
-        SELECT
+        AND (
+            ? IS NULL
+            OR c.country_name = ?
+        )
 
-            CASE
+        AND (
+            ? IS NULL
+            OR mo.year >= ?
+        )
 
-                WHEN fo.violsd = 1
+        AND (
+            ? IS NULL
+            OR mo.year <= ?
+        )
 
-                    THEN 1
+    GROUP BY
+        mo.violsd_onset
 
-                ELSE 0
-
-            END AS violsd_onset,
-
-            COUNT(
-                DISTINCT fo.group_id
-            ) AS total
-
-        FROM first_observation fo
-
-        JOIN ethnic_groups eg
-            ON fo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            fo.rn = 1
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR fo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR fo.year <= ?
-            )
-
-        GROUP BY
-
-            CASE
-
-                WHEN fo.violsd = 1
-
-                    THEN 1
-
-                ELSE 0
-
-            END
-
-        ORDER BY
-            violsd_onset;
-    `,
-
+    ORDER BY
+        mo.violsd_onset;
+`,
 
     // =====================================================
     // BQ5

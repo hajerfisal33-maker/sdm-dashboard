@@ -522,23 +522,59 @@ exports.declarationChiSquare = async (req, res) => {
 // BQ4 Violent
 // =========================
 
+// =========================
+// BQ4 VIOLENT MOVEMENTS
+// =========================
+
+// =========================
+// BQ4 Violent Movements
+// =========================
+
 exports.violentMovements = async (req, res) => {
- console.log("BQ4 VIOLENT MOVEMENTS");
-    try{
+
+    console.log("BQ4 VIOLENT MOVEMENTS");
+
+    try {
+
+        const {
+            region,
+            country,
+            startYear,
+            endYear
+        } = req.query;
+
+        const params = [
+            region || null,
+            region || null,
+
+            country || null,
+            country || null,
+
+            startYear || null,
+            startYear || null,
+
+            endYear || null,
+            endYear || null
+        ];
 
         const [rows] = await db.query(
-            queries.violentMovements
+            queries.violentMovements,
+            params
         );
+
         console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+            error: error.message
+        });
 
     }
 
@@ -546,30 +582,59 @@ exports.violentMovements = async (req, res) => {
 
 
 // =========================
-// Escalation
+// BQ4 Violent Escalation
 // =========================
 
 exports.violentEscalation = async (req, res) => {
- console.log("BQ4 VIOLENT ESCALATION");
-    try{
+
+    console.log("BQ4 VIOLENT ESCALATION");
+
+    try {
+
+        const {
+            region,
+            country,
+            startYear,
+            endYear
+        } = req.query;
+
+        const params = [
+            region || null,
+            region || null,
+
+            country || null,
+            country || null,
+
+            startYear || null,
+            startYear || null,
+
+            endYear || null,
+            endYear || null
+        ];
 
         const [rows] = await db.query(
-            queries.violentEscalation
+            queries.violentEscalation,
+            params
         );
+
         console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+            error: error.message
+        });
 
     }
 
 };
+
 
 // =========================
 // BQ4 Violence Onset
@@ -581,8 +646,30 @@ exports.violenceOnset = async (req, res) => {
 
     try {
 
+        const {
+            region,
+            country,
+            startYear,
+            endYear
+        } = req.query;
+
+        const params = [
+            region || null,
+            region || null,
+
+            country || null,
+            country || null,
+
+            startYear || null,
+            startYear || null,
+
+            endYear || null,
+            endYear || null
+        ];
+
         const [rows] = await db.query(
-            queries.violenceOnset
+            queries.violenceOnset,
+            params
         );
 
         console.log(rows);
