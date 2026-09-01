@@ -69,127 +69,82 @@ function ClaimsAndMovementDuration() {
     // Load Dashboard Data
     // =========================
 
-    async function loadData() {
+   async function loadData() {
 
-        try {
+    try {
 
-            setLoading(true);
+        setLoading(true);
 
-            setError(null);
-
-
-            // =========================
-            // Build Filter Parameters
-            // =========================
-
-            const params = {};
+        setError(null);
 
 
-            if (filters.country) {
+        const params = {
 
-                params.country = filters.country;
+            country: filters.country || "",
 
-            }
+            region: filters.region || "",
 
+            year: filters.year || "",
 
-            if (filters.region) {
+            claim: filters.claim || ""
 
-                params.region = filters.region;
-
-            }
-
-
-            if (filters.year) {
-
-                params.year = filters.year;
-
-            }
+        };
 
 
-            if (filters.claim) {
+        const [
 
-                params.claim = filters.claim;
+            claims,
 
-            }
+            duration
 
+        ] = await Promise.all([
 
-            // =========================
-            // API Requests
-            // =========================
+            api.get(
+                "/claim-types",
+                { params }
+            ),
 
-            const [
+            api.get(
+                "/claim-duration",
+                { params }
+            )
 
-                claims,
-
-                duration
-
-            ] = await Promise.all([
-
-                api.get(
-
-                    "/claim-types",
-
-                    { params }
-
-                ),
-
-                api.get(
-
-                    "/claim-duration",
-
-                    { params }
-
-                )
-
-            ]);
+        ]);
 
 
-            // =========================
-            // Store Results
-            // =========================
-
-            setClaimTypes(
-
-                claims.data || []
-
-            );
+        setClaimTypes(
+            claims.data || []
+        );
 
 
-            setClaimDuration(
+        setClaimDuration(
+            duration.data || []
+        );
 
-                duration.data || []
-
-            );
-
-
-        }
-
-        catch (error) {
-
-            console.error(
-
-                "Failed to load BQ2 data:",
-
-                error
-
-            );
-
-
-            setError(
-
-                "Failed to load dashboard data. Please try again."
-
-            );
-
-        }
-
-        finally {
-
-            setLoading(false);
-
-        }
 
     }
+
+    catch (error) {
+
+        console.error(
+            "Failed to load BQ2 data:",
+            error
+        );
+
+
+        setError(
+            "Failed to load dashboard data."
+        );
+
+    }
+
+    finally {
+
+        setLoading(false);
+
+    }
+
+}
 
 
     // =========================
