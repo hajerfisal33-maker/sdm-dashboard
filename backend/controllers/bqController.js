@@ -93,13 +93,45 @@ exports.movementsByYear = async (req, res) => {
 // =========================
 
 exports.claimTypes = async (req, res) => {
-console.log("CLAIM TYPES ENDPOINT HIT");
+
     try {
 
+        const {
+
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+
+        } = req.query;
+
+
+        const params = [
+
+            region,
+            region,
+
+            country,
+            country,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.claimTypes
+
+            queries.claimTypes,
+
+            params
+
         );
-        console.log(rows);
+
+
         res.json(rows);
 
     }
@@ -108,41 +140,75 @@ console.log("CLAIM TYPES ENDPOINT HIT");
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
 
-// =========================
-// BQ2 Duration
-// =========================
 
 exports.claimDuration = async (req, res) => {
 
-    console.log("CLAIM DURATION ENDPOINT HIT");
-
     try {
 
+        const {
+
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+
+        } = req.query;
+
+
+        const params = [
+
+            region,
+            region,
+
+            country,
+            country,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.claimDuration
+
+            queries.claimDuration,
+
+            params
+
         );
 
-        console.log(rows);
 
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
+
 
 // =========================
 // BQ3 Sovereignty

@@ -186,122 +186,135 @@ const queries = {
     `,
 
 
-    // =====================================================
-    // BQ2
-    // Claims and Duration
-    // =====================================================
-
     claimTypes: `
-        SELECT
-            mo.domclaim,
+    SELECT
 
-            COUNT(
-                DISTINCT mo.group_id
-            ) AS total_movements
+        mo.domclaim,
 
-        FROM movement_observations mo
+        COUNT(
+            DISTINCT mo.group_id
+        ) AS total_movements
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    FROM movement_observations mo
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        WHERE
-            mo.domclaim IS NOT NULL
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+    WHERE
+        mo.domclaim IS NOT NULL
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-        GROUP BY
-            mo.domclaim
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-        ORDER BY
-            total_movements DESC;
+    GROUP BY
+        mo.domclaim
+
+    ORDER BY
+        total_movements DESC;
+
     `,
 
 
-    claimDuration: `
-        SELECT DISTINCT
+   claimDuration: `
+    SELECT
 
-            mo.group_id,
+        mo.domclaim,
 
-            mo.domclaim,
-
-            mo.sdm_startdate1,
-
-            mo.sdm_enddate1,
-
+        AVG(
             CASE
 
-                WHEN mo.sdm_enddate1 IN (8888, 9999)
+                WHEN mo.sdm_enddate1 = 9999
 
-                    THEN NULL
+                    THEN
+                        2020 - mo.sdm_startdate1
+
+                WHEN mo.sdm_enddate1 = 8888
+
+                    THEN
+                        NULL
 
                 ELSE
-                    (
-                        mo.sdm_enddate1
-                        -
-                        mo.sdm_startdate1
-                    )
 
-            END AS duration
+                    mo.sdm_enddate1
+                    -
+                    mo.sdm_startdate1
 
-        FROM movement_observations mo
+            END
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+        ) AS avg_duration
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    FROM movement_observations mo
 
-        WHERE
-            mo.sdm_startdate1 IS NOT NULL
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-            AND mo.sdm_enddate1 IS NOT NULL
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+    WHERE
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        mo.sdm_startdate1 IS NOT NULL
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        AND (
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+            ? = ''
 
-            AND (
-                ? IS NULL
-                OR mo.domclaim = ?
-            );
-    `,
+            OR eg.region = ?
+
+        )
+
+        AND (
+
+            ? = ''
+
+            OR c.country_id = ?
+
+        )
+
+        AND (
+
+            ? = ''
+
+            OR mo.year = ?
+
+        )
+
+        AND (
+
+            ? = ''
+
+            OR mo.domclaim = ?
+
+        )
+
+    GROUP BY
+
+        mo.domclaim
+
+    ORDER BY
+
+        avg_duration DESC;
+`,
 
 
     // =====================================================
