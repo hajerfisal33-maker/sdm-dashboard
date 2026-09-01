@@ -1,48 +1,157 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+
 import BarChartComponent from "../charts/BarChartComponent";
+
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Spinner
+    Container,
+    Row,
+    Col,
+    Card,
+    Spinner,
+    Alert
 } from "react-bootstrap";
+
+import DashboardFilters from "../components/DashboardFilters";
+
 
 function GeographicalAndHistoricalDistribution() {
 
-    const [countryData,setCountryData]=useState([]);
-    const [regionData,setRegionData]=useState([]);
-    const [yearData,setYearData]=useState([]);
-    const [loading,setLoading]=useState(true);
 
-    useEffect(()=>{
+    // =========================
+    // Dashboard Data
+    // =========================
+
+    const [countryData, setCountryData] = useState([]);
+
+    const [regionData, setRegionData] = useState([]);
+
+    const [yearData, setYearData] = useState([]);
+
+
+    // =========================
+    // Loading and Error
+    // =========================
+
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState(null);
+
+
+    // =========================
+    // Dashboard Filters
+    // =========================
+
+    const [filters, setFilters] = useState({
+
+        country: "",
+
+        region: "",
+
+        year: "",
+
+        claim: ""
+
+    });
+
+
+    // =========================
+    // Reload When Filters Change
+    // =========================
+
+    useEffect(() => {
 
         loadData();
 
-    },[]);
+    }, [filters]);
 
-    async function loadData(){
 
-        try{
+    // =========================
+    // Load Data
+    // =========================
 
-            const country=await api.get("/country");
-            const region=await api.get("/region");
-            const year=await api.get("/year");
+    async function loadData() {
 
-            setCountryData(country.data||[]);
-            setRegionData(region.data||[]);
-            setYearData(year.data||[]);
+        try {
+
+            setLoading(true);
+
+            setError(null);
+
+
+            const params = {
+
+                country: filters.country || "",
+
+                region: filters.region || "",
+
+                year: filters.year || "",
+
+                claim: filters.claim || ""
+
+            };
+
+
+            const [
+
+                country,
+
+                region,
+
+                year
+
+            ] = await Promise.all([
+
+                api.get(
+                    "/country",
+                    { params }
+                ),
+
+                api.get(
+                    "/region",
+                    { params }
+                ),
+
+                api.get(
+                    "/year",
+                    { params }
+                )
+
+            ]);
+
+
+            setCountryData(
+                country.data || []
+            );
+
+
+            setRegionData(
+                region.data || []
+            );
+
+
+            setYearData(
+                year.data || []
+            );
+
 
         }
 
-        catch(err){
+        catch (error) {
 
-            console.log(err);
+            console.error(
+                "Failed to load BQ1 data:",
+                error
+            );
+
+
+            setError(
+                "Failed to load dashboard data. Please try again."
+            );
 
         }
 
-        finally{
+        finally {
 
             setLoading(false);
 
@@ -50,283 +159,355 @@ function GeographicalAndHistoricalDistribution() {
 
     }
 
-    if(loading){
 
-        return(
+    // =========================
+    // Page
+    // =========================
 
-            <Container className="text-center mt-5">
+    return (
 
-                <Spinner animation="border"/>
+        <Container className="mt-5 mb-5">
 
-            </Container>
 
-        )
+            {/* ================= Header ================= */}
 
-    }
+            <Card className="shadow-sm border-0 mb-4 p-4">
 
-    return(
+                <h2 className="fw-bold text-primary">
 
-<Container className="mt-5 mb-5">
+                    Geographical & Historical Distribution
+                    of Self-Determination Movements
 
-{/* ================= Header ================= */}
+                </h2>
 
-<Card className="shadow-sm border-0 mb-4 p-4">
 
-<h2 className="fw-bold text-primary">
+                <p className="mt-3">
 
-Geographical & Historical Distribution of Self-Determination Movements
+                    This section provides an overview of the geographical and
+                    historical distribution of self-determination movements
+                    contained in the SDM dataset. The visualisations illustrate
+                    where movements emerged, how they are distributed across
+                    world regions, and how movement activity changed over time
+                    between 1945 and 2020.
 
-</h2>
+                </p>
 
-<p className="mt-3">
 
-This section provides an overview of the geographical and historical
-distribution of self-determination movements contained in the SDM dataset.
-The visualisations illustrate where movements emerged, how they are
-distributed across world regions, and how the number of active movements
-changed over time between 1945 and 2020.
+                <p>
 
-</p>
+                    These charts provide a general understanding of global
+                    patterns before moving to more detailed analyses in the
+                    following sections.
 
-<p>
+                </p>
 
-These charts provide a general understanding of the global patterns before
-moving to more detailed analyses in the following sections.
+            </Card>
 
-</p>
 
-</Card>
 
-{/* ================= Country ================= */}
+            {/* ================= Filters ================= */}
 
-<Row className="mb-4">
+            <DashboardFilters
 
-<Col>
+                filters={filters}
 
-<Card className="shadow-sm border-0 p-4">
+                setFilters={setFilters}
 
-<h4 className="fw-bold">
+            />
 
-Distribution of Self-Determination Movements by Country
 
-</h4>
 
-<BarChartComponent
+            {/* ================= Error ================= */}
 
-data={countryData}
+            {error && (
 
-xKey="country_name"
+                <Alert variant="danger">
 
-yKey="total_movements"
+                    {error}
 
-/>
+                </Alert>
 
-<hr/>
+            )}
 
-<h5 className="fw-bold">
 
-Interpretation
 
-</h5>
+            {/* ================= Loading ================= */}
 
-<p>
+            {loading ? (
 
-This chart presents the number of distinct self-determination movements
-identified within each sovereign state.
+                <div className="text-center my-5">
 
-</p>
+                    <Spinner animation="border" />
 
-<ul>
+                    <p className="mt-3 text-muted">
 
-<li>
+                        Loading dashboard data...
 
-<b>X-axis:</b> Host countries included in the SDM dataset.
+                    </p>
 
-</li>
+                </div>
 
-<li>
 
-<b>Y-axis:</b> Number of distinct self-determination movements
-identified in each country.
+            ) : (
 
-</li>
+                <>
 
-<li>
 
-Each movement is counted only once regardless of how many years it
-appears in the dataset.
+                    {/* ================= Country ================= */}
 
-</li>
+                    <Row className="mb-4">
 
-<li>
+                        <Col>
 
-Higher bars indicate countries that have historically experienced a
-greater number of self-determination movements.
+                            <Card className="shadow-sm border-0 p-4">
 
-</li>
+                                <h4 className="fw-bold">
 
-</ul>
+                                    Distribution of Self-Determination
+                                    Movements by Country
 
-</Card>
+                                </h4>
 
-</Col>
 
-</Row>
+                                {countryData.length > 0 ? (
 
-{/* ================= Region ================= */}
+                                    <BarChartComponent
 
-<Row className="mb-4">
+                                        data={countryData}
 
-<Col>
+                                        xKey="country_name"
 
-<Card className="shadow-sm border-0 p-4">
+                                        yKey="total_movements"
 
-<h4 className="fw-bold">
+                                    />
 
-Distribution of Self-Determination Movements by World Region
+                                ) : (
 
-</h4>
+                                    <Alert variant="info">
 
-<BarChartComponent
+                                        No country data is available for
+                                        the selected filters.
 
-data={regionData}
+                                    </Alert>
 
-xKey="region"
+                                )}
 
-yKey="total_movements"
 
-/>
+                                <hr />
 
-<hr/>
 
-<h5 className="fw-bold">
+                                <h5 className="fw-bold">
 
-Interpretation
+                                    Interpretation
 
-</h5>
+                                </h5>
 
-<p>
 
-This chart aggregates all movements according to their geographical
-region.
+                                <p>
 
-</p>
+                                    This chart presents the number of distinct
+                                    self-determination movements identified
+                                    within each country.
 
-<ul>
+                                </p>
 
-<li>
 
-<b>X-axis:</b> World regions represented in the SDM dataset.
+                                <ul>
 
-</li>
+                                    <li>
 
-<li>
+                                        <b>X-axis:</b> Host countries included
+                                        in the selected data.
 
-<b>Y-axis:</b> Number of distinct movements occurring within each
-region.
+                                    </li>
 
-</li>
 
-<li>
+                                    <li>
 
-The chart allows comparison of regional concentrations of
-self-determination movements.
+                                        <b>Y-axis:</b> Number of distinct
+                                        self-determination movements.
 
-</li>
+                                    </li>
 
-<li>
 
-Regions with taller bars contain a larger share of recorded
-movements.
+                                    <li>
 
-</li>
+                                        Each movement is counted once within
+                                        the selected filter conditions.
 
-</ul>
+                                    </li>
 
-</Card>
+                                </ul>
 
-</Col>
+                            </Card>
 
-</Row>
+                        </Col>
 
-{/* ================= Timeline ================= */}
+                    </Row>
 
-<Row>
 
-<Col>
 
-<Card className="shadow-sm border-0 p-4">
+                    {/* ================= Region ================= */}
 
-<h4 className="fw-bold">
+                    <Row className="mb-4">
 
-Historical Distribution of Active Movements (1945–2020)
+                        <Col>
 
-</h4>
+                            <Card className="shadow-sm border-0 p-4">
 
-<BarChartComponent
+                                <h4 className="fw-bold">
 
-data={yearData}
+                                    Distribution of Self-Determination
+                                    Movements by World Region
 
-xKey="year"
+                                </h4>
 
-yKey="active_movements"
 
-/>
+                                {regionData.length > 0 ? (
 
-<hr/>
+                                    <BarChartComponent
 
-<h5 className="fw-bold">
+                                        data={regionData}
 
-Interpretation
+                                        xKey="region"
 
-</h5>
+                                        yKey="total_movements"
 
-<p>
+                                    />
 
-This chart illustrates the temporal evolution of self-determination
-movements across the entire observation period.
+                                ) : (
 
-</p>
+                                    <Alert variant="info">
 
-<ul>
+                                        No regional data is available for
+                                        the selected filters.
 
-<li>
+                                    </Alert>
 
-<b>X-axis:</b> Calendar year.
+                                )}
 
-</li>
 
-<li>
+                                <hr />
 
-<b>Y-axis:</b> Number of active movements recorded during each year.
 
-</li>
+                                <h5 className="fw-bold">
 
-<li>
+                                    Interpretation
 
-A movement contributes to every year in which it remained active.
+                                </h5>
 
-</li>
 
-<li>
+                                <p>
 
-The chart helps identify periods characterised by increased or
-decreased levels of self-determination activity worldwide.
+                                    This chart compares the distribution of
+                                    self-determination movements across the
+                                    geographical regions represented in the
+                                    selected data.
 
-</li>
+                                </p>
 
-</ul>
+                            </Card>
 
-</Card>
+                        </Col>
 
-</Col>
+                    </Row>
 
-</Row>
 
-</Container>
 
-)
+                    {/* ================= Timeline ================= */}
+
+                    <Row>
+
+                        <Col>
+
+                            <Card className="shadow-sm border-0 p-4">
+
+                                <h4 className="fw-bold">
+
+                                    Historical Distribution of Active Movements
+                                    (1945–2020)
+
+                                </h4>
+
+
+                                {yearData.length > 0 ? (
+
+                                    <BarChartComponent
+
+                                        data={yearData}
+
+                                        xKey="year"
+
+                                        yKey="active_movements"
+
+                                    />
+
+                                ) : (
+
+                                    <Alert variant="info">
+
+                                        No historical data is available for
+                                        the selected filters.
+
+                                    </Alert>
+
+                                )}
+
+
+                                <hr />
+
+
+                                <h5 className="fw-bold">
+
+                                    Interpretation
+
+                                </h5>
+
+
+                                <p>
+
+                                    This chart illustrates the historical
+                                    distribution of movements across the
+                                    observation period.
+
+                                </p>
+
+
+                                <ul>
+
+                                    <li>
+
+                                        <b>X-axis:</b> Calendar year.
+
+                                    </li>
+
+
+                                    <li>
+
+                                        <b>Y-axis:</b> Number of movements
+                                        included in each recorded year.
+
+                                    </li>
+
+                                </ul>
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+                </>
+
+            )}
+
+
+        </Container>
+
+    );
 
 }
+
 
 export default GeographicalAndHistoricalDistribution;
