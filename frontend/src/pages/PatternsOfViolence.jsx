@@ -109,42 +109,43 @@ function PatternsOfViolence() {
     // Format Onset Data
     // ========================================
 
-    const formatOnsetData = (rawArray) => {
+   const formatOnsetData = (rawArray) => {
 
-        if (!Array.isArray(rawArray)) {
+    if (!Array.isArray(rawArray)) {
 
-            return [];
+        return [];
+
+    }
+
+
+    return rawArray.map(item => {
+
+        let label = "Did Not Start with Violence";
+
+
+        if (
+
+            item.violsd_onset === 1 ||
+            item.violsd_onset === "1"
+
+        ) {
+
+            label = "Started Directly with Violence";
 
         }
 
 
-        return rawArray.map(item => {
+        return {
 
-            let label = "Did Not Start with Violence";
+            ...item,
 
+            onsetLabel: label
 
-            if (
-                item.violsd_onset === 1 ||
-                item.violsd_onset === "1"
-            ) {
+        };
 
-                label = "Started Directly with Violence";
+    });
 
-            }
-
-
-            return {
-
-                ...item,
-
-                onsetLabel: label
-
-            };
-
-        });
-
-    };
-
+};
 
 
     // ========================================
@@ -159,163 +160,124 @@ function PatternsOfViolence() {
 
 
 
-    async function loadData() {
+   async function loadData() {
+
+    try {
+
+        setLoading(true);
 
 
-        try {
+        const params = {};
 
 
-            setLoading(true);
+        if (filters.country) {
 
-
-            const params = {};
-
-
-            if (filters.country) {
-
-                params.country = filters.country;
-
-            }
-
-
-            if (filters.region) {
-
-                params.region = filters.region;
-
-            }
-
-
-            if (filters.year) {
-
-                params.year = filters.year;
-
-            }
-
-
-            if (filters.claim) {
-
-                params.claim = filters.claim;
-
-            }
-
-
-
-            const violent = await api.get(
-
-                "/violent-movements",
-
-                {
-                    params
-                }
-
-            );
-
-
-            const escalation = await api.get(
-
-                "/violent-escalation",
-
-                {
-                    params
-                }
-
-            );
-
-
-            /*
-            Violence onset does not use year
-            because it is based on the first
-            recorded observation of a movement.
-            */
-
-            const onsetParams = {
-
-                country:
-                    filters.country || undefined,
-
-                region:
-                    filters.region || undefined,
-
-                claim:
-                    filters.claim || undefined
-
-            };
-
-
-            const onset = await api.get(
-
-                "/violent-onset",
-
-                {
-                    params: onsetParams
-                }
-
-            );
-
-
-
-            setViolentData(
-
-                formatViolenceData(
-
-                    violent.data
-
-                )
-
-            );
-
-
-            setEscalationData(
-
-                escalation.data || []
-
-            );
-
-
-            setOnsetData(
-
-                formatOnsetData(
-
-                    onset.data
-
-                )
-
-            );
-
+            params.country = filters.country;
 
         }
 
 
-        catch (error) {
+        if (filters.region) {
 
-
-            console.log(
-
-                error
-
-            );
-
-
-            setViolentData([]);
-
-            setEscalationData([]);
-
-            setOnsetData([]);
-
+            params.region = filters.region;
 
         }
 
 
-        finally {
+        if (filters.year) {
 
-
-            setLoading(false);
-
+            params.year = filters.year;
 
         }
+
+
+        if (filters.claim) {
+
+            params.claim = filters.claim;
+
+        }
+
+
+        // =========================
+        // Violent Movements
+        // =========================
+
+        const violent = await api.get(
+            "/violent-movements",
+            {
+                params
+            }
+        );
+
+
+        // =========================
+        // Violence Escalation
+        // =========================
+
+        const escalation = await api.get(
+            "/violent-escalation",
+            {
+                params
+            }
+        );
+
+
+        // =========================
+        // Violence Onset
+        // =========================
+
+        const onset = await api.get(
+            "/violence-onset",
+            {
+                params
+            }
+        );
+
+
+        setViolentData(
+            formatViolenceData(
+                violent.data || []
+            )
+        );
+
+
+        setEscalationData(
+            escalation.data || []
+        );
+
+
+        setOnsetData(
+            formatOnsetData(
+                onset.data || []
+            )
+        );
 
 
     }
+
+    catch (error) {
+
+        console.log(
+            "Failed to load BQ4 data:",
+            error
+        );
+
+
+        setViolentData([]);
+
+        setEscalationData([]);
+
+        setOnsetData([]);
+
+    }
+
+    finally {
+
+        setLoading(false);
+
+    }
+
+}
 
 
 
