@@ -8,26 +8,63 @@ const jStat = require("jstat");
 // =========================
 
 exports.movementsByCountry = async (req, res) => {
- console.log("COUNTRY ENDPOINT HIT");
-    try{
+
+    console.log("BQ1 COUNTRY DISTRIBUTION");
+
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
 
         const [rows] = await db.query(
-            queries.movementsByCountry
+
+            queries.movementsByCountry,
+
+            params
+
         );
 
+
         console.log(rows);
+
 
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-    res.status(500).json({
+
+        res.status(500).json({
+
             error: error.message
+
         });
+
     }
 
 };
@@ -36,53 +73,129 @@ exports.movementsByCountry = async (req, res) => {
 // =========================
 // BQ1 Region
 // =========================
-
 exports.movementsByRegion = async (req, res) => {
-    console.log("REGION ENDPOINT HIT");
-    try{
+
+    console.log("BQ1 REGION DISTRIBUTION");
+
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
 
         const [rows] = await db.query(
-            queries.movementsByRegion
+
+            queries.movementsByRegion,
+
+            params
+
         );
 
+
         console.log(rows);
+
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
+
 };
-
-
 // =========================
 // BQ1 Year
 // =========================
 
 exports.movementsByYear = async (req, res) => {
- console.log("YEAR ENDPOINT HIT");
-    try{
+
+    console.log("BQ1 HISTORICAL DISTRIBUTION");
+
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
 
         const [rows] = await db.query(
-            queries.movementsByYear
+
+            queries.movementsByYear,
+
+            params
+
         );
 
+
         console.log(rows);
+
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 

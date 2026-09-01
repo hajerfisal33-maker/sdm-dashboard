@@ -46,145 +46,154 @@ const queries = {
     // Geographic and Historical Distribution
     // =====================================================
 
-    movementsByCountry: `
-        SELECT
-            c.country_name,
+ movementsByCountry: `
+    SELECT
+        c.country_name,
 
-            COUNT(
-                DISTINCT eg.group_id
-            ) AS total_movements
+        COUNT(
+            DISTINCT eg.group_id
+        ) AS total_movements
 
-        FROM countries c
+    FROM countries c
 
-        JOIN ethnic_groups eg
-            ON c.country_id = eg.country_id
+    JOIN ethnic_groups eg
+        ON c.country_id = eg.country_id
 
-        JOIN movement_observations mo
-            ON eg.group_id = mo.group_id
+    JOIN movement_observations mo
+        ON eg.group_id = mo.group_id
 
-        WHERE 1 = 1
+    WHERE 1 = 1
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-        GROUP BY
-            c.country_id,
-            c.country_name
+    GROUP BY
+        c.country_id,
+        c.country_name
 
-        ORDER BY
-            total_movements DESC;
-    `,
+    ORDER BY
+        total_movements DESC;
+`,
 
+   movementsByRegion: `
+    SELECT
+        eg.region,
 
-    movementsByRegion: `
-        SELECT
-            eg.region,
+        COUNT(
+            DISTINCT eg.group_id
+        ) AS total_movements
 
-            COUNT(
-                DISTINCT eg.group_id
-            ) AS total_movements
+    FROM ethnic_groups eg
 
-        FROM ethnic_groups eg
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN movement_observations mo
+        ON eg.group_id = mo.group_id
 
-        JOIN movement_observations mo
-            ON eg.group_id = mo.group_id
+    WHERE
+        eg.region IS NOT NULL
 
-        WHERE
-            eg.region IS NOT NULL
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+    GROUP BY
+        eg.region
 
-        GROUP BY
-            eg.region
+    ORDER BY
+        total_movements DESC;
+`,
 
-        ORDER BY
-            total_movements DESC;
-    `,
+   movementsByYear: `
+    SELECT
+        mo.year,
 
+        COUNT(
+            DISTINCT mo.group_id
+        ) AS active_movements
 
-    movementsByYear: `
-        SELECT
-            mo.year,
+    FROM movement_observations mo
 
-            COUNT(
-                DISTINCT mo.group_id
-            ) AS active_movements
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        FROM movement_observations mo
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    WHERE 1 = 1
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-        WHERE 1 = 1
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+    GROUP BY
+        mo.year
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-        GROUP BY
-            mo.year
-
-        ORDER BY
-            mo.year;
-    `,
-
+    ORDER BY
+        mo.year ASC;
+`,
 
     claimTypes: `
     SELECT
