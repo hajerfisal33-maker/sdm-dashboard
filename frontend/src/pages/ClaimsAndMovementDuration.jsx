@@ -1,56 +1,185 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+
 import PieChartComponent from "../charts/PieChartComponent";
 import BarChartComponent from "../charts/BarChartComponent";
-import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
+
+import {
+    Container,
+    Row,
+    Col,
+    Card,
+    Spinner,
+    Alert
+} from "react-bootstrap";
+
 import DashboardFilters from "../components/DashboardFilters";
+
 
 function ClaimsAndMovementDuration() {
 
+
+    // =========================
+    // Data States
+    // =========================
+
     const [claimTypes, setClaimTypes] = useState([]);
+
     const [claimDuration, setClaimDuration] = useState([]);
+
+
+    // =========================
+    // Loading and Error States
+    // =========================
+
     const [loading, setLoading] = useState(true);
 
+    const [error, setError] = useState(null);
 
 
-const [filters, setFilters] = useState({
-    country: "",
-    region: "",
-    year: "",
-    claim: ""
-});
+    // =========================
+    // Dashboard Filters
+    // =========================
+
+    const [filters, setFilters] = useState({
+
+        country: "",
+
+        region: "",
+
+        year: "",
+
+        claim: ""
+
+    });
+
+
+    // =========================
+    // Load Data When Filters Change
+    // =========================
 
     useEffect(() => {
+
         loadData();
+
     }, [filters]);
+
+
+    // =========================
+    // Load Dashboard Data
+    // =========================
 
     async function loadData() {
 
         try {
 
-          const params = {};
+            setLoading(true);
 
-if (filters.country) params.country = filters.country;
-if (filters.region) params.region = filters.region;
-if (filters.year) params.year = filters.year;
-if (filters.claim) params.claim = filters.claim;
+            setError(null);
 
-const claims = await api.get("/claim-types", {
-    params
-});
 
-const duration = await api.get("/claim-duration", {
-    params
-});
+            // =========================
+            // Build Filter Parameters
+            // =========================
 
-            setClaimTypes(claims.data || []);
-            setClaimDuration(duration.data || []);
+            const params = {};
+
+
+            if (filters.country) {
+
+                params.country = filters.country;
+
+            }
+
+
+            if (filters.region) {
+
+                params.region = filters.region;
+
+            }
+
+
+            if (filters.year) {
+
+                params.year = filters.year;
+
+            }
+
+
+            if (filters.claim) {
+
+                params.claim = filters.claim;
+
+            }
+
+
+            // =========================
+            // API Requests
+            // =========================
+
+            const [
+
+                claims,
+
+                duration
+
+            ] = await Promise.all([
+
+                api.get(
+
+                    "/claim-types",
+
+                    { params }
+
+                ),
+
+                api.get(
+
+                    "/claim-duration",
+
+                    { params }
+
+                )
+
+            ]);
+
+
+            // =========================
+            // Store Results
+            // =========================
+
+            setClaimTypes(
+
+                claims.data || []
+
+            );
+
+
+            setClaimDuration(
+
+                duration.data || []
+
+            );
+
 
         }
 
         catch (error) {
 
-            console.log(error);
+            console.error(
+
+                "Failed to load BQ2 data:",
+
+                error
+
+            );
+
+
+            setError(
+
+                "Failed to load dashboard data. Please try again."
+
+            );
 
         }
 
@@ -62,36 +191,15 @@ const duration = await api.get("/claim-duration", {
 
     }
 
-   if (loading) {
 
-    return (
-
-        <Container className="mt-5">
-
-            <DashboardFilters
-                filters={filters}
-                setFilters={setFilters}
-            />
-
-            <div className="text-center mt-5">
-
-                <Spinner animation="border" />
-
-            </div>
-
-        </Container>
-
-    );
-
-}
+    // =========================
+    // Page
+    // =========================
 
     return (
 
         <Container className="mt-5 mb-5">
-            <DashboardFilters
-    filters={filters}
-    setFilters={setFilters}
-/>
+
 
             {/* ================= Header ================= */}
 
@@ -103,190 +211,298 @@ const duration = await api.get("/claim-duration", {
 
                 </h2>
 
+
                 <p className="mt-3">
 
                     Self-determination movements do not all pursue the same political objective.
-                    Some seek complete independence, others demand greater autonomy within
-                    the existing state, while some pursue alternative constitutional or political
-                    arrangements. This section explores the different categories of claims made by
-                    movements and examines how long these movements remain active.
+                    Some seek complete independence, while others demand greater autonomy within
+                    the existing state or pursue other political arrangements.
 
                 </p>
 
+
                 <p>
 
-                    Understanding both the objectives and duration of movements provides
-                    valuable insight into the overall dynamics of self-determination conflicts and
-                    political mobilization.
+                    This section explores the different types of claims made by
+                    self-determination movements and examines the duration of
+                    movements associated with different claim categories.
 
                 </p>
 
             </Card>
 
-            {/* ================= Claim Types ================= */}
 
-            <Row className="mb-4">
 
-                <Col lg={12}>
+            {/* ================= Dashboard Filters ================= */}
 
-                    <Card className="shadow-sm border-0 p-4">
+            <DashboardFilters
 
-                        <h4 className="fw-bold">
+                filters={filters}
 
-                            Distribution of Movement Claim Types
+                setFilters={setFilters}
 
-                        </h4>
+            />
 
-                        <PieChartComponent
-                            data={claimTypes}
-                            nameKey="domclaim"
-                            valueKey="total_movements"
-                        />
 
-                        <hr />
 
-                        <h5 className="fw-bold">
+            {/* ================= Error ================= */}
 
-                            Interpretation
+            {error && (
 
-                        </h5>
+                <Alert variant="danger">
 
-                        <p>
+                    {error}
 
-                            This figure illustrates the proportion of self-determination movements
-                            according to their primary political objective.
+                </Alert>
 
-                        </p>
+            )}
 
-                        <ul>
 
-                            <li>
 
-                                Each slice represents one category of political claim
-                                (<strong>domclaim</strong>) recorded in the SDM dataset.
+            {/* ================= Loading ================= */}
 
-                            </li>
+            {loading ? (
 
-                            <li>
+                <div className="text-center my-5">
 
-                                The size of each slice corresponds to the number of
-                                distinct movements making that claim.
+                    <Spinner animation="border" />
 
-                            </li>
+                    <p className="mt-3 text-muted">
 
-                            <li>
+                        Loading dashboard data...
 
-                                Larger slices indicate claim types that are more common
-                                among self-determination movements worldwide.
+                    </p>
 
-                            </li>
+                </div>
 
-                        </ul>
 
-                        <p>
+            ) : (
 
-                            In the SDM dataset, <strong>domclaim</strong> represents the
-                            principal objective pursued by each movement, such as demands
-                            for independence, territorial autonomy, or other forms of
-                            political self-government.
-                            Methodological Note: Because a movement's dominant claim may change over time, the same movement can contribute to more than one claim category across different years. Therefore, the combined total across all claim categories exceeds the total number of unique movements in the SDM dataset.
+                <>
 
-                        </p>
 
-                    </Card>
+                    {/* ================= Claim Types ================= */}
 
-                </Col>
+                    <Row className="mb-4">
 
-            </Row>
+                        <Col lg={12}>
 
-            {/* ================= Duration ================= */}
+                            <Card className="shadow-sm border-0 p-4">
 
-            <Row>
+                                <h4 className="fw-bold">
 
-                <Col lg={12}>
+                                    Distribution of Movement Claim Types
 
-                    <Card className="shadow-sm border-0 p-4">
+                                </h4>
 
-                        <h4 className="fw-bold">
 
-                            Average Duration of Movement Activity
+                                {claimTypes.length > 0 ? (
 
-                        </h4>
+                                    <PieChartComponent
 
-                        <BarChartComponent
-                            data={claimDuration}
-                            xKey="domclaim"
-                            yKey="avg_duration"
-                        />
+                                        data={claimTypes}
 
-                        <hr />
+                                        nameKey="domclaim"
 
-                        <h5 className="fw-bold">
+                                        valueKey="total_movements"
 
-                            Interpretation
+                                    />
 
-                        </h5>
+                                ) : (
 
-                        <p>
+                                    <Alert variant="info">
 
-                            This chart compares the average duration of movements across
-                            the different claim categories.
+                                        No claim type data is available for the selected filters.
 
-                        </p>
+                                    </Alert>
 
-                        <ul>
+                                )}
 
-                            <li>
 
-                                <strong>X-axis:</strong> Type of political claim pursued by the movement.
+                                <hr />
 
-                            </li>
 
-                            <li>
+                                <h5 className="fw-bold">
 
-                                <strong>Y-axis:</strong> Average duration (in years) during which
-                                movements remained active.
+                                    Interpretation
 
-                            </li>
+                                </h5>
 
-                            <li>
 
-                                Duration is calculated using the recorded movement start
-                                and end dates contained in the SDM dataset.
+                                <p>
 
-                            </li>
+                                    This figure illustrates the distribution of
+                                    self-determination movements according to their
+                                    political claim categories.
 
-                            <li>
+                                </p>
 
-                                Ongoing movements (coded as 9999) are treated as active
-                                until the end of the observation period (2020), while
-                                movements coded with 8888 are excluded because their
-                                duration cannot be calculated consistently.
-                                Methodological Note: Because a movement may pursue different dominant claims during its lifetime, the same movement can contribute to more than one claim category. Consequently, average durations are calculated within each claim category rather than assigning each movement to a single fixed claim.
 
-                            </li>
+                                <ul>
 
-                        </ul>
+                                    <li>
 
-                        <p>
+                                        Each slice represents a political claim
+                                        category recorded in the SDM dataset.
 
-                            Longer bars indicate that movements pursuing that particular
-                            claim generally remain active for longer periods, whereas
-                            shorter bars suggest comparatively shorter movement lifespans.
+                                    </li>
 
-                        </p>
 
-                    </Card>
+                                    <li>
 
-                </Col>
+                                        The size of each slice represents the number
+                                        of movements associated with that claim.
 
-            </Row>
+                                    </li>
+
+
+                                    <li>
+
+                                        Larger slices indicate claim categories that
+                                        appear more frequently within the selected data.
+
+                                    </li>
+
+                                </ul>
+
+
+                                <p>
+
+                                    Because a movement's dominant claim may change
+                                    over time, the same movement may appear in more
+                                    than one claim category across different years.
+
+                                </p>
+
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+
+                    {/* ================= Duration ================= */}
+
+                    <Row>
+
+                        <Col lg={12}>
+
+                            <Card className="shadow-sm border-0 p-4">
+
+                                <h4 className="fw-bold">
+
+                                    Average Duration of Movement Activity
+
+                                </h4>
+
+
+                                {claimDuration.length > 0 ? (
+
+                                    <BarChartComponent
+
+                                        data={claimDuration}
+
+                                        xKey="domclaim"
+
+                                        yKey="avg_duration"
+
+                                    />
+
+                                ) : (
+
+                                    <Alert variant="info">
+
+                                        No duration data is available for the selected filters.
+
+                                    </Alert>
+
+                                )}
+
+
+                                <hr />
+
+
+                                <h5 className="fw-bold">
+
+                                    Interpretation
+
+                                </h5>
+
+
+                                <p>
+
+                                    This chart compares the average duration of
+                                    movements across different political claim
+                                    categories.
+
+                                </p>
+
+
+                                <ul>
+
+                                    <li>
+
+                                        <strong>X-axis:</strong> Political claim type.
+
+                                    </li>
+
+
+                                    <li>
+
+                                        <strong>Y-axis:</strong> Average movement
+                                        duration in years.
+
+                                    </li>
+
+
+                                    <li>
+
+                                        Ongoing movements coded as 9999 are treated
+                                        as active until 2020.
+
+                                    </li>
+
+
+                                    <li>
+
+                                        Movements coded as 8888 are excluded when
+                                        their duration cannot be calculated
+                                        consistently.
+
+                                    </li>
+
+                                </ul>
+
+
+                                <p>
+
+                                    Longer bars indicate that movements associated
+                                    with that claim category generally remained
+                                    active for a longer period.
+
+                                </p>
+
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+                </>
+
+            )}
+
 
         </Container>
 
     );
 
 }
+
 
 export default ClaimsAndMovementDuration;
 
