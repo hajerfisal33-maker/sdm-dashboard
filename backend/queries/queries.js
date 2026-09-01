@@ -331,91 +331,118 @@ const queries = {
     // Sovereignty Declarations
     // =====================================================
 
-    sovereigntyDeclarations: `
-        SELECT
+   sovereigntyDeclarations: `
+    SELECT
 
-            COUNT(*) AS sovereignty_declarations
+        mo.year,
 
-        FROM movement_observations mo
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.sovdec = 1
+                THEN mo.group_id
+            END
+        ) AS declarations
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    FROM movement_observations mo
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        WHERE
-            mo.sovdec = 1
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+    WHERE
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Only movements with sovereignty declarations */
+        mo.sovdec = 1
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-    declarationByClaim: `
-        SELECT
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-            mo.domclaim,
+    GROUP BY
+        mo.year
 
-            COUNT(*) AS declarations
+    ORDER BY
+        mo.year ASC;
+`,
 
-        FROM movement_observations mo
+   declarationByClaim: `
+    SELECT
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+        mo.domclaim,
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.sovdec = 1
+                THEN mo.group_id
+            END
+        ) AS declarations
 
-        WHERE
-            mo.sovdec = 1
+    FROM movement_observations mo
 
-            AND mo.domclaim IS NOT NULL
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+    WHERE
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        mo.domclaim IS NOT NULL
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+        AND mo.sovdec = 1
 
-        GROUP BY
-            mo.domclaim
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-        ORDER BY
-            declarations DESC;
-    `,
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
+
+    GROUP BY
+        mo.domclaim
+
+    ORDER BY
+        declarations DESC;
+`,
 
     declarationChiSquare: `
         SELECT

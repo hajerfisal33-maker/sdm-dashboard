@@ -329,50 +329,127 @@ exports.claimDuration = async (req, res) => {
 
 exports.sovereigntyDeclarations = async (req, res) => {
 
-    console.log("BQ3 DECLARATIONS");
+    console.log("BQ3 SOVEREIGNTY DECLARATIONS");
 
-    try{
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
 
         const [rows] = await db.query(
-            queries.sovereigntyDeclarations
+
+            queries.sovereigntyDeclarations,
+
+            params
+
         );
-  console.log(rows);
+
+
+        console.log(rows);
+
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
-
 
 // =========================
 // BQ3 Distribution
 // =========================
 
 exports.declarationByClaim = async (req, res) => {
-console.log("BQ3 DECLARATIONS");
-    try{
+
+    console.log("BQ3 DECLARATIONS BY CLAIM");
+
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
 
         const [rows] = await db.query(
-            queries.declarationByClaim
+
+            queries.declarationByClaim,
+
+            params
+
         );
-  console.log(rows);
+
+
+        console.log(rows);
+
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
