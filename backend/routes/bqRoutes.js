@@ -48,23 +48,24 @@ router.get(
 // ======================================
 // BQ4: Violence
 // ======================================
+// BQ4
 
 router.get(
     "/violent-movements",
     controller.violentMovements
 );
 
+
 router.get(
     "/violent-escalation",
     controller.violentEscalation
 );
 
-// NEW: Violence onset
+
 router.get(
     "/violence-onset",
     controller.violenceOnset
 );
-
 
 // ======================================
 // BQ5: Concessions

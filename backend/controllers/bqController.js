@@ -521,14 +521,10 @@ exports.declarationChiSquare = async (req, res) => {
 // =========================
 // BQ4 Violent
 // =========================
-
-// =========================
-// BQ4 VIOLENT MOVEMENTS
-// =========================
-
-// =========================
-// BQ4 Violent Movements
-// =========================
+// =====================================================
+// BQ4
+// Violent Movements
+// =====================================================
 
 exports.violentMovements = async (req, res) => {
 
@@ -537,30 +533,29 @@ exports.violentMovements = async (req, res) => {
     try {
 
         const {
-            region,
-            country,
-            startYear,
-            endYear
-        } = req.query;
+            conditions,
+            params
+        } = buildDashboardFilters(req);
 
-        const params = [
-            region || null,
-            region || null,
 
-            country || null,
-            country || null,
+        const sql = `
+            ${queries.violentMovements}
 
-            startYear || null,
-            startYear || null,
+            ${conditions}
 
-            endYear || null,
-            endYear || null
-        ];
+            GROUP BY
+                mo.violsd
+
+            ORDER BY
+                mo.violsd;
+        `;
+
 
         const [rows] = await db.query(
-            queries.violentMovements,
+            sql,
             params
         );
+
 
         console.log(rows);
 
@@ -581,9 +576,10 @@ exports.violentMovements = async (req, res) => {
 };
 
 
-// =========================
-// BQ4 Violent Escalation
-// =========================
+// =====================================================
+// BQ4
+// Violence Escalation
+// =====================================================
 
 exports.violentEscalation = async (req, res) => {
 
@@ -592,30 +588,29 @@ exports.violentEscalation = async (req, res) => {
     try {
 
         const {
-            region,
-            country,
-            startYear,
-            endYear
-        } = req.query;
+            conditions,
+            params
+        } = buildDashboardFilters(req);
 
-        const params = [
-            region || null,
-            region || null,
 
-            country || null,
-            country || null,
+        const sql = `
+            ${queries.violentEscalation}
 
-            startYear || null,
-            startYear || null,
+            ${conditions}
 
-            endYear || null,
-            endYear || null
-        ];
+            GROUP BY
+                mo.viol_escal
+
+            ORDER BY
+                mo.viol_escal;
+        `;
+
 
         const [rows] = await db.query(
-            queries.violentEscalation,
+            sql,
             params
         );
+
 
         console.log(rows);
 
@@ -636,9 +631,10 @@ exports.violentEscalation = async (req, res) => {
 };
 
 
-// =========================
-// BQ4 Violence Onset
-// =========================
+// =====================================================
+// BQ4
+// Violence Onset
+// =====================================================
 
 exports.violenceOnset = async (req, res) => {
 
@@ -647,30 +643,70 @@ exports.violenceOnset = async (req, res) => {
     try {
 
         const {
-            region,
             country,
-            startYear,
-            endYear
+            region,
+            claim
         } = req.query;
 
-        const params = [
-            region || null,
-            region || null,
 
-            country || null,
-            country || null,
+        let conditions = "";
+        let params = [];
 
-            startYear || null,
-            startYear || null,
 
-            endYear || null,
-            endYear || null
-        ];
+        // Region filter
+        if (region) {
+
+            conditions += `
+                AND eg.region = ?
+            `;
+
+            params.push(region);
+
+        }
+
+
+        // Country filter
+        if (country) {
+
+            conditions += `
+                AND c.country_id = ?
+            `;
+
+            params.push(country);
+
+        }
+
+
+        // Claim filter
+        if (claim) {
+
+            conditions += `
+                AND mo.domclaim = ?
+            `;
+
+            params.push(claim);
+
+        }
+
+
+        const sql = `
+            ${queries.violenceOnset}
+
+            ${conditions}
+
+            GROUP BY
+                mo.violsd_onset
+
+            ORDER BY
+                mo.violsd_onset;
+        `;
+
 
         const [rows] = await db.query(
-            queries.violenceOnset,
+            sql,
             params
         );
+
 
         console.log(rows);
 

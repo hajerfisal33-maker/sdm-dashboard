@@ -469,8 +469,7 @@ const queries = {
     // BQ4
     // Violence
     // =====================================================
-
-  // =====================================================
+// =====================================================
 // BQ4
 // Violence
 // =====================================================
@@ -490,14 +489,15 @@ violentMovements: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
+    WHERE
+        mo.violsd IS NOT NULL
 `,
 
 
 violentEscalation: `
     SELECT
 
-        mo.viol_escal,
+        mo.viol_escal AS category,
 
         COUNT(*) AS total
 
@@ -510,8 +510,9 @@ violentEscalation: `
         ON eg.country_id = c.country_id
 
     WHERE
-
+    
         mo.viol_escal IS NOT NULL
+
 `,
 
 
@@ -534,33 +535,7 @@ violenceOnset: `
 
     WHERE
 
-        mo.violsd_onset IS NOT NULL
-
-        AND (
-            ? IS NULL
-            OR eg.region = ?
-        )
-
-        AND (
-            ? IS NULL
-            OR c.country_name = ?
-        )
-
-        AND (
-            ? IS NULL
-            OR mo.year >= ?
-        )
-
-        AND (
-            ? IS NULL
-            OR mo.year <= ?
-        )
-
-    GROUP BY
-        mo.violsd_onset
-
-    ORDER BY
-        mo.violsd_onset;
+    mo.violsd_onset IS NOT NULL
 `,
 
     // =====================================================
