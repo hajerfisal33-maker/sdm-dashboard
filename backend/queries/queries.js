@@ -477,26 +477,30 @@ const queries = {
 violentMovements: `
     SELECT
 
-        mo.violsd,
+        CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM movement_observations x
+                WHERE x.group_id = eg.group_id
+                  AND x.violsd = 1
+            )
+            THEN 'Experienced Violence'
 
-        COUNT(
-            DISTINCT mo.group_id
-        ) AS total
+            ELSE 'No Recorded Violence'
 
-    FROM movement_observations mo
+        END AS violence_status,
 
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
+        COUNT(DISTINCT eg.group_id) AS total
+
+    FROM ethnic_groups eg
 
     JOIN countries c
         ON eg.country_id = c.country_id
 
     WHERE
 
-        mo.violsd IS NOT NULL
-
         /* Country filter */
-        AND (
+        (
             ? = ''
             OR c.country_id = ?
         )
@@ -507,23 +511,30 @@ violentMovements: `
             OR eg.region = ?
         )
 
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
         /* Claim filter */
         AND (
             ? = ''
-            OR mo.domclaim = ?
+            OR EXISTS (
+                SELECT 1
+                FROM movement_observations x
+                WHERE x.group_id = eg.group_id
+                  AND x.domclaim = ?
+            )
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR EXISTS (
+                SELECT 1
+                FROM movement_observations x
+                WHERE x.group_id = eg.group_id
+                  AND x.year = ?
+            )
         )
 
     GROUP BY
-        mo.violsd
-
-    ORDER BY
-        mo.violsd;
+        violence_status;
 `,
 
 
@@ -534,53 +545,98 @@ violentMovements: `
 violentEscalation: `
     SELECT
 
-        mo.viol_escal,
+        CASE
 
-        COUNT(
-            DISTINCT mo.group_id
-        ) AS total
+            WHEN EXISTS (
 
-    FROM movement_observations mo
+                SELECT 1
 
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
+                FROM movement_observations peaceful
+
+                JOIN movement_observations violent
+
+                    ON peaceful.group_id = violent.group_id
+
+                WHERE peaceful.group_id = eg.group_id
+
+                    AND peaceful.violsd = 0
+
+                    AND violent.violsd = 1
+
+                    AND peaceful.year < violent.year
+
+            )
+
+            THEN 'Escalated to Violence'
+
+            ELSE 'Did Not Escalate to Violence'
+
+        END AS escalation_status,
+
+        COUNT(DISTINCT eg.group_id) AS total
+
+    FROM ethnic_groups eg
 
     JOIN countries c
+
         ON eg.country_id = c.country_id
 
     WHERE
 
-        mo.viol_escal IS NOT NULL
-
         /* Country filter */
-        AND (
+
+        (
             ? = ''
             OR c.country_id = ?
         )
 
+
         /* Region filter */
+
         AND (
             ? = ''
             OR eg.region = ?
         )
 
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
 
         /* Claim filter */
+
         AND (
             ? = ''
-            OR mo.domclaim = ?
+            OR EXISTS (
+
+                SELECT 1
+
+                FROM movement_observations x
+
+                WHERE x.group_id = eg.group_id
+
+                    AND x.domclaim = ?
+
+            )
         )
 
-    GROUP BY
-        mo.viol_escal
 
-    ORDER BY
-        mo.viol_escal;
+        /* Year filter */
+
+        AND (
+            ? = ''
+            OR EXISTS (
+
+                SELECT 1
+
+                FROM movement_observations x
+
+                WHERE x.group_id = eg.group_id
+
+                    AND x.year = ?
+
+            )
+        )
+
+
+    GROUP BY
+        escalation_status;
 `,
 
 

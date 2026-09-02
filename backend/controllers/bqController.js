@@ -519,7 +519,7 @@ exports.declarationChiSquare = async (req, res) => {
 };
 
 // =========================
-// BQ4 Violent Movements
+// BQ4 Violence Experienced
 // =========================
 
 exports.violentMovements = async (req, res) => {
@@ -544,11 +544,11 @@ exports.violentMovements = async (req, res) => {
             region,
             region,
 
-            year,
-            year,
-
             claim,
-            claim
+            claim,
+
+            year,
+            year
 
         ];
 
@@ -564,6 +564,7 @@ exports.violentMovements = async (req, res) => {
 
         console.log(rows);
 
+
         res.json(rows);
 
     }
@@ -571,6 +572,7 @@ exports.violentMovements = async (req, res) => {
     catch (error) {
 
         console.log(error);
+
 
         res.status(500).json({
 
@@ -583,13 +585,14 @@ exports.violentMovements = async (req, res) => {
 };
 
 
+
 // =========================
-// BQ4 Violent Escalation
+// BQ4 Violence Escalation
 // =========================
 
 exports.violentEscalation = async (req, res) => {
 
-    console.log("BQ4 VIOLENT ESCALATION");
+    console.log("BQ4 VIOLENCE ESCALATION");
 
     try {
 
@@ -609,11 +612,11 @@ exports.violentEscalation = async (req, res) => {
             region,
             region,
 
-            year,
-            year,
-
             claim,
-            claim
+            claim,
+
+            year,
+            year
 
         ];
 
@@ -629,6 +632,7 @@ exports.violentEscalation = async (req, res) => {
 
         console.log(rows);
 
+
         res.json(rows);
 
     }
@@ -636,6 +640,7 @@ exports.violentEscalation = async (req, res) => {
     catch (error) {
 
         console.log(error);
+
 
         res.status(500).json({
 
@@ -648,14 +653,14 @@ exports.violentEscalation = async (req, res) => {
 };
 
 
+
 // =========================
-// BQ4 Violence Onset
-// Movements Started Directly With Violence
+// BQ4 Started With Violence
 // =========================
 
 exports.violenceOnset = async (req, res) => {
 
-    console.log("BQ4 MOVEMENTS STARTED WITH VIOLENCE");
+    console.log("BQ4 VIOLENCE ONSET");
 
     try {
 
@@ -691,6 +696,7 @@ exports.violenceOnset = async (req, res) => {
 
         console.log(rows);
 
+
         res.json(rows);
 
     }
@@ -698,6 +704,7 @@ exports.violenceOnset = async (req, res) => {
     catch (error) {
 
         console.log(error);
+
 
         res.status(500).json({
 
