@@ -464,62 +464,20 @@ const queries = {
 
 `,
 
-
-    // =====================================================
-    // BQ4
-    // Violence
-    // =====================================================
 // =====================================================
 // BQ4
-// Violence
+// Violence Patterns
 // =====================================================
+
+
+// -----------------------------------------------------
+// Violence Experienced
+// -----------------------------------------------------
 
 violentMovements: `
     SELECT
 
         mo.violsd,
-
-        COUNT(*) AS total
-
-    FROM movement_observations mo
-
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
-
-    JOIN countries c
-        ON eg.country_id = c.country_id
-
-    WHERE
-        mo.violsd IS NOT NULL
-`,
-
-
-violentEscalation: `
-    SELECT
-
-        mo.viol_escal AS category,
-
-        COUNT(*) AS total
-
-    FROM movement_observations mo
-
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
-
-    JOIN countries c
-        ON eg.country_id = c.country_id
-
-    WHERE
-    
-        mo.viol_escal IS NOT NULL
-
-`,
-
-
-violenceOnset: `
-    SELECT
-
-        mo.violsd_onset,
 
         COUNT(
             DISTINCT mo.group_id
@@ -535,13 +493,205 @@ violenceOnset: `
 
     WHERE
 
-    mo.violsd_onset IS NOT NULL
+        mo.violsd IS NOT NULL
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
+
+    GROUP BY
+        mo.violsd
+
+    ORDER BY
+        mo.violsd;
 `,
 
-    // =====================================================
-    // BQ5
-    // Concessions
-    // =====================================================
+
+// -----------------------------------------------------
+// Violence Escalation
+// -----------------------------------------------------
+
+violentEscalation: `
+    SELECT
+
+        mo.viol_escal,
+
+        COUNT(
+            DISTINCT mo.group_id
+        ) AS total
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+
+        mo.viol_escal IS NOT NULL
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
+
+    GROUP BY
+        mo.viol_escal
+
+    ORDER BY
+        mo.viol_escal;
+`,
+
+
+// -----------------------------------------------------
+// Movements That Started Directly With Violence
+// -----------------------------------------------------
+
+violenceOnset: `
+    WITH first_observation AS (
+
+        SELECT
+
+            mo.group_id,
+
+            mo.year,
+
+            mo.violsd,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY mo.group_id
+
+                ORDER BY mo.year ASC
+
+            ) AS rn
+
+        FROM movement_observations mo
+
+    )
+
+    SELECT
+
+        CASE
+
+            WHEN fo.violsd = 1
+
+                THEN 1
+
+            ELSE 0
+
+        END AS started_with_violence,
+
+        COUNT(
+            DISTINCT fo.group_id
+        ) AS total
+
+    FROM first_observation fo
+
+    JOIN ethnic_groups eg
+        ON fo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+
+        fo.rn = 1
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /*
+        Claim filter:
+
+        Since the first observation CTE does not include
+        domclaim, we check whether the movement has the
+        selected claim at any point.
+        */
+
+        AND (
+            ? = ''
+
+            OR EXISTS (
+
+                SELECT 1
+
+                FROM movement_observations mo2
+
+                WHERE
+                    mo2.group_id = fo.group_id
+
+                    AND mo2.domclaim = ?
+
+            )
+
+        )
+
+    GROUP BY
+
+        CASE
+
+            WHEN fo.violsd = 1
+
+                THEN 1
+
+            ELSE 0
+
+        END
+
+    ORDER BY
+        started_with_violence;
+`,
 
     concessions: `
         SELECT

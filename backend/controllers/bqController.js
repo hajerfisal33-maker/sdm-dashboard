@@ -519,12 +519,8 @@ exports.declarationChiSquare = async (req, res) => {
 };
 
 // =========================
-// BQ4 Violent
+// BQ4 Violent Movements
 // =========================
-// =====================================================
-// BQ4
-// Violent Movements
-// =====================================================
 
 exports.violentMovements = async (req, res) => {
 
@@ -533,27 +529,36 @@ exports.violentMovements = async (req, res) => {
     try {
 
         const {
-            conditions,
-            params
-        } = buildDashboardFilters(req);
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
 
 
-        const sql = `
-            ${queries.violentMovements}
+        const params = [
 
-            ${conditions}
+            country,
+            country,
 
-            GROUP BY
-                mo.violsd
+            region,
+            region,
 
-            ORDER BY
-                mo.violsd;
-        `;
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
 
 
         const [rows] = await db.query(
-            sql,
+
+            queries.violentMovements,
+
             params
+
         );
 
 
@@ -568,7 +573,9 @@ exports.violentMovements = async (req, res) => {
         console.log(error);
 
         res.status(500).json({
+
             error: error.message
+
         });
 
     }
@@ -576,10 +583,9 @@ exports.violentMovements = async (req, res) => {
 };
 
 
-// =====================================================
-// BQ4
-// Violence Escalation
-// =====================================================
+// =========================
+// BQ4 Violent Escalation
+// =========================
 
 exports.violentEscalation = async (req, res) => {
 
@@ -588,27 +594,36 @@ exports.violentEscalation = async (req, res) => {
     try {
 
         const {
-            conditions,
-            params
-        } = buildDashboardFilters(req);
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
 
 
-        const sql = `
-            ${queries.violentEscalation}
+        const params = [
 
-            ${conditions}
+            country,
+            country,
 
-            GROUP BY
-                mo.viol_escal
+            region,
+            region,
 
-            ORDER BY
-                mo.viol_escal;
-        `;
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
 
 
         const [rows] = await db.query(
-            sql,
+
+            queries.violentEscalation,
+
             params
+
         );
 
 
@@ -623,7 +638,9 @@ exports.violentEscalation = async (req, res) => {
         console.log(error);
 
         res.status(500).json({
+
             error: error.message
+
         });
 
     }
@@ -631,80 +648,44 @@ exports.violentEscalation = async (req, res) => {
 };
 
 
-// =====================================================
-// BQ4
-// Violence Onset
-// =====================================================
+// =========================
+// BQ4 Violence Onset
+// Movements Started Directly With Violence
+// =========================
 
 exports.violenceOnset = async (req, res) => {
 
-    console.log("BQ4 VIOLENCE ONSET");
+    console.log("BQ4 MOVEMENTS STARTED WITH VIOLENCE");
 
     try {
 
         const {
-            country,
-            region,
-            claim
+            country = "",
+            region = "",
+            claim = ""
         } = req.query;
 
 
-        let conditions = "";
-        let params = [];
+        const params = [
 
+            country,
+            country,
 
-        // Region filter
-        if (region) {
+            region,
+            region,
 
-            conditions += `
-                AND eg.region = ?
-            `;
+            claim,
+            claim
 
-            params.push(region);
-
-        }
-
-
-        // Country filter
-        if (country) {
-
-            conditions += `
-                AND c.country_id = ?
-            `;
-
-            params.push(country);
-
-        }
-
-
-        // Claim filter
-        if (claim) {
-
-            conditions += `
-                AND mo.domclaim = ?
-            `;
-
-            params.push(claim);
-
-        }
-
-
-        const sql = `
-            ${queries.violenceOnset}
-
-            ${conditions}
-
-            GROUP BY
-                mo.violsd_onset
-
-            ORDER BY
-                mo.violsd_onset;
-        `;
+        ];
 
 
         const [rows] = await db.query(
-            sql,
+
+            queries.violenceOnset,
+
             params
+
         );
 
 
@@ -719,13 +700,14 @@ exports.violenceOnset = async (req, res) => {
         console.log(error);
 
         res.status(500).json({
+
             error: error.message
+
         });
 
     }
 
 };
-
 
 // =========================
 // BQ5 Total Concessions
