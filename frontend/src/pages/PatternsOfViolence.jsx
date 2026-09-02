@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import api from "../services/api";
 
 import BarChartComponent from "../charts/BarChartComponent";
@@ -10,8 +9,7 @@ import {
     Row,
     Col,
     Card,
-    Spinner,
-    Alert
+    Spinner
 } from "react-bootstrap";
 
 import DashboardFilters from "../components/DashboardFilters";
@@ -19,27 +17,14 @@ import DashboardFilters from "../components/DashboardFilters";
 
 function ViolencePatterns() {
 
+    const [violentMovements, setViolentMovements] = useState([]);
 
-    // =========================
-    // Dashboard Data
-    // =========================
+    const [violentEscalation, setViolentEscalation] = useState([]);
 
-    const [violentData, setViolentData] = useState([]);
-    const [escalationData, setEscalationData] = useState([]);
-    const [onsetData, setOnsetData] = useState([]);
-
-
-    // =========================
-    // Loading and Error
-    // =========================
+    const [violenceOnset, setViolenceOnset] = useState([]);
 
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-
-    // =========================
-    // Dashboard Filters
-    // =========================
 
     const [filters, setFilters] = useState({
 
@@ -51,10 +36,6 @@ function ViolencePatterns() {
     });
 
 
-    // =========================
-    // Reload When Filters Change
-    // =========================
-
     useEffect(() => {
 
         loadData();
@@ -62,141 +43,175 @@ function ViolencePatterns() {
     }, [filters]);
 
 
-    // =========================
-    // Load Data
-    // =========================
-
     async function loadData() {
 
         try {
 
             setLoading(true);
-            setError(null);
 
 
-            const params = {
+            const params = {};
 
-                country: filters.country || "",
-                region: filters.region || "",
-                year: filters.year || "",
-                claim: filters.claim || ""
 
-            };
+            if (filters.country) {
+
+                params.country = filters.country;
+
+            }
+
+
+            if (filters.region) {
+
+                params.region = filters.region;
+
+            }
+
+
+            if (filters.year) {
+
+                params.year = filters.year;
+
+            }
+
+
+            if (filters.claim) {
+
+                params.claim = filters.claim;
+
+            }
+
+
+            const violenceResponse = await api.get(
+
+                "/violent-movements",
+
+                { params }
+
+            );
+
+
+            const escalationResponse = await api.get(
+
+                "/violent-escalation",
+
+                { params }
+
+            );
+
+
+            const onsetResponse = await api.get(
+
+                "/violence-onset",
+
+                { params }
+
+            );
 
 
             /*
-            Year is intentionally excluded here because
-            violence onset must always be based on the
-            first recorded observation of each movement.
+            =========================
+            LABEL EXPERIENCED VIOLENCE
+            =========================
             */
 
-            const onsetParams = {
+            const formattedViolence = (
 
-                country: filters.country || "",
-                region: filters.region || "",
-                claim: filters.claim || ""
+                violenceResponse.data || []
 
-            };
-
-
-            const [
-
-                violent,
-                escalation,
-                onset
-
-            ] = await Promise.all([
-
-                api.get(
-                    "/violent-movements",
-                    { params }
-                ),
-
-                api.get(
-                    "/violent-escalation",
-                    { params }
-                ),
-
-                api.get(
-                    "/violence-onset",
-                    { params: onsetParams }
-                )
-
-            ]);
-
-
-            // =========================
-            // Format Violence Data
-            // =========================
-
-            const formattedViolence = (violent.data || []).map(item => ({
+            ).map(item => ({
 
                 ...item,
 
                 violence_status:
 
-                    Number(item.violsd) === 1
+                    item.violence_status ===
+                    "Experienced Violence"
+
                         ? "Experienced Violence"
+
                         : "No Recorded Violence"
 
             }));
 
 
-            // =========================
-            // Format Violence Onset
-            // =========================
+            /*
+            =========================
+            LABEL ESCALATION
+            =========================
+            */
 
-            const formattedOnset = (onset.data || []).map(item => ({
+            const formattedEscalation = (
+
+                escalationResponse.data || []
+
+            ).map(item => ({
+
+                ...item,
+
+                escalation_status:
+
+                    item.escalation_status ===
+                    "Escalated to Violence"
+
+                        ? "Escalated to Violence"
+
+                        : "Did Not Escalate to Violence"
+
+            }));
+
+
+            /*
+            =========================
+            LABEL VIOLENCE ONSET
+            =========================
+            */
+
+            const formattedOnset = (
+
+                onsetResponse.data || []
+
+            ).map(item => ({
 
                 ...item,
 
                 onset_status:
 
-                    Number(item.started_with_violence) === 1
+                    item.onset_status ===
+                    "Started With Violence"
+
                         ? "Started With Violence"
+
                         : "Did Not Start With Violence"
 
             }));
 
 
-            // =========================
-            // Format Escalation Data
-            // =========================
+            setViolentMovements(
 
-            const formattedEscalation =
-                (escalation.data || []).map(item => ({
+                formattedViolence
 
-                    ...item,
-
-                    escalation_status:
-
-                        item.viol_escal === null
-                            ? "No Escalation Information"
-                            : String(item.viol_escal)
-
-                }));
+            );
 
 
-            setViolentData(formattedViolence);
+            setViolentEscalation(
 
-            setEscalationData(formattedEscalation);
+                formattedEscalation
 
-            setOnsetData(formattedOnset);
+            );
+
+
+            setViolenceOnset(
+
+                formattedOnset
+
+            );
 
 
         }
 
         catch (error) {
 
-            console.error(
-                "Failed to load violence data:",
-                error
-            );
-
-
-            setError(
-                "Failed to load violence data. Please try again."
-            );
+            console.log(error);
 
         }
 
@@ -209,48 +224,50 @@ function ViolencePatterns() {
     }
 
 
-    // =========================
-    // Page
-    // =========================
+    /*
+    =========================
+    LOADING
+    =========================
+    */
+
+    if (loading) {
+
+        return (
+
+            <Container className="mt-5">
+
+
+                <DashboardFilters
+
+                    filters={filters}
+
+                    setFilters={setFilters}
+
+                />
+
+
+                <div className="text-center mt-5">
+
+                    <Spinner animation="border" />
+
+                </div>
+
+
+            </Container>
+
+        );
+
+    }
+
 
     return (
 
         <Container className="mt-5 mb-5">
 
 
-            {/* ================= Header ================= */}
-
-            <Card className="shadow-sm border-0 mb-4 p-4">
-
-                <h2 className="fw-bold text-primary">
-
-                    Violence Patterns
-
-                </h2>
-
-
-                <p className="mt-3">
-
-                    This section explores patterns of separatist violence
-                    among self-determination movements in the SDM dataset.
-                    It examines whether movements experienced violence,
-                    patterns of violence escalation, and whether movements
-                    started directly with violence.
-
-                </p>
-
-
-                <p>
-
-                    The dashboard filters allow the results to be explored
-                    by country, region, year, and dominant claim type.
-
-                </p>
-
-            </Card>
-
-
-            {/* ================= Filters ================= */}
+            {/* =========================
+                DASHBOARD FILTERS
+            ========================= */}
 
             <DashboardFilters
 
@@ -261,305 +278,349 @@ function ViolencePatterns() {
             />
 
 
-            {/* ================= Error ================= */}
+            {/* =========================
+                HEADER
+            ========================= */}
 
-            {error && (
+            <Card className="shadow-sm border-0 mb-4 p-4">
 
-                <Alert variant="danger">
 
-                    {error}
+                <h2 className="fw-bold text-primary">
 
-                </Alert>
+                    Violence Patterns in
+                    Self-Determination Movements
 
-            )}
+                </h2>
 
 
-            {/* ================= Loading ================= */}
+                <p className="mt-3">
 
-            {loading ? (
+                    Self-determination movements do not all follow
+                    the same path in relation to violence. Some
+                    movements experience violence during their
+                    history, while others remain non-violent throughout
+                    the recorded observation period. This section
+                    examines whether movements experienced violence,
+                    whether they escalated from peaceful activity to
+                    violence, and whether they started directly with
+                    violence.
 
-                <div className="text-center my-5">
+                </p>
 
-                    <Spinner animation="border" />
 
-                    <p className="mt-3 text-muted">
+            </Card>
 
-                        Loading violence data...
 
-                    </p>
+            {/* =====================================
+                CHART 1
+                EXPERIENCED VIOLENCE
+            ===================================== */}
 
-                </div>
+            <Row className="mb-4">
 
-            ) : (
 
-                <>
+                <Col lg={12}>
 
 
-                    {/* ================= Violence Experienced ================= */}
+                    <Card className="shadow-sm border-0 p-4">
 
-                    <Row className="mb-4">
 
-                        <Col>
+                        <h4 className="fw-bold">
 
-                            <Card className="shadow-sm border-0 p-4">
+                            Movements That Experienced Violence
 
-                                <h4 className="fw-bold">
+                        </h4>
 
-                                    Movements Experiencing Separatist Violence
 
-                                </h4>
+                        <PieChartComponent
 
+                            data={violentMovements}
 
-                                {violentData.length > 0 ? (
+                            nameKey="violence_status"
 
-                                    <PieChartComponent
+                            valueKey="total"
 
-                                        data={violentData}
+                        />
 
-                                        nameKey="violence_status"
 
-                                        valueKey="total"
+                        <hr />
 
-                                    />
 
-                                ) : (
+                        <h5 className="fw-bold">
 
-                                    <Alert variant="info">
+                            Interpretation
 
-                                        No violence data is available
-                                        for the selected filters.
+                        </h5>
 
-                                    </Alert>
 
-                                )}
+                        <p>
 
+                            This chart shows whether self-determination
+                            movements experienced separatist violence at
+                            any point during the recorded observation
+                            period.
 
-                                <hr />
+                        </p>
 
 
-                                <h5 className="fw-bold">
+                        <ul>
 
-                                    Interpretation
+                            <li>
 
-                                </h5>
+                                <strong>
+                                    Experienced Violence
+                                </strong>
 
+                                {" "}includes movements that recorded
+                                violence in at least one observation year.
+                                These movements may have later returned
+                                to peaceful activity or may have remained
+                                violent.
 
-                                <p>
+                            </li>
 
-                                    This chart shows whether movements
-                                    experienced separatist violence during
-                                    the selected observation period.
 
-                                </p>
+                            <li>
 
+                                <strong>
+                                    No Recorded Violence
+                                </strong>
 
-                                <ul>
+                                {" "}includes movements that did not
+                                record separatist violence during the
+                                available observation period.
 
-                                    <li>
+                            </li>
 
-                                        <strong>Experienced Violence:</strong>
-                                        The movement had at least one
-                                        observation associated with
-                                        separatist violence.
+                        </ul>
 
-                                    </li>
 
+                        <p>
 
-                                    <li>
+                            Each movement belongs to only one of these
+                            two categories. Therefore, the total number
+                            of movements in both categories represents
+                            the total number of movements included in
+                            the selected filters.
 
-                                        <strong>No Recorded Violence:</strong>
-                                        No separatist violence was recorded
-                                        in the observations included in
-                                        the selected data.
+                        </p>
 
-                                    </li>
 
-                                </ul>
+                    </Card>
 
 
-                            </Card>
+                </Col>
 
-                        </Col>
 
-                    </Row>
+            </Row>
 
 
-                    {/* ================= Violence Escalation ================= */}
+            {/* =====================================
+                CHART 2
+                ESCALATION TO VIOLENCE
+            ===================================== */}
 
-                    <Row className="mb-4">
+            <Row className="mb-4">
 
-                        <Col>
 
-                            <Card className="shadow-sm border-0 p-4">
+                <Col lg={12}>
 
-                                <h4 className="fw-bold">
 
-                                    Violence Escalation
+                    <Card className="shadow-sm border-0 p-4">
 
-                                </h4>
 
+                        <h4 className="fw-bold">
 
-                                {escalationData.length > 0 ? (
+                            Escalation from Peaceful Activity
+                            to Violence
 
-                                    <BarChartComponent
+                        </h4>
 
-                                        data={escalationData}
 
-                                        xKey="escalation_status"
+                        <BarChartComponent
 
-                                        yKey="total"
+                            data={violentEscalation}
 
-                                    />
+                            xKey="escalation_status"
 
-                                ) : (
+                            yKey="total"
 
-                                    <Alert variant="info">
+                        />
 
-                                        No violence escalation data is
-                                        available for the selected filters.
 
-                                    </Alert>
+                        <hr />
 
-                                )}
 
+                        <h5 className="fw-bold">
 
-                                <hr />
+                            Interpretation
 
+                        </h5>
 
-                                <h5 className="fw-bold">
 
-                                    Interpretation
+                        <p>
 
-                                </h5>
+                            This chart examines whether a movement
+                            changed from a peaceful phase to a violent
+                            phase during the observation period.
 
+                        </p>
 
-                                <p>
 
-                                    This chart shows the distribution of
-                                    movements according to their recorded
-                                    violence escalation status.
+                        <ul>
 
-                                </p>
+                            <li>
 
+                                <strong>
+                                    Escalated to Violence
+                                </strong>
 
-                                <p>
+                                {" "}includes movements that were
+                                recorded as peaceful in an earlier year
+                                and later recorded as violent.
 
-                                    The results can be filtered by country,
-                                    region, year, and dominant claim type.
+                            </li>
 
-                                </p>
 
+                            <li>
 
-                            </Card>
+                                <strong>
+                                    Did Not Escalate to Violence
+                                </strong>
 
-                        </Col>
+                                {" "}includes movements for which no
+                                transition from an earlier peaceful
+                                phase to a later violent phase was
+                                recorded.
 
-                    </Row>
+                            </li>
 
+                        </ul>
 
-                    {/* ================= Violence Onset ================= */}
 
-                    <Row className="mb-4">
+                        <p>
 
-                        <Col>
+                            A movement is classified as having escalated
+                            to violence if it changed from peaceful
+                            activity to violence at any point. The
+                            movement may later have returned to peaceful
+                            activity or may have remained violent. This
+                            analysis therefore focuses on whether the
+                            transition to violence occurred, rather than
+                            the movement's final recorded status.
 
-                            <Card className="shadow-sm border-0 p-4">
+                        </p>
 
-                                <h4 className="fw-bold">
 
-                                    Did Movements Start With Violence?
+                    </Card>
 
-                                </h4>
 
+                </Col>
 
-                                {onsetData.length > 0 ? (
 
-                                    <PieChartComponent
+            </Row>
 
-                                        data={onsetData}
 
-                                        nameKey="onset_status"
+            {/* =====================================
+                CHART 3
+                STARTED WITH VIOLENCE
+            ===================================== */}
 
-                                        valueKey="total"
+            <Row>
 
-                                    />
 
-                                ) : (
+                <Col lg={12}>
 
-                                    <Alert variant="info">
 
-                                        No violence onset data is available
-                                        for the selected filters.
+                    <Card className="shadow-sm border-0 p-4">
 
-                                    </Alert>
 
-                                )}
+                        <h4 className="fw-bold">
 
+                            Whether Movements Started
+                            with Violence
 
-                                <hr />
+                        </h4>
 
 
-                                <h5 className="fw-bold">
+                        <PieChartComponent
 
-                                    Interpretation
+                            data={violenceOnset}
 
-                                </h5>
+                            nameKey="onset_status"
 
+                            valueKey="total"
 
-                                <p>
+                        />
 
-                                    This analysis examines the first recorded
-                                    observation of each movement to determine
-                                    whether the movement started directly
-                                    with separatist violence.
 
-                                </p>
+                        <hr />
 
 
-                                <ul>
+                        <h5 className="fw-bold">
 
-                                    <li>
+                            Interpretation
 
-                                        <strong>Started With Violence:</strong>
-                                        The movement was recorded as violent
-                                        in its first available observation.
+                        </h5>
 
-                                    </li>
 
+                        <p>
 
-                                    <li>
+                            This chart shows whether the first recorded
+                            observation of a movement was already
+                            associated with separatist violence.
 
-                                        <strong>Did Not Start With Violence:</strong>
-                                        The movement was not recorded as
-                                        violent in its first available
-                                        observation.
+                        </p>
 
-                                    </li>
 
-                                </ul>
+                        <ul>
 
+                            <li>
 
-                                <p>
+                                <strong>
+                                    Started With Violence
+                                </strong>
 
-                                    The year filter is intentionally not
-                                    applied to this chart because violence
-                                    onset must always be determined using
-                                    the actual first recorded observation
-                                    of each movement.
+                                {" "}includes movements whose first
+                                recorded observation was violent.
 
-                                </p>
+                            </li>
 
 
-                            </Card>
+                            <li>
 
-                        </Col>
+                                <strong>
+                                    Did Not Start With Violence
+                                </strong>
 
-                    </Row>
+                                {" "}includes movements whose first
+                                recorded observation was not violent.
 
+                            </li>
 
-                </>
+                        </ul>
 
-            )}
+
+                        <p>
+
+                            This analysis focuses specifically on the
+                            first recorded year of each movement. It
+                            therefore distinguishes movements that began
+                            directly with violence from movements that
+                            entered the dataset without violence,
+                            regardless of whether they later experienced
+                            violence.
+
+                        </p>
+
+
+                    </Card>
+
+
+                </Col>
+
+
+            </Row>
 
 
         </Container>
