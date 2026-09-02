@@ -168,22 +168,21 @@ function ViolencePatterns() {
 
             const formattedOnset = (
 
-                onsetResponse.data || []
+    onsetResponse.data || []
 
-            ).map(item => ({
+).map(item => ({
 
-                ...item,
+    ...item,
 
-                onset_status:
+    onset_status:
 
-                    item.onset_status ===
-                    "Started With Violence"
+        Number(item.violsd_onset) === 1
 
-                        ? "Started With Violence"
+            ? "Started With Violence"
 
-                        : "Did Not Start With Violence"
+            : "Did Not Start With Violence"
 
-            }));
+}));
 
 
             setViolentMovements(
