@@ -1033,220 +1033,509 @@ exports.concessionsChiSquare = async (req, res) => {
     }
 
 };
-// =========================
+// =====================================================
 // BQ6 Restrictions
-// =========================
+// =====================================================
+
+
+// =====================================================
+// Total Restrictions
+// =====================================================
 
 exports.restrictions = async (req, res) => {
+
     console.log("BQ6 RESTRICTIONS");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.restrictions
+
+            queries.restrictions,
+
+            params
+
         );
-          console.log(rows);
+
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
 
+
+
+// =====================================================
+// Cultural Restrictions
+// =====================================================
 
 exports.culturalRestrictions = async (req, res) => {
-console.log("BQ6 CULTURAL RESTRICTIONS");
+
+    console.log("BQ6 CULTURAL RESTRICTIONS");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.culturalRestrictions
+
+            queries.culturalRestrictions,
+
+            params
+
         );
-           console.log(rows);
+
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
 
+
+
+// =====================================================
+// Autonomy Restrictions
+// =====================================================
 
 exports.autonomyRestrictions = async (req, res) => {
+
     console.log("BQ6 AUTONOMY RESTRICTIONS");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.autonomyRestrictions
+
+            queries.autonomyRestrictions,
+
+            params
+
         );
-       console.log(rows);
+
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
 
+
+
+// =====================================================
+// Independence Restrictions
+// =====================================================
 
 exports.independenceRestrictions = async (req, res) => {
-    console.log("BQ6 independence RESTRICTIONS");
+
+    console.log("BQ6 INDEPENDENCE RESTRICTIONS");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.independenceRestrictions
+
+            queries.independenceRestrictions,
+
+            params
+
         );
-          console.log(rows);
+
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
 
-// =========================
-// BQ6 Restriction Movements
-// =========================
+
+
+// =====================================================
+// Distinct Restriction Movements
+// =====================================================
 
 exports.restrictionMovements = async (req, res) => {
+
     console.log("BQ6 RESTRICTION MOVEMENTS");
 
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.restrictionMovements
+
+            queries.restrictionMovements,
+
+            params
+
         );
 
+
         console.log(rows);
+
         res.json(rows);
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
+
 };
 
 
-// =========================
-// BQ6 Restriction Movements By Claim
-// =========================
+
+// =====================================================
+// Restriction Movements By Claim
+// =====================================================
 
 exports.restrictionMovementsByClaim = async (req, res) => {
+
     console.log("BQ6 RESTRICTION MOVEMENTS BY CLAIM");
 
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.restrictionMovementsByClaim
+
+            queries.restrictionMovementsByClaim,
+
+            params
+
         );
+
 
         console.log(rows);
+
         res.json(rows);
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.log(error);
-        res.status(500).json(error);
 
-    }
-};
+        res.status(500).json({
 
+            error: error.message
 
-// =========================
-// BQ6 Chi Square
-// =========================
-
-exports.restrictionsChiSquare = async (req, res) => {
-    console.log("BQ6 RESTRICTIONS CHI SQUARE");
-    try {
-        const [rows] = await db.query(
-            queries.restrictionsChiSquare
-        );
-
-        // 1. حساب اختبار كاي سكوير بين نوع المطالبة والقيود
-        const result = chiSquareTest(
-            rows,
-            "domclaim",
-            "res" // تأكدي إن حقل القيود في الاستعلام اسمه res
-        );
-
-        // 2. صياغة التفسير الإحصائي بناءً على p-value
-        let interpretation = "";
-
-        if (result.pValue < 0.05) {
-            interpretation =
-                "There is a statistically significant association between dominant claim type and government restrictions (p < 0.05).";
-        } else {
-            interpretation =
-                "There is no statistically significant association between dominant claim type and government restrictions (p > 0.05).";
-        }
-
-        // 3. إرجاع النتائج بالصيغة المتوقعة في الفرونت إند
-        res.json({
-            chiSquare: result.chiSquare,
-            degreesOfFreedom: result.degreesOfFreedom,
-            pValue: result.pValue,
-            interpretation
         });
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).json(error);
     }
-};
-// =========================
-// BQ7 Group Size
-// =========================
 
-exports.groupSize = async (req, res) => {
-    console.log("BQ7 GROUP SIZE");
+};
+
+
+
+// =====================================================
+// BQ6 Chi-Square
+// =====================================================
+
+exports.restrictionsChiSquare = async (req, res) => {
+
+    console.log("BQ6 RESTRICTIONS CHI SQUARE");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+
         const [rows] = await db.query(
-            queries.groupSize
+
+            queries.restrictionsChiSquare,
+
+            params
+
         );
-         console.log(rows);
-        res.json(rows);
+
+
+        const result = chiSquareTest(
+
+            rows,
+
+            "domclaim",
+
+            "res"
+
+        );
+
+
+        let interpretation = "";
+
+
+        if (result.pValue < 0.05) {
+
+            interpretation =
+                "There is a statistically significant association between dominant claim type and government restrictions (p < 0.05).";
+
+        }
+
+        else {
+
+            interpretation =
+                "There is no statistically significant association between dominant claim type and government restrictions (p > 0.05).";
+
+        }
+
+
+        res.json({
+
+            chiSquare: result.chiSquare,
+
+            degreesOfFreedom:
+                result.degreesOfFreedom,
+
+            pValue:
+                result.pValue,
+
+            interpretation
+
+        });
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+
+            error: error.message
+
+        });
 
     }
 
 };
-
-
 // =========================
 // Geographic Concentration
 // =========================

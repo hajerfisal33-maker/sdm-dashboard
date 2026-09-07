@@ -1129,240 +1129,371 @@ concessionsChiSquare: `
 `,
 
 
-    // =====================================================
-    // BQ6
-    // Restrictions
-    // =====================================================
+   // =====================================================
+// BQ6
+// Restrictions
+// =====================================================
+
+// =====================================================
+// Total Restrictions
+// =====================================================
+
+restrictions: `
+    SELECT
+
+        SUM(
+            CASE
+                WHEN mo.res = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS restrictions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE 1 = 1
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
+
+
+// =====================================================
+// Cultural Restrictions
+// =====================================================
+
+culturalRestrictions: `
+    SELECT
+
+        SUM(
+            CASE
+                WHEN mo.cultres = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS cultural_restrictions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE 1 = 1
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
+
+
+// =====================================================
+// Autonomy Restrictions
+// =====================================================
+
+autonomyRestrictions: `
+    SELECT
+
+        SUM(
+            CASE
+                WHEN mo.autres = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS autonomy_restrictions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE 1 = 1
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
+
+
+// =====================================================
+// Independence Restrictions
+// =====================================================
+
+independenceRestrictions: `
+    SELECT
+
+        SUM(
+            CASE
+                WHEN mo.indres = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS independence_restrictions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE 1 = 1
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
+
+
+// =====================================================
+// Distinct Movements Affected
+// =====================================================
+
+restrictionMovements: `
+    SELECT
+
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.res = 1
+                THEN mo.group_id
+            END
+        ) AS total_movements
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE 1 = 1
 
-    restrictions: `
-        SELECT
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            SUM(
-                CASE
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-                    WHEN mo.res = 1
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS restrictions
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
-
-
-    culturalRestrictions: `
-        SELECT
-
-            SUM(
-                CASE
-
-                    WHEN mo.cultres = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS cultural_restrictions
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
-
-
-    autonomyRestrictions: `
-        SELECT
-
-            SUM(
-                CASE
-
-                    WHEN mo.autres = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS autonomy_restrictions
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
-
-
-    independenceRestrictions: `
-        SELECT
-
-            SUM(
-                CASE
-
-                    WHEN mo.indres = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS independence_restrictions
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
-
-
-    restrictionsChiSquare: `
-        SELECT
-
-            mo.domclaim,
-
-            mo.res
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            mo.domclaim IS NOT NULL
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
-
-
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
+
+
+// =====================================================
+// Distinct Movements Affected By Claim
+// =====================================================
+
+restrictionMovementsByClaim: `
+    SELECT
+
+        mo.domclaim,
+
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.res = 1
+                THEN mo.group_id
+            END
+        ) AS movements
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        mo.domclaim IS NOT NULL
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
+
+    GROUP BY
+        mo.domclaim
+
+    ORDER BY
+        movements DESC;
+`,
+
+
+// =====================================================
+// Chi-Square Restrictions
+// =====================================================
+
+restrictionsChiSquare: `
+    SELECT
+
+        mo.domclaim,
+
+        mo.res
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+
+        mo.domclaim IS NOT NULL
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
+
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
     // =====================================================
     // BQ7
     // Group Characteristics
