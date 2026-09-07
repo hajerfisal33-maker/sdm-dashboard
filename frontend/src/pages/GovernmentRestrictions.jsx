@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
     Container,
     Row,
@@ -15,11 +16,14 @@ import api from "../services/api";
 import BarChartComponent from "../charts/BarChartComponent";
 import PieChartComponent from "../charts/PieChartComponent";
 
+import DashboardFilters from "../components/DashboardFilters";
+
+
 // =====================================================
-// Chi-Square Results for BQ6
+// Chi-Square Results
 // =====================================================
 
-function ChiSquareResultsBQ6() {
+function ChiSquareResultsBQ6({ filters }) {
 
     const [data, setData] = useState(null);
 
@@ -27,16 +31,39 @@ function ChiSquareResultsBQ6() {
 
     const [error, setError] = useState(null);
 
+
     useEffect(() => {
 
         async function fetchChiSquareData() {
 
             try {
 
-                const response =
-                    await api.get("/restrictions-chi-square");
+                setLoading(true);
+
+                const params = {};
+
+                if (filters.country)
+                    params.country = filters.country;
+
+                if (filters.region)
+                    params.region = filters.region;
+
+                if (filters.year)
+                    params.year = filters.year;
+
+                if (filters.claim)
+                    params.claim = filters.claim;
+
+
+                const response = await api.get(
+                    "/restrictions-chi-square",
+                    { params }
+                );
+
 
                 setData(response.data);
+
+                setError(null);
 
             }
 
@@ -61,9 +88,11 @@ function ChiSquareResultsBQ6() {
 
         }
 
+
         fetchChiSquareData();
 
-    }, []);
+    }, [filters]);
+
 
     if (loading) {
 
@@ -90,11 +119,15 @@ function ChiSquareResultsBQ6() {
 
     }
 
+
     if (error) {
 
         return (
 
-            <Alert variant="danger" className="mt-3">
+            <Alert
+                variant="danger"
+                className="mt-3"
+            >
 
                 {error}
 
@@ -104,8 +137,10 @@ function ChiSquareResultsBQ6() {
 
     }
 
+
     const isSignificant =
         data?.pValue < 0.05;
+
 
     return (
 
@@ -124,13 +159,14 @@ function ChiSquareResultsBQ6() {
                     <p className="text-muted small mb-0">
 
                         Examining whether the dominant claim pursued
-                        by a self-determination movement is statistically
+                        by self-determination movements is statistically
                         associated with the occurrence of governmental
                         restrictions.
 
                     </p>
 
                 </div>
+
 
                 <Badge
                     bg={
@@ -150,6 +186,7 @@ function ChiSquareResultsBQ6() {
                 </Badge>
 
             </div>
+
 
             <Table
                 responsive
@@ -173,6 +210,7 @@ function ChiSquareResultsBQ6() {
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -198,6 +236,7 @@ function ChiSquareResultsBQ6() {
 
                     </tr>
 
+
                     <tr>
 
                         <td className="fw-semibold">
@@ -216,6 +255,7 @@ function ChiSquareResultsBQ6() {
                         </td>
 
                     </tr>
+
 
                     <tr>
 
@@ -239,7 +279,6 @@ function ChiSquareResultsBQ6() {
 
                                 {
                                     data?.pValue !== undefined
-
                                         ? (
                                             data.pValue < 0.001
                                                 ? "< 0.001"
@@ -247,7 +286,6 @@ function ChiSquareResultsBQ6() {
                                                     data.pValue
                                                 ).toFixed(4)
                                         )
-
                                         : "N/A"
                                 }
 
@@ -260,6 +298,7 @@ function ChiSquareResultsBQ6() {
                 </tbody>
 
             </Table>
+
 
             <Alert
                 variant={
@@ -279,6 +318,7 @@ function ChiSquareResultsBQ6() {
                 {data?.interpretation}
 
             </Alert>
+
 
             <div className="p-3 bg-light rounded-3">
 
@@ -310,17 +350,29 @@ function ChiSquareResultsBQ6() {
 }
 
 
+
 // =====================================================
 // Main BQ6 Component
 // =====================================================
 
 function GovernmentRestrictions() {
 
-    const [summaryData, setSummaryData] = useState([]);
 
-    const [movementCount, setMovementCount] = useState(0);
+    // =================================================
+    // State
+    // =================================================
 
-    const [movementClaims, setMovementClaims] = useState([]);
+    const [summaryData, setSummaryData] =
+        useState([]);
+
+
+    const [movementCount, setMovementCount] =
+        useState(0);
+
+
+    const [movementClaims, setMovementClaims] =
+        useState([]);
+
 
     const [totals, setTotals] = useState({
 
@@ -334,47 +386,121 @@ function GovernmentRestrictions() {
 
     });
 
-    const [loading, setLoading] = useState(true);
+
+    const [loading, setLoading] =
+        useState(true);
+
+
+    const [filters, setFilters] = useState({
+
+        country: "",
+
+        region: "",
+
+        year: "",
+
+        claim: ""
+
+    });
+
 
 
     // =================================================
-    // Load Data
+    // Load Data Whenever Filters Change
     // =================================================
 
     useEffect(() => {
 
         loadData();
 
-    }, []);
+    }, [filters]);
 
+
+
+    // =================================================
+    // Load Data
+    // =================================================
 
     async function loadData() {
 
         try {
 
-            const resTotal =
-                await api.get("/restrictions");
-
-            const resCultural =
-                await api.get("/cultural-restrictions");
-
-            const resAutonomy =
-                await api.get("/autonomy-restrictions");
-
-            const resIndependence =
-                await api.get("/independence-restrictions");
-
-            const resMovementCount =
-                await api.get("/restriction-movements");
-
-            const resMovementClaims =
-                await api.get(
-                    "/restriction-movements-by-claim"
-                );
+            setLoading(true);
 
 
             // =========================================
-            // Total Restriction Events
+            // Build Parameters
+            // =========================================
+
+            const params = {};
+
+
+            if (filters.country)
+                params.country = filters.country;
+
+
+            if (filters.region)
+                params.region = filters.region;
+
+
+            if (filters.year)
+                params.year = filters.year;
+
+
+            if (filters.claim)
+                params.claim = filters.claim;
+
+
+
+            // =========================================
+            // API Requests
+            // =========================================
+
+            const resTotal =
+                await api.get(
+                    "/restrictions",
+                    { params }
+                );
+
+
+            const resCultural =
+                await api.get(
+                    "/cultural-restrictions",
+                    { params }
+                );
+
+
+            const resAutonomy =
+                await api.get(
+                    "/autonomy-restrictions",
+                    { params }
+                );
+
+
+            const resIndependence =
+                await api.get(
+                    "/independence-restrictions",
+                    { params }
+                );
+
+
+            const resMovementCount =
+                await api.get(
+                    "/restriction-movements",
+                    { params }
+                );
+
+
+            const resMovementClaims =
+                await api.get(
+                    "/restriction-movements-by-claim",
+                    { params }
+                );
+
+
+
+            // =========================================
+            // Extract Values
             // =========================================
 
             const totalVal = Number(
@@ -385,10 +511,6 @@ function GovernmentRestrictions() {
             );
 
 
-            // =========================================
-            // Cultural Restriction Events
-            // =========================================
-
             const culturalVal = Number(
 
                 resCultural.data?.[0]
@@ -396,10 +518,6 @@ function GovernmentRestrictions() {
 
             );
 
-
-            // =========================================
-            // Autonomy Restriction Events
-            // =========================================
 
             const autonomyVal = Number(
 
@@ -409,10 +527,6 @@ function GovernmentRestrictions() {
             );
 
 
-            // =========================================
-            // Independence Restriction Events
-            // =========================================
-
             const independenceVal = Number(
 
                 resIndependence.data?.[0]
@@ -421,16 +535,13 @@ function GovernmentRestrictions() {
             );
 
 
-            // =========================================
-            // Number of Distinct Movements Affected
-            // =========================================
-
             const affectedMovements = Number(
 
                 resMovementCount.data?.[0]
                     ?.total_movements || 0
 
             );
+
 
 
             // =========================================
@@ -450,17 +561,15 @@ function GovernmentRestrictions() {
             });
 
 
-            // =========================================
-            // Store Number of Affected Movements
-            // =========================================
 
             setMovementCount(
                 affectedMovements
             );
 
 
+
             // =========================================
-            // Store Movements by Claim Type
+            // Movement Claims
             // =========================================
 
             setMovementClaims(
@@ -468,16 +577,15 @@ function GovernmentRestrictions() {
                 Array.isArray(
                     resMovementClaims.data
                 )
-
                     ? resMovementClaims.data
-
                     : []
 
             );
 
 
+
             // =========================================
-            // Data for Bar + Pie Charts
+            // Summary Chart Data
             // =========================================
 
             const chartData = [
@@ -500,7 +608,10 @@ function GovernmentRestrictions() {
             ];
 
 
-            setSummaryData(chartData);
+            setSummaryData(
+                chartData
+            );
+
 
         }
 
@@ -522,29 +633,44 @@ function GovernmentRestrictions() {
     }
 
 
+
     // =================================================
-    // Loading State
+    // Loading
     // =================================================
 
     if (loading) {
 
         return (
 
-            <Container className="mt-5 text-center">
+            <Container className="mt-5 mb-5">
 
-                <Spinner animation="border" />
+                <DashboardFilters
+                    filters={filters}
+                    setFilters={setFilters}
+                />
 
-                <h4 className="mt-3">
 
-                    Loading Governmental Restrictions Analysis...
+                <div className="text-center mt-5">
 
-                </h4>
+                    <Spinner
+                        animation="border"
+                    />
+
+                    <h4 className="mt-3">
+
+                        Loading Governmental
+                        Restrictions Analysis...
+
+                    </h4>
+
+                </div>
 
             </Container>
 
         );
 
     }
+
 
 
     // =================================================
@@ -555,9 +681,21 @@ function GovernmentRestrictions() {
 
         <Container className="mt-5 mb-5">
 
-            {/* =================================================
+
+            {/* =========================================
+                FILTERS
+            ========================================= */}
+
+            <DashboardFilters
+                filters={filters}
+                setFilters={setFilters}
+            />
+
+
+
+            {/* =========================================
                 PAGE HEADER
-            ================================================= */}
+            ========================================= */}
 
             <div className="mb-4">
 
@@ -606,14 +744,15 @@ function GovernmentRestrictions() {
             </div>
 
 
-            {/* =================================================
+
+            {/* =========================================
                 STAT CARDS
-            ================================================= */}
+            ========================================= */}
 
             <Row className="g-3 mb-4">
 
 
-                {/* Total Restrictions */}
+                {/* Total */}
 
                 <Col md={4}>
 
@@ -625,11 +764,13 @@ function GovernmentRestrictions() {
 
                         </h6>
 
+
                         <h2 className="text-primary fw-bold">
 
                             {totals.total.toLocaleString()}
 
                         </h2>
+
 
                         <p className="text-muted small mb-0">
 
@@ -644,6 +785,7 @@ function GovernmentRestrictions() {
                 </Col>
 
 
+
                 {/* Affected Movements */}
 
                 <Col md={4}>
@@ -656,11 +798,13 @@ function GovernmentRestrictions() {
 
                         </h6>
 
+
                         <h2 className="text-warning fw-bold">
 
                             {movementCount.toLocaleString()}
 
                         </h2>
+
 
                         <p className="text-muted small mb-0">
 
@@ -675,7 +819,8 @@ function GovernmentRestrictions() {
                 </Col>
 
 
-                {/* Restriction Domains */}
+
+                {/* Domains */}
 
                 <Col md={4}>
 
@@ -687,11 +832,13 @@ function GovernmentRestrictions() {
 
                         </h6>
 
+
                         <h2 className="text-danger fw-bold">
 
                             3
 
                         </h2>
+
 
                         <p className="text-muted small mb-0">
 
@@ -707,9 +854,10 @@ function GovernmentRestrictions() {
             </Row>
 
 
-            {/* =================================================
-                MOVEMENTS AFFECTED BY CLAIM TYPE
-            ================================================= */}
+
+            {/* =========================================
+                MOVEMENTS BY CLAIM
+            ========================================= */}
 
             <Row className="g-4 mb-4">
 
@@ -724,6 +872,7 @@ function GovernmentRestrictions() {
 
                         </h4>
 
+
                         <p className="text-muted">
 
                             This chart counts the number of distinct
@@ -734,23 +883,23 @@ function GovernmentRestrictions() {
 
                         </p>
 
+
                         <BarChartComponent
-
                             data={movementClaims}
-
                             xKey="domclaim"
-
                             yKey="movements"
-
                         />
 
+
                         <hr />
+
 
                         <h6 className="fw-bold">
 
                             Interpretation
 
                         </h6>
+
 
                         <p className="text-muted mb-0">
 
@@ -761,10 +910,6 @@ function GovernmentRestrictions() {
                             even if it experienced restrictions in
                             multiple years or across multiple domains.
 
-                            This makes the chart useful for comparing the
-                            breadth of government restrictions across
-                            different types of self-determination claims.
-
                         </p>
 
                     </Card>
@@ -774,14 +919,15 @@ function GovernmentRestrictions() {
             </Row>
 
 
-            {/* =================================================
-                EVENT BREAKDOWN
-            ================================================= */}
+
+            {/* =========================================
+                RESTRICTION EVENT BREAKDOWN
+            ========================================= */}
 
             <Row className="g-4 mb-4">
 
 
-                {/* Bar Chart */}
+                {/* Bar */}
 
                 <Col lg={6}>
 
@@ -793,6 +939,7 @@ function GovernmentRestrictions() {
 
                         </h4>
 
+
                         <p className="text-muted">
 
                             This bar chart compares the frequency of
@@ -803,23 +950,23 @@ function GovernmentRestrictions() {
 
                         </p>
 
+
                         <BarChartComponent
-
                             data={summaryData}
-
                             xKey="type"
-
                             yKey="count"
-
                         />
 
+
                         <hr />
+
 
                         <h6 className="fw-bold">
 
                             Interpretation
 
                         </h6>
+
 
                         <p className="text-muted mb-0">
 
@@ -828,7 +975,7 @@ function GovernmentRestrictions() {
                             frequently across the annual observations
                             recorded in the dataset.
 
-                            Unlike the previous movement-level chart,
+                            Unlike the movement-level chart,
                             this visualization counts restriction events.
                             Therefore, the same movement may contribute
                             multiple events if restrictions occurred
@@ -841,7 +988,8 @@ function GovernmentRestrictions() {
                 </Col>
 
 
-                {/* Pie Chart */}
+
+                {/* Pie */}
 
                 <Col lg={6}>
 
@@ -853,6 +1001,7 @@ function GovernmentRestrictions() {
 
                         </h4>
 
+
                         <p className="text-muted">
 
                             This pie chart presents the relative share
@@ -861,23 +1010,23 @@ function GovernmentRestrictions() {
 
                         </p>
 
+
                         <PieChartComponent
-
                             data={summaryData}
-
                             nameKey="type"
-
                             valueKey="count"
-
                         />
 
+
                         <hr />
+
 
                         <h6 className="fw-bold">
 
                             Interpretation
 
                         </h6>
+
 
                         <p className="text-muted mb-0">
 
@@ -900,24 +1049,29 @@ function GovernmentRestrictions() {
             </Row>
 
 
-            {/* =================================================
+
+            {/* =========================================
                 CHI-SQUARE
-            ================================================= */}
+            ========================================= */}
 
             <Row>
 
                 <Col lg={12}>
 
-                    <ChiSquareResultsBQ6 />
+                    <ChiSquareResultsBQ6
+                        filters={filters}
+                    />
 
                 </Col>
 
             </Row>
+
 
         </Container>
 
     );
 
 }
+
 
 export default GovernmentRestrictions;
