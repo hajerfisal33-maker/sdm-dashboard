@@ -1055,9 +1055,7 @@ exports.restrictions = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1069,39 +1067,27 @@ exports.restrictions = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.restrictions,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1121,9 +1107,7 @@ exports.culturalRestrictions = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1135,39 +1119,27 @@ exports.culturalRestrictions = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.culturalRestrictions,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1187,9 +1159,7 @@ exports.autonomyRestrictions = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1201,39 +1171,27 @@ exports.autonomyRestrictions = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.autonomyRestrictions,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1253,9 +1211,7 @@ exports.independenceRestrictions = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1267,39 +1223,27 @@ exports.independenceRestrictions = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.independenceRestrictions,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1319,9 +1263,7 @@ exports.restrictionMovements = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1333,39 +1275,27 @@ exports.restrictionMovements = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.restrictionMovements,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1385,9 +1315,7 @@ exports.restrictionMovementsByClaim = async (req, res) => {
             claim = ""
         } = req.query;
 
-
         const params = [
-
             country,
             country,
 
@@ -1399,39 +1327,27 @@ exports.restrictionMovementsByClaim = async (req, res) => {
 
             claim,
             claim
-
         ];
 
-
         const [rows] = await db.query(
-
             queries.restrictionMovementsByClaim,
-
             params
-
         );
-
 
         console.log(rows);
 
         res.json(rows);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
         res.status(500).json({
-
             error: error.message
-
         });
 
     }
-
 };
-
 
 
 // =====================================================
@@ -1444,72 +1360,34 @@ exports.restrictionsChiSquare = async (req, res) => {
 
     try {
 
-        const {
-            country = "",
-            region = "",
-            year = "",
-            claim = ""
-        } = req.query;
-
-
-        const params = [
-
-            country,
-            country,
-
-            region,
-            region,
-
-            year,
-            year,
-
-            claim,
-            claim
-
-        ];
-
-
         const [rows] = await db.query(
-
-            queries.restrictionsChiSquare,
-
-            params
-
+            queries.restrictionsChiSquare
         );
-
 
         const result = chiSquareTest(
-
             rows,
-
             "domclaim",
-
             "res"
-
         );
 
-
         let interpretation = "";
-
 
         if (result.pValue < 0.05) {
 
             interpretation =
                 "There is a statistically significant association between dominant claim type and government restrictions (p < 0.05).";
 
-        }
-
-        else {
+        } else {
 
             interpretation =
                 "There is no statistically significant association between dominant claim type and government restrictions (p > 0.05).";
 
         }
 
-
         res.json({
 
-            chiSquare: result.chiSquare,
+            chiSquare:
+                result.chiSquare,
 
             degreesOfFreedom:
                 result.degreesOfFreedom,
@@ -1521,9 +1399,7 @@ exports.restrictionsChiSquare = async (req, res) => {
 
         });
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.log(error);
 
@@ -1531,11 +1407,13 @@ exports.restrictionsChiSquare = async (req, res) => {
 
             error: error.message
 
-        });
+        }
+    );
+
 
     }
-
 };
+
 // =========================
 // Geographic Concentration
 // =========================

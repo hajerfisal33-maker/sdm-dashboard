@@ -1130,9 +1130,9 @@ concessionsChiSquare: `
 
 
    // =====================================================
-// BQ6
-// Restrictions
+// BQ6 Restrictions
 // =====================================================
+
 
 // =====================================================
 // Total Restrictions
@@ -1140,11 +1140,9 @@ concessionsChiSquare: `
 
 restrictions: `
     SELECT
-
         SUM(
             CASE
-                WHEN mo.res = 1
-                THEN 1
+                WHEN mo.res = 1 THEN 1
                 ELSE 0
             END
         ) AS restrictions
@@ -1157,31 +1155,11 @@ restrictions: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
+    WHERE
+        (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?);
 `,
 
 
@@ -1191,11 +1169,9 @@ restrictions: `
 
 culturalRestrictions: `
     SELECT
-
         SUM(
             CASE
-                WHEN mo.cultres = 1
-                THEN 1
+                WHEN mo.cultres = 1 THEN 1
                 ELSE 0
             END
         ) AS cultural_restrictions
@@ -1208,31 +1184,11 @@ culturalRestrictions: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
+    WHERE
+        (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?);
 `,
 
 
@@ -1242,11 +1198,9 @@ culturalRestrictions: `
 
 autonomyRestrictions: `
     SELECT
-
         SUM(
             CASE
-                WHEN mo.autres = 1
-                THEN 1
+                WHEN mo.autres = 1 THEN 1
                 ELSE 0
             END
         ) AS autonomy_restrictions
@@ -1259,31 +1213,11 @@ autonomyRestrictions: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
+    WHERE
+        (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?);
 `,
 
 
@@ -1293,11 +1227,9 @@ autonomyRestrictions: `
 
 independenceRestrictions: `
     SELECT
-
         SUM(
             CASE
-                WHEN mo.indres = 1
-                THEN 1
+                WHEN mo.indres = 1 THEN 1
                 ELSE 0
             END
         ) AS independence_restrictions
@@ -1310,40 +1242,50 @@ independenceRestrictions: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
+    WHERE
+        (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?);
 `,
 
 
 // =====================================================
-// Distinct Movements Affected
+// Distinct Restriction Movements
 // =====================================================
 
 restrictionMovements: `
     SELECT
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.res = 1
+                THEN mo.group_id
+            END
+        ) AS restriction_movements
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?);
+`,
+
+
+// =====================================================
+// Restriction Movements By Claim
+// =====================================================
+
+restrictionMovementsByClaim: `
+    SELECT
+        mo.domclaim,
 
         COUNT(
             DISTINCT CASE
@@ -1360,139 +1302,35 @@ restrictionMovements: `
     JOIN countries c
         ON eg.country_id = c.country_id
 
-    WHERE 1 = 1
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
-`,
-
-
-// =====================================================
-// Distinct Movements Affected By Claim
-// =====================================================
-
-restrictionMovementsByClaim: `
-    SELECT
-
-        mo.domclaim,
-
-        COUNT(
-            DISTINCT CASE
-                WHEN mo.res = 1
-                THEN mo.group_id
-            END
-        ) AS movements
-
-    FROM movement_observations mo
-
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
-
-    JOIN countries c
-        ON eg.country_id = c.country_id
-
     WHERE
         mo.domclaim IS NOT NULL
+        AND mo.res IS NOT NULL
 
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
+        AND (? = '' OR c.country_id = ?)
+        AND (? = '' OR eg.region = ?)
+        AND (? = '' OR mo.year = ?)
+        AND (? = '' OR mo.domclaim = ?)
 
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
+    GROUP BY mo.domclaim
 
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        )
-
-    GROUP BY
-        mo.domclaim
-
-    ORDER BY
-        movements DESC;
+    ORDER BY total_movements DESC;
 `,
 
 
 // =====================================================
-// Chi-Square Restrictions
+// BQ6 Chi-Square
 // =====================================================
 
 restrictionsChiSquare: `
     SELECT
-
         mo.domclaim,
-
         mo.res
 
     FROM movement_observations mo
 
-    JOIN ethnic_groups eg
-        ON mo.group_id = eg.group_id
-
-    JOIN countries c
-        ON eg.country_id = c.country_id
-
     WHERE
-
         mo.domclaim IS NOT NULL
-
-        /* Country filter */
-        AND (
-            ? = ''
-            OR c.country_id = ?
-        )
-
-        /* Region filter */
-        AND (
-            ? = ''
-            OR eg.region = ?
-        )
-
-        /* Year filter */
-        AND (
-            ? = ''
-            OR mo.year = ?
-        )
-
-        /* Claim filter */
-        AND (
-            ? = ''
-            OR mo.domclaim = ?
-        );
+        AND mo.res IS NOT NULL;
 `,
     // =====================================================
     // BQ7
