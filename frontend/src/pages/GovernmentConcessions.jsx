@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
     Container,
     Row,
@@ -15,18 +16,23 @@ import api from "../services/api";
 import BarChartComponent from "../charts/BarChartComponent";
 import PieChartComponent from "../charts/PieChartComponent";
 
+import DashboardFilters from "../components/DashboardFilters";
+
 
 // =====================================================
-// Chi-Square Results for BQ5
+// Chi-Square Results
 // =====================================================
 
 function ChiSquareResultsBQ5() {
 
     const [data, setData] = useState(null);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [error, setError] = useState(null);
+    const [error, setError] =
+        useState(null);
+
 
     useEffect(() => {
 
@@ -35,9 +41,13 @@ function ChiSquareResultsBQ5() {
             try {
 
                 const response =
-                    await api.get("/concessions-chi-square");
+                    await api.get(
+                        "/concessions-chi-square"
+                    );
 
-                setData(response.data);
+                setData(
+                    response.data
+                );
 
             }
 
@@ -63,23 +73,21 @@ function ChiSquareResultsBQ5() {
 
     }, []);
 
+
     if (loading) {
 
         return (
 
-            <Card className="shadow-sm p-4 text-center mt-3 border-0 bg-white">
+            <Card className="shadow-sm p-4 text-center border-0">
 
                 <Spinner
                     animation="border"
-                    role="status"
                     variant="primary"
                     className="mb-2 mx-auto"
                 />
 
                 <p className="text-muted mb-0">
-
                     Calculating statistical association...
-
                 </p>
 
             </Card>
@@ -88,22 +96,23 @@ function ChiSquareResultsBQ5() {
 
     }
 
+
     if (error) {
 
         return (
 
             <Alert variant="danger">
-
                 {error}
-
             </Alert>
 
         );
 
     }
 
+
     const significant =
-        data?.pValue < 0.05;
+        Number(data?.pValue) < 0.05;
+
 
     return (
 
@@ -114,22 +123,26 @@ function ChiSquareResultsBQ5() {
                 <div>
 
                     <h4 className="fw-bold">
-
                         Chi-Square Test of Independence
-
                     </h4>
 
                     <p className="text-muted mb-0">
 
-                        Examining whether dominant claim type is statistically
-                        associated with government concessions.
+                        Examining whether dominant claim type
+                        is statistically associated with
+                        government concessions.
 
                     </p>
 
                 </div>
 
+
                 <Badge
-                    bg={significant ? "success" : "secondary"}
+                    bg={
+                        significant
+                            ? "success"
+                            : "secondary"
+                    }
                     className="px-3 py-2 rounded-pill fs-6"
                 >
 
@@ -141,47 +154,75 @@ function ChiSquareResultsBQ5() {
 
             </div>
 
-            <Table bordered hover responsive className="text-center">
+
+            <Table
+                bordered
+                hover
+                responsive
+                className="text-center"
+            >
 
                 <thead className="table-light">
 
                     <tr>
 
-                        <th>Statistic</th>
+                        <th>
+                            Statistic
+                        </th>
 
-                        <th>Value</th>
+                        <th>
+                            Value
+                        </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
                     <tr>
 
-                        <td>Chi-Square (χ²)</td>
+                        <td>
+                            Chi-Square (χ²)
+                        </td>
 
-                        <td>{Number(data.chiSquare).toFixed(4)}</td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Degrees of Freedom</td>
-
-                        <td>{data.degreesOfFreedom}</td>
+                        <td>
+                            {Number(
+                                data?.chiSquare || 0
+                            ).toFixed(4)}
+                        </td>
 
                     </tr>
 
+
                     <tr>
 
-                        <td>p-value</td>
+                        <td>
+                            Degrees of Freedom
+                        </td>
+
+                        <td>
+                            {data?.degreesOfFreedom}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            p-value
+                        </td>
 
                         <td>
 
-                            {data.pValue < 0.001
+                            {Number(data?.pValue) < 0.001
                                 ? "< 0.001"
-                                : Number(data.pValue).toFixed(4)}
+                                : Number(
+                                    data?.pValue || 0
+                                ).toFixed(4)
+                            }
 
                         </td>
 
@@ -191,16 +232,23 @@ function ChiSquareResultsBQ5() {
 
             </Table>
 
+
             <Alert
-                variant={significant ? "success" : "warning"}
+                variant={
+                    significant
+                        ? "success"
+                        : "warning"
+                }
                 className="mt-3"
             >
 
-                <strong>Interpretation</strong>
+                <strong>
+                    Interpretation
+                </strong>
 
                 <br />
 
-                {data.interpretation}
+                {data?.interpretation}
 
             </Alert>
 
@@ -211,72 +259,279 @@ function ChiSquareResultsBQ5() {
 }
 
 
-
 // =====================================================
 // Main Component
 // =====================================================
 
 function GovernmentConcessions() {
 
-    const [summaryData, setSummaryData] = useState([]);
 
-    const [movementCount, setMovementCount] = useState(0);
+    const [summaryData, setSummaryData] =
+        useState([]);
 
-    const [movementClaims, setMovementClaims] = useState([]);
 
-    const [totals, setTotals] = useState({
+    const [movementClaims, setMovementClaims] =
+        useState([]);
 
-        total: 0,
 
-        cultural: 0,
+    const [movementCount, setMovementCount] =
+        useState(0);
 
-        autonomy: 0,
 
-        independence: 0
+    const [totals, setTotals] =
+        useState({
 
-    });
+            total: 0,
 
-    const [loading, setLoading] = useState(true);
+            cultural: 0,
+
+            autonomy: 0,
+
+            independence: 0
+
+        });
+
+
+    const [loading, setLoading] =
+        useState(true);
+
+
+    const [error, setError] =
+        useState(null);
+
+
+    // =================================================
+    // Dashboard Filters
+    // =================================================
+
+    const [filters, setFilters] =
+        useState({
+
+            country: "",
+
+            region: "",
+
+            year: "",
+
+            claim: ""
+
+        });
+
+
+    // =================================================
+    // Load data whenever filters change
+    // =================================================
 
     useEffect(() => {
 
         loadData();
 
-    }, []);
+    }, [filters]);
+
+
+    // =================================================
+    // Load BQ5 data
+    // =================================================
 
     async function loadData() {
 
+        setLoading(true);
+
+        setError(null);
+
+
         try {
 
-            const total =
-                await api.get("/concessions");
 
-            const cultural =
-                await api.get("/cultural-concessions");
+            const params = {
 
-            const autonomy =
-                await api.get("/autonomy-concessions");
+                country:
+                    filters.country || "",
 
-            const independence =
-                await api.get("/independence-concessions");
+                region:
+                    filters.region || "",
 
-            const movements =
-                await api.get("/concession-movements");
+                year:
+                    filters.year || "",
 
-            const movementClaimsRes =
-                await api.get("/concession-movements-by-claim");
+                claim:
+                    filters.claim || ""
+
+            };
+
+
+            const [
+
+                totalRes,
+
+                culturalRes,
+
+                autonomyRes,
+
+                independenceRes,
+
+                movementsRes,
+
+                movementClaimsRes
+
+            ] = await Promise.all([
+
+
+                api.get(
+                    "/concessions",
+                    { params }
+                ),
+
+
+                api.get(
+                    "/cultural-concessions",
+                    { params }
+                ),
+
+
+                api.get(
+                    "/autonomy-concessions",
+                    { params }
+                ),
+
+
+                api.get(
+                    "/independence-concessions",
+                    { params }
+                ),
+
+
+                api.get(
+                    "/concession-movements",
+                    { params }
+                ),
+
+
+                api.get(
+                    "/concession-movements-by-claim",
+                    { params }
+                )
+
+            ]);
+
+
+            // =================================================
+            // Convert API results to arrays safely
+            // =================================================
+
+            const totalRows =
+                Array.isArray(totalRes.data)
+                    ? totalRes.data
+                    : [];
+
+
+            const culturalRows =
+                Array.isArray(culturalRes.data)
+                    ? culturalRes.data
+                    : [];
+
+
+            const autonomyRows =
+                Array.isArray(autonomyRes.data)
+                    ? autonomyRes.data
+                    : [];
+
+
+            const independenceRows =
+                Array.isArray(independenceRes.data)
+                    ? independenceRes.data
+                    : [];
+
+
+            const movementRows =
+                Array.isArray(movementsRes.data)
+                    ? movementsRes.data
+                    : [];
+
+
+            const movementClaimRows =
+                Array.isArray(movementClaimsRes.data)
+                    ? movementClaimsRes.data
+                    : [];
+
+
+            // =================================================
+            // Sum all concession events
+            // =================================================
 
             const totalVal =
-                Number(total.data[0]?.concessions || 0);
+                totalRows.reduce(
+
+                    (sum, row) =>
+
+                        sum +
+                        Number(
+                            row.concessions || 0
+                        ),
+
+                    0
+
+                );
+
 
             const culturalVal =
-                Number(cultural.data[0]?.cultural_concessions || 0);
+                culturalRows.reduce(
+
+                    (sum, row) =>
+
+                        sum +
+                        Number(
+                            row.cultural_concessions || 0
+                        ),
+
+                    0
+
+                );
+
 
             const autonomyVal =
-                Number(autonomy.data[0]?.autonomy_concessions || 0);
+                autonomyRows.reduce(
+
+                    (sum, row) =>
+
+                        sum +
+                        Number(
+                            row.autonomy_concessions || 0
+                        ),
+
+                    0
+
+                );
+
 
             const independenceVal =
-                Number(independence.data[0]?.independence_concessions || 0);
+                independenceRows.reduce(
+
+                    (sum, row) =>
+
+                        sum +
+                        Number(
+                            row.independence_concessions || 0
+                        ),
+
+                    0
+
+                );
+
+
+            // =================================================
+            // Unique movement count
+            // =================================================
+
+            const movementVal =
+                Number(
+                    movementRows[0]?.total_movements || 0
+                );
+
+
+            // =================================================
+            // Update totals
+            // =================================================
 
             setTotals({
 
@@ -286,50 +541,76 @@ function GovernmentConcessions() {
 
                 autonomy: autonomyVal,
 
-                independence: independenceVal
+                independence:
+                    independenceVal
 
             });
 
+
             setMovementCount(
-
-                Number(
-                    movements.data[0]?.total_movements || 0
-                )
-
+                movementVal
             );
+
+
+            // =================================================
+            // Movement-by-claim chart
+            // =================================================
 
             setMovementClaims(
-
-                movementClaimsRes.data
-
+                movementClaimRows
             );
+
+
+            // =================================================
+            // Summary chart
+            // =================================================
 
             setSummaryData([
 
                 {
+
                     type: "Cultural",
+
                     count: culturalVal
+
                 },
 
                 {
+
                     type: "Autonomy",
+
                     count: autonomyVal
+
                 },
 
                 {
+
                     type: "Independence",
-                    count: independenceVal
+
+                    count:
+                        independenceVal
+
                 }
 
             ]);
 
         }
 
+
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "Failed to load BQ5 data:",
+                error
+            );
+
+
+            setError(
+                "Failed to load government concession data. Please try again."
+            );
 
         }
+
 
         finally {
 
@@ -339,33 +620,21 @@ function GovernmentConcessions() {
 
     }
 
-    if (loading) {
 
-        return (
-
-            <Container className="mt-5 text-center">
-
-                <Spinner animation="border" />
-
-                <h4 className="mt-3">
-
-                    Loading Government Concessions Analysis...
-
-                </h4>
-
-            </Container>
-
-        );
-
-    }
+    // =====================================================
+    // Page
+    // =====================================================
 
     return (
 
         <Container className="mt-5 mb-5">
 
-            {/* Header */}
 
-            <div className="mb-4">
+            {/* =================================================
+                Header
+            ================================================= */}
+
+            <Card className="shadow-sm border-0 mb-4 p-4">
 
                 <Badge
                     bg="success"
@@ -376,281 +645,486 @@ function GovernmentConcessions() {
 
                 </Badge>
 
+
                 <h1 className="fw-bold">
 
-                    Government Concessions to Self-Determination Movements
+                    Government Concessions to
+                    Self-Determination Movements
 
                 </h1>
 
+
                 <p className="lead text-muted">
 
-                    This section examines government concessions granted to self-determination movements and compares both the number of concession events and the number of movements receiving concessions across different claim types.
-
-                </p>
-
-            </div>
-
-            {/* Summary Cards */}
-
-            <Row className="g-3 mb-4">
-
-                <Col md={6}>
-
-                    <Card className="shadow-sm border-0 border-start border-success border-4 p-4 text-center">
-
-                        <h6 className="text-uppercase text-muted">
-
-                            Total Recorded Concession Events
-
-                        </h6>
-
-                        <h2 className="fw-bold text-success">
-
-                            {totals.total.toLocaleString()}
-
-                        </h2>
-
-                    </Card>
-
-                </Col>
-
-                <Col md={6}>
-
-                    <Card className="shadow-sm border-0 border-start border-warning border-4 p-4 text-center">
-
-                        <h6 className="text-uppercase text-muted">
-
-                            Unique Movements Receiving Concessions
-
-                        </h6>
-
-                        <h2 className="fw-bold text-warning">
-
-                            {movementCount.toLocaleString()}
-
-                        </h2>
-
-                    </Card>
-
-                </Col>
-
-
-            </Row>
-                        {/* =================================================
-                Movements Receiving Concessions by Claim Type
-            ================================================= */}
-
-            <Row className="g-4 mb-4">
-
-                <Col lg={12}>
-
-                    <Card className="shadow-sm p-4 border-0 rounded-4 bg-white">
-
-                        <h4 className="fw-bold">
-
-                            Movements Receiving Government Concessions by Dominant Claim Type
-
-                        </h4>
-
-                        <p className="text-muted">
-
-                            This chart presents the number of distinct self-determination
-                            movements that received at least one form of governmental
-                            concession, grouped according to their dominant political claim.
-
-                        </p>
-
-                        <BarChartComponent
-                            data={movementClaims}
-                            xKey="domclaim"
-                            yKey="movements"
-                        />
-
-                        <hr />
-
-                        <h6 className="fw-bold">
-
-                            Interpretation
-
-                        </h6>
-
-                        <p className="text-muted mb-0">
-
-                            Each movement is counted only once, regardless of how many
-                            years concessions were granted. The visualization therefore
-                            compares how widely government concessions were distributed
-                            across different claim categories rather than how many
-                            concession events occurred.
-
-                        </p>
-
-                    </Card>
-
-                </Col>
-
-            </Row>
-
-
-
-            {/* =================================================
-                Concession Events by Domain
-            ================================================= */}
-
-            <Row className="g-4 mb-4">
-
-                {/* Bar Chart */}
-
-                <Col lg={6}>
-
-                    <Card className="shadow-sm p-4 h-100 border-0 rounded-4 bg-white">
-
-                        <h4 className="fw-bold">
-
-                            Government Concession Events by Domain
-
-                        </h4>
-
-                        <p className="text-muted">
-
-                            This chart compares the frequency of governmental concession
-                            events across the three principal domains recorded within
-                            the SDM dataset.
-
-                        </p>
-
-                        <BarChartComponent
-                            data={summaryData}
-                            xKey="type"
-                            yKey="count"
-                        />
-
-                        <hr />
-
-                        <h6 className="fw-bold">
-
-                            Interpretation
-
-                        </h6>
-
-                        <p className="text-muted mb-0">
-
-                            Unlike the previous visualization, this chart represents
-                            concession events rather than distinct movements. A single
-                            movement may contribute multiple events across different
-                            years whenever concessions were repeatedly granted.
-
-                        </p>
-
-                    </Card>
-
-                </Col>
-
-
-
-                {/* Pie Chart */}
-
-                <Col lg={6}>
-
-                    <Card className="shadow-sm p-4 h-100 border-0 rounded-4 bg-white">
-
-                        <h4 className="fw-bold">
-
-                            Share of Government Concession Events
-
-                        </h4>
-
-                        <p className="text-muted">
-
-                            The pie chart illustrates the proportional distribution
-                            of all recorded concession events among cultural,
-                            autonomy, and independence-related concessions.
-
-                        </p>
-
-                        <PieChartComponent
-                            data={summaryData}
-                            nameKey="type"
-                            valueKey="count"
-                        />
-
-                        <hr />
-
-                        <h6 className="fw-bold">
-
-                            Interpretation
-
-                        </h6>
-
-                        <p className="text-muted mb-0">
-
-                            Larger sectors indicate concession domains that account
-                            for a greater proportion of all recorded governmental
-                            concessions throughout the observation period.
-
-                        </p>
-
-                    </Card>
-
-                </Col>
-
-            </Row>
-                        {/* ============================================
-                Statistical Validation
-            ============================================ */}
-
-            <Row className="mb-4">
-
-                <Col>
-
-                    <ChiSquareResultsBQ5 />
-
-                </Col>
-
-            </Row>
-
-
-
-            {/* ============================================
-                Analytical Note
-            ============================================ */}
-
-            <Card className="shadow-sm border-0 rounded-4 p-4 bg-light">
-
-                <h5 className="fw-bold">
-
-                    Analytical Note
-
-                </h5>
-
-                <p className="text-muted mb-2">
-
-                    Government concessions represent one of the principal policy
-                    instruments used by states when responding to self-determination
-                    movements. These measures may include cultural recognition,
-                    expanded political autonomy, or negotiations concerning
-                    independence.
-
-                </p>
-
-                <p className="text-muted mb-0">
-
-                    The dashboard distinguishes between the
-                    <strong> number of concession events</strong> and the
-                    <strong> number of movements receiving concessions</strong>.
-                    This distinction prevents repeated yearly observations from
-                    being confused with the total number of unique movements,
-                    thereby providing a more accurate interpretation of state
-                    responses across the SDM 2.0 dataset.
+                    This section examines government concessions
+                    granted to self-determination movements and
+                    compares concession events with the number
+                    of distinct movements receiving concessions.
 
                 </p>
 
             </Card>
+
+
+            {/* =================================================
+                Dashboard Filters
+            ================================================= */}
+
+            <DashboardFilters
+
+                filters={filters}
+
+                setFilters={setFilters}
+
+            />
+
+
+            {/* =================================================
+                Error
+            ================================================= */}
+
+            {error && (
+
+                <Alert variant="danger">
+
+                    {error}
+
+                </Alert>
+
+            )}
+
+
+            {/* =================================================
+                Loading
+            ================================================= */}
+
+            {loading ? (
+
+                <div className="text-center my-5">
+
+                    <Spinner animation="border" />
+
+                    <p className="mt-3 text-muted">
+
+                        Loading government concession analysis...
+
+                    </p>
+
+                </div>
+
+            ) : (
+
+                <>
+
+
+                    {/* =================================================
+                        Summary Cards
+                    ================================================= */}
+
+                    <Row className="g-3 mb-4">
+
+
+                        <Col md={6}>
+
+                            <Card
+                                className="
+                                    shadow-sm
+                                    border-0
+                                    border-start
+                                    border-success
+                                    border-4
+                                    p-4
+                                    text-center
+                                "
+                            >
+
+                                <h6 className="text-uppercase text-muted">
+
+                                    Total Recorded Concession Events
+
+                                </h6>
+
+
+                                <h2 className="fw-bold text-success">
+
+                                    {totals.total.toLocaleString()}
+
+                                </h2>
+
+
+                                <p className="text-muted mb-0">
+
+                                    Total recorded concession events
+                                    under the selected filters.
+
+                                </p>
+
+                            </Card>
+
+                        </Col>
+
+
+                        <Col md={6}>
+
+                            <Card
+                                className="
+                                    shadow-sm
+                                    border-0
+                                    border-start
+                                    border-warning
+                                    border-4
+                                    p-4
+                                    text-center
+                                "
+                            >
+
+                                <h6 className="text-uppercase text-muted">
+
+                                    Unique Movements Receiving Concessions
+
+                                </h6>
+
+
+                                <h2 className="fw-bold text-warning">
+
+                                    {movementCount.toLocaleString()}
+
+                                </h2>
+
+
+                                <p className="text-muted mb-0">
+
+                                    Distinct movements that received
+                                    at least one recorded concession.
+
+                                </p>
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+                    {/* =================================================
+                        Unique Movements by Claim
+                    ================================================= */}
+
+                    <Row className="g-4 mb-4">
+
+                        <Col lg={12}>
+
+                            <Card className="shadow-sm p-4 border-0 rounded-4 bg-white">
+
+
+                                <h4 className="fw-bold">
+
+                                    Movements Receiving Government
+                                    Concessions by Dominant Claim Type
+
+                                </h4>
+
+
+                                <p className="text-muted">
+
+                                    This chart presents the number of
+                                    distinct self-determination movements
+                                    that received at least one governmental
+                                    concession, grouped according to their
+                                    dominant political claim.
+
+                                </p>
+
+
+                                {movementClaims.length > 0 ? (
+
+                                    <BarChartComponent
+
+                                        data={movementClaims}
+
+                                        xKey="domclaim"
+
+                                        yKey="movements"
+
+                                    />
+
+                                ) : (
+
+                                    <Alert variant="info">
+
+                                        No movement data is available
+                                        for the selected filters.
+
+                                    </Alert>
+
+                                )}
+
+
+                                <hr />
+
+
+                                <h6 className="fw-bold">
+
+                                    Interpretation
+
+                                </h6>
+
+
+                                <p className="text-muted mb-0">
+
+                                    Each movement is counted only once
+                                    within the selected filter conditions,
+                                    regardless of how many concession events
+                                    it experienced. This chart therefore
+                                    reflects the breadth of government
+                                    concessions across different dominant
+                                    claim categories rather than the total
+                                    number of concession events.
+
+                                </p>
+
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+                    {/* =================================================
+                        Concession Events by Domain
+                    ================================================= */}
+
+                    <Row className="g-4 mb-4">
+
+
+                        {/* ================================
+                            Bar Chart
+                        ================================= */}
+
+                        <Col lg={6}>
+
+                            <Card className="shadow-sm p-4 h-100 border-0 rounded-4 bg-white">
+
+
+                                <h4 className="fw-bold">
+
+                                    Government Concession Events by Domain
+
+                                </h4>
+
+
+                                <p className="text-muted">
+
+                                    This chart compares the frequency
+                                    of recorded government concession
+                                    events across cultural, autonomy,
+                                    and independence-related domains.
+
+                                </p>
+
+
+                                {summaryData.length > 0 ? (
+
+                                    <BarChartComponent
+
+                                        data={summaryData}
+
+                                        xKey="type"
+
+                                        yKey="count"
+
+                                    />
+
+                                ) : (
+
+                                    <Alert variant="info">
+
+                                        No concession data is available
+                                        for the selected filters.
+
+                                    </Alert>
+
+                                )}
+
+
+                                <hr />
+
+
+                                <h6 className="fw-bold">
+
+                                    Interpretation
+
+                                </h6>
+
+
+                                <p className="text-muted mb-0">
+
+                                    The bars represent recorded concession
+                                    events rather than unique movements.
+                                    A movement may therefore contribute
+                                    more than one event across different
+                                    years. The selected filters determine
+                                    which observations are included in
+                                    the calculation.
+
+                                </p>
+
+
+                            </Card>
+
+                        </Col>
+
+
+                        {/* ================================
+                            Pie Chart
+                        ================================= */}
+
+                        <Col lg={6}>
+
+                            <Card className="shadow-sm p-4 h-100 border-0 rounded-4 bg-white">
+
+
+                                <h4 className="fw-bold">
+
+                                    Share of Government Concession Events
+
+                                </h4>
+
+
+                                <p className="text-muted">
+
+                                    This chart illustrates the proportional
+                                    distribution of recorded concession
+                                    events across cultural, autonomy,
+                                    and independence-related domains.
+
+                                </p>
+
+
+                                {summaryData.length > 0 ? (
+
+                                    <PieChartComponent
+
+                                        data={summaryData}
+
+                                        nameKey="type"
+
+                                        valueKey="count"
+
+                                    />
+
+                                ) : (
+
+                                    <Alert variant="info">
+
+                                        No concession data is available
+                                        for the selected filters.
+
+                                    </Alert>
+
+                                )}
+
+
+                                <hr />
+
+
+                                <h6 className="fw-bold">
+
+                                    Interpretation
+
+                                </h6>
+
+
+                                <p className="text-muted mb-0">
+
+                                    Larger sectors represent concession
+                                    domains that account for a greater
+                                    share of the recorded events within
+                                    the selected filter conditions.
+
+                                </p>
+
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+
+                    {/* =================================================
+                        Statistical Validation
+                        Intentionally NOT affected by filters
+                    ================================================= */}
+
+                    <Row className="mb-4">
+
+                        <Col>
+
+                            <ChiSquareResultsBQ5 />
+
+                        </Col>
+
+                    </Row>
+
+
+                    {/* =================================================
+                        Analytical Note
+                    ================================================= */}
+
+                    <Card className="shadow-sm border-0 rounded-4 p-4 bg-light">
+
+
+                        <h5 className="fw-bold">
+
+                            Analytical Note
+
+                        </h5>
+
+
+                        <p className="text-muted mb-2">
+
+                            Government concessions represent important
+                            policy responses to self-determination
+                            movements. They may involve cultural rights,
+                            increased internal autonomy, or measures
+                            related to independence.
+
+                        </p>
+
+
+                        <p className="text-muted mb-0">
+
+                            The dashboard distinguishes between the
+                            <strong>
+                                {" "}number of concession events
+                            </strong>
+                            {" "}and the
+                            <strong>
+                                {" "}number of distinct movements receiving
+                                concessions
+                            </strong>.
+                            This distinction prevents repeated annual
+                            observations from being interpreted as
+                            additional unique movements.
+
+                        </p>
+
+
+                    </Card>
+
+
+                </>
+
+            )}
 
         </Container>
 
     );
 
 }
+
 
 export default GovernmentConcessions;
 
