@@ -174,13 +174,13 @@ function ViolencePatterns() {
 
     ...item,
 
-    onset_status:
+   onset_status:
 
-        Number(item.violsd_onset) === 1
+    Number(item.started_with_violence) === 1
 
-            ? "Started With Violence"
+        ? "Started With Violence"
 
-            : "Did Not Start With Violence"
+        : "Did Not Start With Violence"
 
 }));
 
