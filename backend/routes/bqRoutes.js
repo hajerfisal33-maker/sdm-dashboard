@@ -101,9 +101,10 @@ router.get(
 
 router.get(
     "/concessions-chi-square",
-    controller.concessionsChiSquare
-);
 
+    controller.concessionsChiSquare
+)
+;
 
 // ======================================
 // BQ6: Restrictions

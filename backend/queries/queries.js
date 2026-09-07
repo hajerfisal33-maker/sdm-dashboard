@@ -749,261 +749,384 @@ violenceOnset: `
         started_with_violence;
 `,
 
-    concessions: `
-        SELECT
+   // =====================================================
+// BQ5
+// Government Concessions
+// =====================================================
+
+// =====================================================
+// Total Concession Events by Claim
+// =====================================================
+
+concessions: `
+    SELECT
+
+        mo.domclaim,
+
+        SUM(
+            CASE
+                WHEN mo.con = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS concessions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        mo.domclaim IS NOT NULL
 
-            mo.domclaim,
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            SUM(
-                CASE
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-                    WHEN mo.con = 1
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-                        THEN 1
+    GROUP BY
+        mo.domclaim
 
-                    ELSE 0
+    ORDER BY
+        concessions DESC;
+`,
+
+
+// =====================================================
+// Cultural Concession Events by Claim
+// =====================================================
+
+culturalConcessions: `
+    SELECT
+
+        mo.domclaim,
+
+        SUM(
+            CASE
+                WHEN mo.cultcon = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS cultural_concessions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        mo.domclaim IS NOT NULL
 
-                END
-            ) AS concessions
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-        FROM movement_observations mo
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    GROUP BY
+        mo.domclaim
 
-        WHERE
+    ORDER BY
+        cultural_concessions DESC;
+`,
+
+
+// =====================================================
+// Autonomy Concession Events by Claim
+// =====================================================
+
+autonomyConcessions: `
+    SELECT
+
+        mo.domclaim,
+
+        SUM(
+            CASE
+                WHEN mo.autcon = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS autonomy_concessions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        mo.domclaim IS NOT NULL
 
-            mo.domclaim IS NOT NULL
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+    GROUP BY
+        mo.domclaim
+
+    ORDER BY
+        autonomy_concessions DESC;
+`,
+
+
+// =====================================================
+// Independence Concession Events by Claim
+// =====================================================
+
+independenceConcessions: `
+    SELECT
+
+        mo.domclaim,
+
+        SUM(
+            CASE
+                WHEN mo.indcon = 1
+                THEN 1
+                ELSE 0
+            END
+        ) AS independence_concessions
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
+
+    WHERE
+        mo.domclaim IS NOT NULL
+
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
+
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
+
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
+
+    GROUP BY
+        mo.domclaim
+
+    ORDER BY
+        independence_concessions DESC;
+`,
+
+
+// =====================================================
+// Unique Movements Receiving At Least One Concession
+// =====================================================
+
+concessionMovements: `
+    SELECT
+
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.con = 1
+                THEN mo.group_id
+            END
+        ) AS total_movements
+
+    FROM movement_observations mo
+
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
+
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-        GROUP BY
-            mo.domclaim;
-    `,
+    WHERE 1 = 1
 
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-    culturalConcessions: `
-        SELECT
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            mo.domclaim,
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            SUM(
-                CASE
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        );
+`,
 
-                    WHEN mo.cultcon = 1
 
-                        THEN 1
+// =====================================================
+// Unique Movements Receiving Concessions by Claim
+// =====================================================
 
-                    ELSE 0
+concessionMovementsByClaim: `
+    SELECT
 
-                END
-            ) AS cultural_concessions
+        mo.domclaim,
 
-        FROM movement_observations mo
+        COUNT(
+            DISTINCT CASE
+                WHEN mo.con = 1
+                THEN mo.group_id
+            END
+        ) AS movements
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
+    FROM movement_observations mo
 
-        JOIN countries c
-            ON eg.country_id = c.country_id
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        WHERE
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-            mo.domclaim IS NOT NULL
+    WHERE
+        mo.domclaim IS NOT NULL
 
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
+        /* Country filter */
+        AND (
+            ? = ''
+            OR c.country_id = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
+        /* Region filter */
+        AND (
+            ? = ''
+            OR eg.region = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
+        /* Year filter */
+        AND (
+            ? = ''
+            OR mo.year = ?
+        )
 
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
+        /* Claim filter */
+        AND (
+            ? = ''
+            OR mo.domclaim = ?
+        )
 
-        GROUP BY
-            mo.domclaim;
-    `,
+    GROUP BY
+        mo.domclaim
 
+    ORDER BY
+        movements DESC;
+`,
 
-    autonomyConcessions: `
-        SELECT
 
-            mo.domclaim,
+// =====================================================
+// Chi-Square
+// Kept independent from dashboard filters
+// =====================================================
 
-            SUM(
-                CASE
+concessionsChiSquare: `
+    SELECT
 
-                    WHEN mo.autcon = 1
+        mo.domclaim,
 
-                        THEN 1
+        mo.con
 
-                    ELSE 0
+    FROM movement_observations mo
 
-                END
-            ) AS autonomy_concessions
+    JOIN ethnic_groups eg
+        ON mo.group_id = eg.group_id
 
-        FROM movement_observations mo
+    JOIN countries c
+        ON eg.country_id = c.country_id
 
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            mo.domclaim IS NOT NULL
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-        GROUP BY
-            mo.domclaim;
-    `,
-
-
-    independenceConcessions: `
-        SELECT
-
-            mo.domclaim,
-
-            SUM(
-                CASE
-
-                    WHEN mo.indcon = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS independence_concessions
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            mo.domclaim IS NOT NULL
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-        GROUP BY
-            mo.domclaim;
-    `,
-
-
-    concessionsChiSquare: `
-        SELECT
-
-            mo.domclaim,
-
-            mo.con
-
-        FROM movement_observations mo
-
-        JOIN ethnic_groups eg
-            ON mo.group_id = eg.group_id
-
-        JOIN countries c
-            ON eg.country_id = c.country_id
-
-        WHERE
-
-            mo.domclaim IS NOT NULL
-
-            AND (
-                ? IS NULL
-                OR eg.region = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR c.country_name = ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            );
-    `,
+    WHERE
+        mo.domclaim IS NOT NULL
+        AND mo.con IS NOT NULL;
+`,
 
 
     // =====================================================

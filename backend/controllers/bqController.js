@@ -716,207 +716,322 @@ exports.violenceOnset = async (req, res) => {
 
 };
 
-// =========================
+// =====================================================
+// BQ5
+// Government Concessions
+// =====================================================
+
+
+// =====================================================
+// Helper for BQ5 Filters
+// =====================================================
+
+function getBQ5Params(req) {
+
+    const {
+        country = "",
+        region = "",
+        year = "",
+        claim = ""
+    } = req.query;
+
+    return [
+
+        country,
+        country,
+
+        region,
+        region,
+
+        year,
+        year,
+
+        claim,
+        claim
+
+    ];
+}
+
+
+// =====================================================
 // BQ5 Total Concessions
-// =========================
+// =====================================================
 
 exports.concessions = async (req, res) => {
- console.log("BQ5 TOTAL CONCESSIONS");
-    try {
 
-        const [rows] = await db.query(
-            queries.concessions
-        );
-     console.log(rows);
-        res.json(rows);
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        res.status(500).json(error);
-
-    }
-
-};
-
-
-// =========================
-// BQ5 Cultural Concessions
-// =========================
-
-exports.culturalConcessions = async (req, res) => {
-console.log("BQ5 CULTURAL CONCESSIONS");
-    try {
-
-        const [rows] = await db.query(
-            queries.culturalConcessions
-        );
-     
-     console.log(rows);
-        res.json(rows);
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        res.status(500).json(error);
-
-    }
-
-};
-
-
-// =========================
-// BQ5 Autonomy Concessions
-// =========================
-
-exports.autonomyConcessions = async (req, res) => {
-console.log("BQ5 AUTONOMY CONCESSIONS");
-    try {
-
-        const [rows] = await db.query(
-            queries.autonomyConcessions
-        );
-           console.log(rows);
-        res.json(rows);
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        res.status(500).json(error);
-
-    }
-
-};
-
-
-// =========================
-// BQ5 Independence Concessions
-// =========================
-
-exports.independenceConcessions = async (req, res) => {
- console.log("BQ5 independence Concessions");
-    try {
-
-        const [rows] = await db.query(
-            queries.independenceConcessions
-        );
-        
-         console.log(rows);
-        res.json(rows);
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        res.status(500).json(error);
-
-    }
-
-};
-
-
-// =========================
-// BQ5 Concession Movements
-// =========================
-
-exports.concessionMovements = async (req, res) => {
-    console.log("BQ5 CONCESSION MOVEMENTS");
+    console.log("BQ5 TOTAL CONCESSIONS");
 
     try {
+
+        const params = getBQ5Params(req);
+
         const [rows] = await db.query(
-            queries.concessionMovements
+            queries.concessions,
+            params
         );
 
         console.log(rows);
+
         res.json(rows);
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
 
     }
+
 };
 
 
-// =========================
-// BQ5 Concession Movements By Claim
-// =========================
+// =====================================================
+// BQ5 Cultural Concessions
+// =====================================================
+
+exports.culturalConcessions = async (req, res) => {
+
+    console.log("BQ5 CULTURAL CONCESSIONS");
+
+    try {
+
+        const params = getBQ5Params(req);
+
+        const [rows] = await db.query(
+            queries.culturalConcessions,
+            params
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
+
+
+// =====================================================
+// BQ5 Autonomy Concessions
+// =====================================================
+
+exports.autonomyConcessions = async (req, res) => {
+
+    console.log("BQ5 AUTONOMY CONCESSIONS");
+
+    try {
+
+        const params = getBQ5Params(req);
+
+        const [rows] = await db.query(
+            queries.autonomyConcessions,
+            params
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
+
+
+// =====================================================
+// BQ5 Independence Concessions
+// =====================================================
+
+exports.independenceConcessions = async (req, res) => {
+
+    console.log("BQ5 INDEPENDENCE CONCESSIONS");
+
+    try {
+
+        const params = getBQ5Params(req);
+
+        const [rows] = await db.query(
+            queries.independenceConcessions,
+            params
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
+
+
+// =====================================================
+// BQ5 Unique Movements Receiving Concessions
+// =====================================================
+
+exports.concessionMovements = async (req, res) => {
+
+    console.log("BQ5 CONCESSION MOVEMENTS");
+
+    try {
+
+        const params = getBQ5Params(req);
+
+        const [rows] = await db.query(
+            queries.concessionMovements,
+            params
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
+
+
+// =====================================================
+// BQ5 Unique Movements by Claim
+// =====================================================
 
 exports.concessionMovementsByClaim = async (req, res) => {
+
     console.log("BQ5 CONCESSION MOVEMENTS BY CLAIM");
 
     try {
 
+        const params = getBQ5Params(req);
+
         const [rows] = await db.query(
-            queries.concessionMovementsByClaim
+            queries.concessionMovementsByClaim,
+            params
         );
 
         console.log(rows);
+
         res.json(rows);
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.log(error);
-        res.status(500).json(error);
+
+        res.status(500).json({
+            error: error.message
+        });
 
     }
+
 };
 
 
-
-// =========================
-// BQ5 Chi Square
-// =========================
+// =====================================================
+// BQ5 Chi-Square
+// No Dashboard Filters
+// =====================================================
 
 exports.concessionsChiSquare = async (req, res) => {
+
     console.log("BQ5 CONCESSIONS CHI SQUARE");
+
     try {
+
         const [rows] = await db.query(
             queries.concessionsChiSquare
         );
 
-        // 1. حساب قيمة كاي سكوير بين نوع المطالبة والتنازلات
         const result = chiSquareTest(
             rows,
             "domclaim",
-            "con" // تأكدي إن الحقل المعبر عن التنازلات اسمه con في الـ query
+            "con"
         );
 
-        // 2. صياغة التفسير الإحصائي
         let interpretation = "";
 
         if (result.pValue < 0.05) {
+
             interpretation =
                 "There is a statistically significant association between dominant claim type and government concessions (p < 0.05).";
-        } else {
-            interpretation =
-                "There is no statistically significant association between dominant claim type and government concessions (p > 0.05).";
+
         }
 
-        // 3. إرجاع النتيجة بالصيغة المتوقعة في الفرونت إند
+        else {
+
+            interpretation =
+                "There is no statistically significant association between dominant claim type and government concessions (p > 0.05).";
+
+        }
+
         res.json({
+
             chiSquare: result.chiSquare,
-            degreesOfFreedom: result.degreesOfFreedom,
-            pValue: result.pValue,
+
+            degreesOfFreedom:
+                result.degreesOfFreedom,
+
+            pValue:
+                result.pValue,
+
             interpretation
+
         });
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).json(error);
     }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
 };
 // =========================
 // BQ6 Restrictions
