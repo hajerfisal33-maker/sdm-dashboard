@@ -1506,6 +1506,363 @@ powerParticipation: `
     ORDER BY
         lo.pwrstat;
 `,
+
+
+
+// ============================================================
+// GLOBE COUNTRIES
+// ============================================================
+
+globeCountries: `
+    SELECT DISTINCT 
+        c.country_id,
+        c.country_name
+    FROM countries c
+    ORDER BY c.country_name;
+`,
+
+
+// ============================================================
+// COUNTRY SUMMARY
+// ============================================================
+
+countrySummaryQuery: `
+WITH filtered_observations AS (
+    SELECT
+        mo.*
+    FROM movement_observations mo
+    WHERE
+        (? = '' OR mo.year <= ?)
+),
+
+first_observation AS (
+    SELECT
+        fo.group_id,
+        fo.violsd,
+        ROW_NUMBER() OVER (
+            PARTITION BY fo.group_id
+            ORDER BY fo.year ASC
+        ) AS rn
+    FROM filtered_observations fo
+),
+
+latest_observation AS (
+    SELECT
+        lo.group_id,
+        lo.violsd,
+        ROW_NUMBER() OVER (
+            PARTITION BY lo.group_id
+            ORDER BY lo.year DESC
+        ) AS rn
+    FROM filtered_observations lo
+)
+
+SELECT
+    c.country_name,
+
+    GROUP_CONCAT(
+        DISTINCT eg.group_name
+        ORDER BY eg.group_name
+        SEPARATOR ', '
+    ) AS ethnic_groups,
+
+    COUNT(DISTINCT eg.group_id) AS total_sdms,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.sovdec = 1
+            THEN mo.group_id
+        END
+    ) AS sovereignty_count,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.violsd = 1
+            THEN mo.group_id
+        END
+    ) AS violent_count,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN fo.rn = 1
+             AND fo.violsd = 1
+            THEN fo.group_id
+        END
+    ) AS started_violent_count,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN lo.rn = 1
+             AND lo.violsd = 0
+            THEN lo.group_id
+        END
+    ) AS remained_peaceful_count,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.con = 1
+            THEN mo.group_id
+        END
+    ) AS concessions_count,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.res = 1
+            THEN mo.group_id
+        END
+    ) AS restrictions_count
+
+FROM countries c
+
+LEFT JOIN ethnic_groups eg
+    ON c.country_id = eg.country_id
+
+LEFT JOIN filtered_observations mo
+    ON eg.group_id = mo.group_id
+
+LEFT JOIN first_observation fo
+    ON eg.group_id = fo.group_id
+    AND fo.rn = 1
+
+LEFT JOIN latest_observation lo
+    ON eg.group_id = lo.group_id
+    AND lo.rn = 1
+
+WHERE c.country_name = ?
+
+GROUP BY
+    c.country_id,
+    c.country_name;
+`,
+
+
+// ============================================================
+// COUNTRY MOVEMENTS
+// ============================================================
+
+countryMovementsQuery: `
+WITH filtered_observations AS (
+    SELECT
+        mo.*
+    FROM movement_observations mo
+    WHERE
+        (? = '' OR mo.year <= ?)
+),
+
+movement_claims AS (
+    SELECT
+        group_id,
+
+        GROUP_CONCAT(
+            DISTINCT domclaim
+            ORDER BY domclaim
+            SEPARATOR ', '
+        ) AS claim_types
+
+    FROM filtered_observations
+
+    WHERE domclaim IS NOT NULL
+
+    GROUP BY group_id
+),
+
+first_observation AS (
+    SELECT
+        fo.group_id,
+        fo.violsd,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY fo.group_id
+            ORDER BY fo.year ASC
+        ) AS rn
+
+    FROM filtered_observations fo
+),
+
+latest_observation AS (
+    SELECT
+        lo.group_id,
+        lo.group_size,
+        lo.group_con,
+        lo.pwrstat,
+        lo.sovdec,
+        lo.violsd,
+        lo.violsd_onset,
+        lo.con,
+        lo.res,
+        lo.sdm_startdate1,
+        lo.sdm_enddate1,
+        lo.year,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY lo.group_id
+            ORDER BY lo.year DESC
+        ) AS rn
+
+    FROM filtered_observations lo
+)
+
+SELECT
+
+    eg.group_id,
+
+    eg.group_name,
+
+    eg.region,
+
+    mc.claim_types,
+
+    lo.group_size AS group_size,
+
+    lo.group_con AS group_concentration,
+
+    lo.pwrstat AS power_status,
+
+
+    /* --------------------------------------------
+       Sovereignty
+    -------------------------------------------- */
+
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM filtered_observations x
+            WHERE
+                x.group_id = eg.group_id
+                AND x.sovdec = 1
+        )
+        THEN 1
+        ELSE 0
+    END AS sovereignty_declared,
+
+
+    /* --------------------------------------------
+       Experienced violence
+    -------------------------------------------- */
+
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM filtered_observations x
+            WHERE
+                x.group_id = eg.group_id
+                AND x.violsd = 1
+        )
+        THEN 1
+        ELSE 0
+    END AS experienced_violence,
+
+
+    /* --------------------------------------------
+       Started violence
+    -------------------------------------------- */
+
+    CASE
+        WHEN fo.rn = 1
+         AND fo.violsd = 1
+        THEN 1
+        ELSE 0
+    END AS started_violence,
+
+
+    /* --------------------------------------------
+       Latest peaceful status
+    -------------------------------------------- */
+
+    CASE
+        WHEN lo.violsd = 0
+        THEN 1
+        ELSE 0
+    END AS remained_peaceful,
+
+
+    /* --------------------------------------------
+       Concession
+    -------------------------------------------- */
+
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM filtered_observations x
+            WHERE
+                x.group_id = eg.group_id
+                AND x.con = 1
+        )
+        THEN 1
+        ELSE 0
+    END AS received_concession,
+
+
+    /* --------------------------------------------
+       Restriction
+    -------------------------------------------- */
+
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM filtered_observations x
+            WHERE
+                x.group_id = eg.group_id
+                AND x.res = 1
+        )
+        THEN 1
+        ELSE 0
+    END AS faced_restriction,
+
+
+    /* --------------------------------------------
+       Start year
+    -------------------------------------------- */
+
+    (
+        SELECT MIN(x.sdm_startdate1)
+
+        FROM movement_observations x
+
+        WHERE
+            x.group_id = eg.group_id
+    ) AS start_year,
+
+
+    /* --------------------------------------------
+       End year / current status
+    -------------------------------------------- */
+
+    CASE
+
+        WHEN lo.sdm_enddate1 = 9999
+            THEN 2020
+
+        WHEN lo.sdm_enddate1 = 8888
+            THEN NULL
+
+        ELSE lo.sdm_enddate1
+
+    END AS end_year
+
+
+FROM countries c
+
+INNER JOIN ethnic_groups eg
+    ON c.country_id = eg.country_id
+
+INNER JOIN first_observation fo
+    ON eg.group_id = fo.group_id
+    AND fo.rn = 1
+
+INNER JOIN latest_observation lo
+    ON eg.group_id = lo.group_id
+    AND lo.rn = 1
+
+LEFT JOIN movement_claims mc
+    ON eg.group_id = mc.group_id
+
+WHERE c.country_name = ?
+
+ORDER BY
+    start_year ASC;
+`,
+
     // =====================================================
     // COMPARISON
     // Countries or Regions

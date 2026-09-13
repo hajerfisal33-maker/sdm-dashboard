@@ -1744,88 +1744,261 @@ const countryMapping = {
   "South Vietnam": "Vietnam"
 };
 
-   //Globe Country==============================================
+  // ============================================================
+// GLOBE COUNTRIES
+// ============================================================
+
 exports.globeCountries = async (req, res) => {
+
     try {
 
-        const [rows] = await db.query(queries.globeCountries);
+        const [rows] = await db.query(
+            queries.globeCountries
+        );
 
-        // Apply country name mapping
+
         const mappedRows = rows.map(row => {
-            const mappedName = countryMapping[row.country_name];
+
+            const mappedName =
+                countryMapping[row.country_name];
+
+
             return {
                 ...row,
-                country_name: mappedName || row.country_name
+                country_name:
+                    mappedName ||
+                    row.country_name
             };
+
         });
+
 
         res.json(mappedRows);
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Failed to load globe countries:",
+            error
+        );
+
 
         res.status(500).json({
-            message: "Failed to load globe countries"
+
+            message:
+                "Failed to load globe countries."
+
         });
 
     }
+
 };
 
-// جلب تفاصيل الدولة والملاحظات عند النقر على الكرة الأرضية
 
+
+// ============================================================
+// COUNTRY DETAILS
+// ============================================================
 
 exports.getCountryDetails = async (req, res) => {
-    try {
-        const { countryName } = req.params;
 
-        // تطبيق الـ Reverse Mapping
+    try {
+
+        const {
+            countryName
+        } = req.params;
+
+
+        const {
+            year = ""
+        } = req.query;
+
+
+        /*
+        --------------------------------------------------------
+        Year filter
+
+        Empty string = All Years
+        Otherwise = observations up to selected year
+        --------------------------------------------------------
+        */
+
+        const selectedYear =
+            year === ""
+                ? ""
+                : Number(year);
+
+
+        /*
+        --------------------------------------------------------
+        Reverse country mapping
+        --------------------------------------------------------
+        */
+
         const reverseMapping = {
-            "Bosnia and Herz.": "Bosnia",
-            "Central African Rep.": "Central African Republic",
-            "Dem. Rep. Congo": "Congo-Zaire",
-            "Côte d'Ivoire": "Cote d'Ivoire",
-            "Czech Rep.": "Czechia",
-            "Eq. Guinea": "Equatorial Guinea",
-            "Lao PDR": "Laos",
-            "Russia": "Russia (USSR)",
-            "Serbia": "Serbia (Yugoslavia)",
-            "Solomon Is.": "Solomon Islands",
-            "S. Sudan": "South Sudan",
-            "Trinidad and Tobago": "Trinidad & Tobago",
-            "Vietnam": "South Vietnam"
+
+            "Bosnia and Herz.":
+                "Bosnia",
+
+            "Central African Rep.":
+                "Central African Republic",
+
+            "Dem. Rep. Congo":
+                "Congo-Zaire",
+
+            "Côte d'Ivoire":
+                "Cote d'Ivoire",
+
+            "Czech Rep.":
+                "Czechia",
+
+            "Eq. Guinea":
+                "Equatorial Guinea",
+
+            "Lao PDR":
+                "Laos",
+
+            "Russia":
+                "Russia (USSR)",
+
+            "Serbia":
+                "Serbia (Yugoslavia)",
+
+            "Solomon Is.":
+                "Solomon Islands",
+
+            "S. Sudan":
+                "South Sudan",
+
+            "Trinidad and Tobago":
+                "Trinidad & Tobago",
+
+            "Vietnam":
+                "South Vietnam"
+
         };
 
+
         const dbCountryName =
-            reverseMapping[countryName] || countryName;
+            reverseMapping[countryName] ||
+            countryName;
 
-        // تنفيذ الاستعلامين
-        const [summaryRows] = await db.query(
+
+        /*
+        --------------------------------------------------------
+        Country Summary
+        --------------------------------------------------------
+
+        Query parameters:
+
+        1. selectedYear
+        2. selectedYear
+        3. country
+
+        --------------------------------------------------------
+        */
+
+        const summaryParams = [
+
+            selectedYear,
+            selectedYear,
+
+            dbCountryName
+
+        ];
+
+
+        /*
+        --------------------------------------------------------
+        Country Movements
+        --------------------------------------------------------
+
+        Query parameters:
+
+        1. selectedYear
+        2. selectedYear
+        3. country
+
+        --------------------------------------------------------
+        */
+
+        const movementParams = [
+
+            selectedYear,
+            selectedYear,
+
+            dbCountryName
+
+        ];
+
+
+        /*
+        --------------------------------------------------------
+        Execute queries
+        --------------------------------------------------------
+        */
+
+        const [
+            summaryRows
+        ] = await db.query(
+
             queries.countrySummaryQuery,
-            [dbCountryName]
+
+            summaryParams
+
         );
 
-        const [movementRows] = await db.query(
+
+        const [
+            movementRows
+        ] = await db.query(
+
             queries.countryMovementsQuery,
-            [dbCountryName]
+
+            movementParams
+
         );
 
-        // التأكد من وجود بيانات الدولة
+
+        /*
+        --------------------------------------------------------
+        Check country
+        --------------------------------------------------------
+        */
+
         if (
             !summaryRows ||
             summaryRows.length === 0 ||
             !summaryRows[0].country_name
         ) {
+
             return res.status(404).json({
-                message: "لم يتم العثور على بيانات لهذه الدولة"
+
+                message:
+                    "لم يتم العثور على بيانات لهذه الدولة"
+
             });
+
         }
 
-        // إرسال البيانات للـ Frontend
+
+        /*
+        --------------------------------------------------------
+        Response
+        --------------------------------------------------------
+        */
+
         return res.json({
-            summary: summaryRows[0],
-            movements: movementRows || []
+
+            summary:
+                summaryRows[0],
+
+            movements:
+                movementRows || []
+
         });
+
 
     } catch (error) {
 
@@ -1834,10 +2007,15 @@ exports.getCountryDetails = async (req, res) => {
             error
         );
 
-        res.status(500).json({
+
+        return res.status(500).json({
+
             error:
                 error.message ||
                 "حدث خطأ أثناء استرجاع بيانات الدولة"
+
         });
+
     }
+
 };
