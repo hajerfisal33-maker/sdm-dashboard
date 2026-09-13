@@ -883,12 +883,12 @@ function GovernmentRestrictions() {
 
                         </p>
 
-
-                        <BarChartComponent
-                            data={movementClaims}
-                            xKey="domclaim"
-                            yKey="movements"
-                        />
+<BarChartComponent
+    data={movementClaims}
+    xKey="domclaim"
+    yKey="total_movements"
+/>
+                        
 
 
                         <hr />
