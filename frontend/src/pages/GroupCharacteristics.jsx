@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
     Container,
     Row,
@@ -14,6 +15,8 @@ import api from "../services/api";
 import BarChartComponent from "../charts/BarChartComponent";
 import PieChartComponent from "../charts/PieChartComponent";
 
+import DashboardFilters from "../components/DashboardFilters";
+
 
 function GroupCharacteristics() {
 
@@ -21,11 +24,28 @@ function GroupCharacteristics() {
 
     const [topGroups, setTopGroups] = useState([]);
 
-    const [geoConcentrationData, setGeoConcentrationData] = useState([]);
+    const [geoConcentrationData, setGeoConcentrationData] =
+        useState([]);
 
-    const [powerData, setPowerData] = useState([]);
+    const [powerData, setPowerData] =
+        useState([]);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
+
+
+    // =====================================================
+    // Filters
+    // =====================================================
+
+    const [filters, setFilters] = useState({
+
+        country: "",
+        region: "",
+        year: "",
+        claim: ""
+
+    });
 
 
     // =====================================================
@@ -38,39 +58,104 @@ function GroupCharacteristics() {
 
             try {
 
+                setLoading(true);
+
+
+                // -------------------------------------------------
+                // Build query parameters
+                // -------------------------------------------------
+
+                const params = {};
+
+
+                if (filters.country) {
+                    params.country = filters.country;
+                }
+
+
+                if (filters.region) {
+                    params.region = filters.region;
+                }
+
+
+                if (filters.year) {
+                    params.year = filters.year;
+                }
+
+
+                if (filters.claim) {
+                    params.claim = filters.claim;
+                }
+
+
+                // -------------------------------------------------
+                // Load BQ7 data
+                // -------------------------------------------------
+
                 const resSize =
-                    await api.get("/group-size");
+                    await api.get(
+                        "/group-size",
+                        { params }
+                    );
+
 
                 const resGeo =
-                    await api.get("/geographic-concentration");
+                    await api.get(
+                        "/geographic-concentration",
+                        { params }
+                    );
+
 
                 const resPower =
-                    await api.get("/power-participation");
+                    await api.get(
+                        "/power-participation",
+                        { params }
+                    );
 
 
-                const groups = Array.isArray(resSize.data)
-                    ? resSize.data
-                    : [];
+                // -------------------------------------------------
+                // Validate responses
+                // -------------------------------------------------
+
+                const groups =
+                    Array.isArray(resSize.data)
+                        ? resSize.data
+                        : [];
 
 
-                const geoData = Array.isArray(resGeo.data)
-                    ? resGeo.data
-                    : [];
+                const geoData =
+                    Array.isArray(resGeo.data)
+                        ? resGeo.data
+                        : [];
 
 
-                const powerDataResponse = Array.isArray(resPower.data)
-                    ? resPower.data
-                    : [];
+                const powerDataResponse =
+                    Array.isArray(resPower.data)
+                        ? resPower.data
+                        : [];
 
+
+                // -------------------------------------------------
+                // Save data
+                // -------------------------------------------------
 
                 setAllGroups(groups);
 
-                // Display the 15 largest groups in the main chart
-                setTopGroups(groups.slice(0, 15));
 
-                setGeoConcentrationData(geoData);
+                // Display the 15 largest groups
+                setTopGroups(
+                    groups.slice(0, 15)
+                );
 
-                setPowerData(powerDataResponse);
+
+                setGeoConcentrationData(
+                    geoData
+                );
+
+
+                setPowerData(
+                    powerDataResponse
+                );
 
             }
 
@@ -91,9 +176,10 @@ function GroupCharacteristics() {
 
         }
 
+
         loadData();
 
-    }, []);
+    }, [filters]);
 
 
     // =====================================================
@@ -183,6 +269,16 @@ function GroupCharacteristics() {
 
 
             {/* =================================================
+                DASHBOARD FILTERS
+            ================================================= */}
+
+            <DashboardFilters
+                filters={filters}
+                setFilters={setFilters}
+            />
+
+
+            {/* =================================================
                 GROUP SIZE
             ================================================= */}
 
@@ -201,9 +297,10 @@ function GroupCharacteristics() {
 
                         <p className="text-muted">
 
-                            This chart displays the 15 movements associated
-                            with the largest recorded group-size values in
-                            the dataset. The group-size measure describes
+                            This chart displays the 15 movements
+                            associated with the largest recorded
+                            group-size values in the selected dataset
+                            scope. The group-size measure describes
                             the relative demographic size of the ethnic
                             group associated with each self-determination
                             movement.
@@ -234,20 +331,17 @@ function GroupCharacteristics() {
 
                         <p className="text-muted mb-0">
 
-                            Each bar represents one self-determination
-                            movement and its associated group-size value.
-                            The horizontal axis identifies the group,
-                            while the vertical axis shows the recorded
-                            group-size measure.
-
-                            Higher values indicate groups with a larger
-                            recorded demographic size relative to other
-                            groups in the dataset.
+                            Each bar represents one distinct
+                            self-determination movement identified by
+                            its group identifier and associated group
+                            name. Higher values indicate groups with a
+                            larger recorded demographic size relative
+                            to other movements in the selected scope.
 
                             The visualization is limited to the 15
                             largest groups to make comparison easier;
-                            the complete list of all movements is provided
-                            in the directory below.
+                            the complete list of retrieved movements is
+                            provided in the directory below.
 
                         </p>
 
@@ -277,15 +371,11 @@ function GroupCharacteristics() {
 
                         <p className="text-muted">
 
-                            This chart summarizes how the groups associated
-                            with self-determination movements are distributed
-                            according to their recorded level of geographic
+                            This chart summarizes how the groups
+                            associated with self-determination
+                            movements are distributed according to
+                            their recorded level of geographic
                             concentration.
-
-                            Geographic concentration captures the extent
-                            to which the population represented by a
-                            movement is geographically concentrated within
-                            a particular area.
 
                         </p>
 
@@ -313,22 +403,14 @@ function GroupCharacteristics() {
 
                         <p className="text-muted mb-0">
 
-                            Each segment represents one recorded geographic
-                            concentration category.
+                            Each segment represents one recorded
+                            geographic concentration category.
+                            Larger segments indicate that a greater
+                            number of distinct movements are associated
+                            with that category.
 
-                            Larger segments indicate that a greater number
-                            of distinct movements are associated with that
-                            category.
-
-                            Geographic concentration can be important when
-                            considering self-determination movements because
-                            a geographically concentrated population may
-                            have different opportunities for territorial
-                            self-government than a population that is
-                            widely dispersed.
-
-                            The categories shown here correspond to the
-                            values recorded in the SDM dataset.
+                            The categories correspond to the values
+                            recorded in the SDM dataset.
 
                         </p>
 
@@ -355,13 +437,9 @@ function GroupCharacteristics() {
                         <p className="text-muted">
 
                             This chart presents the distribution of
-                            self-determination movements according to the
-                            recorded political power status of the group
-                            associated with each movement.
-
-                            The measure captures the group's relationship
-                            with access to political power at the
-                            central-state level.
+                            self-determination movements according to
+                            the recorded political power status of the
+                            group associated with each movement.
 
                         </p>
 
@@ -390,22 +468,13 @@ function GroupCharacteristics() {
                         <p className="text-muted mb-0">
 
                             Each bar represents a political power-status
-                            category recorded in the dataset.
-
-                            The height of each bar indicates the number
-                            of distinct movements associated with that
-                            category.
+                            category. The height of each bar indicates
+                            the number of distinct movements associated
+                            with that category.
 
                             Comparing the categories helps researchers
-                            examine whether self-determination movements
-                            are more commonly associated with groups that
-                            have greater access to central political power
-                            or with groups that experience weaker political
-                            inclusion.
-
-                            The exact category labels shown in the chart
-                            are taken directly from the values recorded in
-                            the dataset.
+                            examine the political inclusion of groups
+                            represented in the SDM dataset.
 
                         </p>
 
@@ -432,17 +501,18 @@ function GroupCharacteristics() {
 
                                 <h4 className="fw-bold mb-1">
 
-                                    Complete Self-Determination Movement Directory
+                                    Complete Self-Determination
+                                    Movement Directory
 
                                 </h4>
 
 
                                 <p className="text-muted small mb-0">
 
-                                    A complete list of the 502 distinct
-                                    self-determination movements represented
-                                    in the SDM dataset, together with their
-                                    recorded group-size values.
+                                    A complete list of the distinct
+                                    self-determination movements retrieved
+                                    under the selected filters, together
+                                    with their recorded group-size values.
 
                                 </p>
 
@@ -488,6 +558,10 @@ function GroupCharacteristics() {
                                             #
                                         </th>
 
+                                        <th>
+                                            Group ID
+                                        </th>
+
                                         <th className="text-start">
                                             Group / Movement
                                         </th>
@@ -506,11 +580,20 @@ function GroupCharacteristics() {
                                     {allGroups.map(
                                         (group, index) => (
 
-                                            <tr key={index}>
+                                            <tr
+                                                key={group.group_id}
+                                            >
 
                                                 <td>
 
                                                     {index + 1}
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    {group.group_id}
 
                                                 </td>
 
@@ -524,15 +607,13 @@ function GroupCharacteristics() {
 
                                                 <td>
 
-                                                    {group.group_size !== null &&
-                                                    group.group_size !== undefined
-
-                                                        ? Number(
-                                                            group.group_size
-                                                        ).toLocaleString()
-
-                                                        : "Not Available"
-
+                                                    {
+                                                        group.group_size !== null &&
+                                                        group.group_size !== undefined
+                                                            ? Number(
+                                                                group.group_size
+                                                            ).toLocaleString()
+                                                            : "Not Available"
                                                     }
 
                                                 </td>
@@ -560,19 +641,16 @@ function GroupCharacteristics() {
 
                             <p className="text-muted mb-0">
 
-                                The directory provides the complete set of
-                                movements represented in the dataset.
-                                Unlike the chart above, which highlights
-                                only the 15 largest recorded groups, this
-                                table allows researchers to browse the full
-                                population of movements included in the
-                                analysis.
+                                The directory provides the complete set
+                                of distinct movements returned by the
+                                analysis. Each movement is identified
+                                using its unique group ID rather than
+                                the group name, because group names may
+                                occur more than once in the dataset.
 
-                                The group-size values shown here are the
-                                values associated with the observations
-                                retrieved from the movement-observations
-                                dataset and are presented for descriptive
-                                comparison.
+                                The group-size values represent the
+                                latest observation available within the
+                                selected filter scope.
 
                             </p>
 
@@ -590,5 +668,6 @@ function GroupCharacteristics() {
     );
 
 }
+
 
 export default GroupCharacteristics;
