@@ -1295,6 +1295,7 @@ exports.restrictionMovements = async (req, res) => {
         });
 
     }
+
 };
 
 

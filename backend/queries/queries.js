@@ -1261,7 +1261,7 @@ restrictionMovements: `
                 WHEN mo.res = 1
                 THEN mo.group_id
             END
-        ) AS restriction_movements
+        ) AS total_movements
 
     FROM movement_observations mo
 
@@ -1273,8 +1273,11 @@ restrictionMovements: `
 
     WHERE
         (? = '' OR c.country_id = ?)
+
         AND (? = '' OR eg.region = ?)
+
         AND (? = '' OR mo.year = ?)
+
         AND (? = '' OR mo.domclaim = ?);
 `,
 
