@@ -1332,249 +1332,177 @@ restrictionsChiSquare: `
         mo.domclaim IS NOT NULL
         AND mo.res IS NOT NULL;
 `,
-    // =====================================================
-    // BQ7
-    // Group Characteristics
-    // =====================================================
+   // =====================================================
+// BQ7
+// Group Characteristics
+// =====================================================
 
 
-    // -----------------------------------------------------
-    // Group Size
-    // Returns one record per group_id
-    // -----------------------------------------------------
+// -----------------------------------------------------
+// Group Size
+// Returns one record per group_id
+// Uses the latest observation within the selected filters
+// -----------------------------------------------------
 
-    groupSize: `
-        WITH latest_observation AS (
-
-            SELECT
-
-                mo.group_id,
-
-                mo.group_size,
-
-                mo.year,
-
-                ROW_NUMBER() OVER (
-
-                    PARTITION BY mo.group_id
-
-                    ORDER BY mo.year DESC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
-            JOIN ethnic_groups eg
-                ON mo.group_id = eg.group_id
-
-            JOIN countries c
-                ON eg.country_id = c.country_id
-
-            WHERE
-
-                (
-                    ? IS NULL
-                    OR eg.region = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR c.country_name = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year >= ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year <= ?
-                )
-
-        )
+groupSize: `
+    WITH latest_observation AS (
 
         SELECT
+            mo.group_id,
+            mo.group_size,
+            mo.year,
 
-            eg.group_id,
+            ROW_NUMBER() OVER (
+                PARTITION BY mo.group_id
+                ORDER BY mo.year DESC
+            ) AS rn
 
-            eg.group_name,
+        FROM movement_observations mo
 
-            lo.group_size
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
 
-        FROM ethnic_groups eg
-
-        JOIN latest_observation lo
-            ON eg.group_id = lo.group_id
+        JOIN countries c
+            ON eg.country_id = c.country_id
 
         WHERE
-            lo.rn = 1
+            (? = '' OR c.country_id = ?)
 
-        ORDER BY
-            lo.group_size DESC;
-    `,
+            AND (? = '' OR eg.region = ?)
+
+            AND (? = '' OR mo.year = ?)
+
+            AND (? = '' OR mo.domclaim = ?)
+    )
+
+    SELECT
+        eg.group_id,
+        eg.group_name,
+        lo.group_size
+
+    FROM ethnic_groups eg
+
+    JOIN latest_observation lo
+        ON eg.group_id = lo.group_id
+
+    WHERE
+        lo.rn = 1
+
+    ORDER BY
+        lo.group_size DESC;
+`,
 
 
-    // -----------------------------------------------------
-    // Geographic Concentration
-    // Uses latest observation for each group
-    // -----------------------------------------------------
+// -----------------------------------------------------
+// Geographic Concentration
+// Uses latest observation for each group
+// -----------------------------------------------------
 
-    geographicConcentration: `
-        WITH latest_observation AS (
-
-            SELECT
-
-                mo.group_id,
-
-                mo.group_con,
-
-                mo.year,
-
-                ROW_NUMBER() OVER (
-
-                    PARTITION BY mo.group_id
-
-                    ORDER BY mo.year DESC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
-            JOIN ethnic_groups eg
-                ON mo.group_id = eg.group_id
-
-            JOIN countries c
-                ON eg.country_id = c.country_id
-
-            WHERE
-
-                (
-                    ? IS NULL
-                    OR eg.region = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR c.country_name = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year >= ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year <= ?
-                )
-
-        )
+geographicConcentration: `
+    WITH latest_observation AS (
 
         SELECT
+            mo.group_id,
+            mo.group_con,
+            mo.year,
 
-            lo.group_con,
+            ROW_NUMBER() OVER (
+                PARTITION BY mo.group_id
+                ORDER BY mo.year DESC
+            ) AS rn
 
-            COUNT(
-                DISTINCT lo.group_id
-            ) AS total_groups
+        FROM movement_observations mo
 
-        FROM latest_observation lo
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
 
         WHERE
+            (? = '' OR c.country_id = ?)
 
-            lo.rn = 1
+            AND (? = '' OR eg.region = ?)
 
-            AND lo.group_con IS NOT NULL
+            AND (? = '' OR mo.year = ?)
 
-        GROUP BY
-            lo.group_con
+            AND (? = '' OR mo.domclaim = ?)
+    )
 
-        ORDER BY
-            lo.group_con;
-    `,
+    SELECT
+        lo.group_con,
+
+        COUNT(DISTINCT lo.group_id) AS total_groups
+
+    FROM latest_observation lo
+
+    WHERE
+        lo.rn = 1
+
+        AND lo.group_con IS NOT NULL
+
+    GROUP BY
+        lo.group_con
+
+    ORDER BY
+        lo.group_con;
+`,
 
 
-    // -----------------------------------------------------
-    // Political Power Participation
-    // Uses latest observation for each group
-    // -----------------------------------------------------
+// -----------------------------------------------------
+// Political Power Participation
+// Uses latest observation for each group
+// -----------------------------------------------------
 
-    powerParticipation: `
-        WITH latest_observation AS (
-
-            SELECT
-
-                mo.group_id,
-
-                mo.pwrstat,
-
-                mo.year,
-
-                ROW_NUMBER() OVER (
-
-                    PARTITION BY mo.group_id
-
-                    ORDER BY mo.year DESC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
-            JOIN ethnic_groups eg
-                ON mo.group_id = eg.group_id
-
-            JOIN countries c
-                ON eg.country_id = c.country_id
-
-            WHERE
-
-                (
-                    ? IS NULL
-                    OR eg.region = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR c.country_name = ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year >= ?
-                )
-
-                AND (
-                    ? IS NULL
-                    OR mo.year <= ?
-                )
-
-        )
+powerParticipation: `
+    WITH latest_observation AS (
 
         SELECT
+            mo.group_id,
+            mo.pwrstat,
+            mo.year,
 
-            lo.pwrstat,
+            ROW_NUMBER() OVER (
+                PARTITION BY mo.group_id
+                ORDER BY mo.year DESC
+            ) AS rn
 
-            COUNT(
-                DISTINCT lo.group_id
-            ) AS total_groups
+        FROM movement_observations mo
 
-        FROM latest_observation lo
+        JOIN ethnic_groups eg
+            ON mo.group_id = eg.group_id
+
+        JOIN countries c
+            ON eg.country_id = c.country_id
 
         WHERE
+            (? = '' OR c.country_id = ?)
 
-            lo.rn = 1
+            AND (? = '' OR eg.region = ?)
 
-            AND lo.pwrstat IS NOT NULL
+            AND (? = '' OR mo.year = ?)
 
-        GROUP BY
-            lo.pwrstat
+            AND (? = '' OR mo.domclaim = ?)
+    )
 
-        ORDER BY
-            lo.pwrstat;
-    `,
+    SELECT
+        lo.pwrstat,
 
+        COUNT(DISTINCT lo.group_id) AS total_groups
 
+    FROM latest_observation lo
+
+    WHERE
+        lo.rn = 1
+
+        AND lo.pwrstat IS NOT NULL
+
+    GROUP BY
+        lo.pwrstat
+
+    ORDER BY
+        lo.pwrstat;
+`,
     // =====================================================
     // COMPARISON
     // Countries or Regions

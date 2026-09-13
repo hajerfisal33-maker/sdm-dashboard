@@ -1414,54 +1414,177 @@ exports.restrictionsChiSquare = async (req, res) => {
     }
 };
 
-// =========================
-// Geographic Concentration
-// =========================
+// =====================================================
+// BQ7
+// Group Characteristics
+// =====================================================
 
-exports.geographicConcentration = async (req, res) => {
-    console.log("BQ7 GEOGRAPHIC CONCENTRATION");
+
+// -----------------------------------------------------
+// Group Size
+// -----------------------------------------------------
+
+exports.groupSize = async (req, res) => {
+
+    console.log("BQ7 GROUP SIZE");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
         const [rows] = await db.query(
-            queries.geographicConcentration
+            queries.groupSize,
+            params
         );
-         console.log(rows);
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+            error: error.message
+        });
 
     }
 
 };
 
 
-// =========================
-// Power Participation
-// =========================
+// -----------------------------------------------------
+// Geographic Concentration
+// -----------------------------------------------------
 
-exports.powerParticipation = async (req, res) => {
-    console.log("BQ7 POWER PARTICIPATION");
+exports.geographicConcentration = async (req, res) => {
+
+    console.log("BQ7 GEOGRAPHIC CONCENTRATION");
+
     try {
 
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
         const [rows] = await db.query(
-            queries.powerParticipation
+            queries.geographicConcentration,
+            params
         );
-         console.log(rows);
+
+        console.log(rows);
+
         res.json(rows);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        res.status(500).json(error);
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
+};
+
+
+// -----------------------------------------------------
+// Political Power Participation
+// -----------------------------------------------------
+
+exports.powerParticipation = async (req, res) => {
+
+    console.log("BQ7 POLITICAL POWER PARTICIPATION");
+
+    try {
+
+        const {
+            country = "",
+            region = "",
+            year = "",
+            claim = ""
+        } = req.query;
+
+        const params = [
+
+            country,
+            country,
+
+            region,
+            region,
+
+            year,
+            year,
+
+            claim,
+            claim
+
+        ];
+
+        const [rows] = await db.query(
+            queries.powerParticipation,
+            params
+        );
+
+        console.log(rows);
+
+        res.json(rows);
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
 
     }
 
