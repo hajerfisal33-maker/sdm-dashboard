@@ -1527,37 +1527,22 @@ globeCountries: `
 // ============================================================
 
 countrySummaryQuery: `
-WITH filtered_observations AS (
+WITH first_observation AS (
+
     SELECT
-        mo.*
+        mo.group_id,
+        mo.violsd,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year ASC
+        ) AS rn
+
     FROM movement_observations mo
-    WHERE
-        (? = '' OR mo.year <= ?)
-),
-
-first_observation AS (
-    SELECT
-        fo.group_id,
-        fo.violsd,
-        ROW_NUMBER() OVER (
-            PARTITION BY fo.group_id
-            ORDER BY fo.year ASC
-        ) AS rn
-    FROM filtered_observations fo
-),
-
-latest_observation AS (
-    SELECT
-        lo.group_id,
-        lo.violsd,
-        ROW_NUMBER() OVER (
-            PARTITION BY lo.group_id
-            ORDER BY lo.year DESC
-        ) AS rn
-    FROM filtered_observations lo
 )
 
 SELECT
+
     c.country_name,
 
     GROUP_CONCAT(
@@ -1566,7 +1551,9 @@ SELECT
         SEPARATOR ', '
     ) AS ethnic_groups,
 
-    COUNT(DISTINCT eg.group_id) AS total_sdms,
+    COUNT(
+        DISTINCT eg.group_id
+    ) AS total_sdms,
 
     COUNT(
         DISTINCT CASE
@@ -1592,9 +1579,9 @@ SELECT
 
     COUNT(
         DISTINCT CASE
-            WHEN lo.rn = 1
-             AND lo.violsd = 0
-            THEN lo.group_id
+            WHEN fo_latest.rn = 1
+             AND fo_latest.violsd = 0
+            THEN fo_latest.group_id
         END
     ) AS remained_peaceful_count,
 
@@ -1617,16 +1604,30 @@ FROM countries c
 LEFT JOIN ethnic_groups eg
     ON c.country_id = eg.country_id
 
-LEFT JOIN filtered_observations mo
+LEFT JOIN movement_observations mo
     ON eg.group_id = mo.group_id
 
 LEFT JOIN first_observation fo
     ON eg.group_id = fo.group_id
     AND fo.rn = 1
 
-LEFT JOIN latest_observation lo
-    ON eg.group_id = lo.group_id
-    AND lo.rn = 1
+LEFT JOIN (
+
+    SELECT
+        mo.group_id,
+        mo.violsd,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year DESC
+        ) AS rn
+
+    FROM movement_observations mo
+
+) fo_latest
+
+    ON eg.group_id = fo_latest.group_id
+    AND fo_latest.rn = 1
 
 WHERE c.country_name = ?
 
@@ -1641,15 +1642,8 @@ GROUP BY
 // ============================================================
 
 countryMovementsQuery: `
-WITH filtered_observations AS (
-    SELECT
-        mo.*
-    FROM movement_observations mo
-    WHERE
-        (? = '' OR mo.year <= ?)
-),
+WITH movement_claims AS (
 
-movement_claims AS (
     SELECT
         group_id,
 
@@ -1659,48 +1653,53 @@ movement_claims AS (
             SEPARATOR ', '
         ) AS claim_types
 
-    FROM filtered_observations
+    FROM movement_observations
 
     WHERE domclaim IS NOT NULL
 
     GROUP BY group_id
 ),
 
+
 first_observation AS (
+
     SELECT
-        fo.group_id,
-        fo.violsd,
+        mo.group_id,
+        mo.violsd,
 
         ROW_NUMBER() OVER (
-            PARTITION BY fo.group_id
-            ORDER BY fo.year ASC
+            PARTITION BY mo.group_id
+            ORDER BY mo.year ASC
         ) AS rn
 
-    FROM filtered_observations fo
+    FROM movement_observations mo
 ),
 
+
 latest_observation AS (
+
     SELECT
-        lo.group_id,
-        lo.group_size,
-        lo.group_con,
-        lo.pwrstat,
-        lo.sovdec,
-        lo.violsd,
-        lo.violsd_onset,
-        lo.con,
-        lo.res,
-        lo.sdm_startdate1,
-        lo.sdm_enddate1,
-        lo.year,
+        mo.group_id,
+        mo.group_size,
+        mo.group_con,
+        mo.pwrstat,
+        mo.sovdec,
+        mo.violsd,
+        mo.violsd_onset,
+        mo.con,
+        mo.res,
+        mo.sdm_startdate1,
+        mo.sdm_enddate1,
+        mo.year,
 
         ROW_NUMBER() OVER (
-            PARTITION BY lo.group_id
-            ORDER BY lo.year DESC
+            PARTITION BY mo.group_id
+            ORDER BY mo.year DESC
         ) AS rn
 
-    FROM filtered_observations lo
+    FROM movement_observations mo
 )
+
 
 SELECT
 
@@ -1724,15 +1723,22 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN EXISTS (
+
             SELECT 1
-            FROM filtered_observations x
-            WHERE
-                x.group_id = eg.group_id
-                AND x.sovdec = 1
+
+            FROM movement_observations x
+
+            WHERE x.group_id = eg.group_id
+              AND x.sovdec = 1
+
         )
+
         THEN 1
+
         ELSE 0
+
     END AS sovereignty_declared,
 
 
@@ -1741,15 +1747,22 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN EXISTS (
+
             SELECT 1
-            FROM filtered_observations x
-            WHERE
-                x.group_id = eg.group_id
-                AND x.violsd = 1
+
+            FROM movement_observations x
+
+            WHERE x.group_id = eg.group_id
+              AND x.violsd = 1
+
         )
+
         THEN 1
+
         ELSE 0
+
     END AS experienced_violence,
 
 
@@ -1758,10 +1771,14 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN fo.rn = 1
          AND fo.violsd = 1
+
         THEN 1
+
         ELSE 0
+
     END AS started_violence,
 
 
@@ -1770,9 +1787,13 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN lo.violsd = 0
+
         THEN 1
+
         ELSE 0
+
     END AS remained_peaceful,
 
 
@@ -1781,15 +1802,22 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN EXISTS (
+
             SELECT 1
-            FROM filtered_observations x
-            WHERE
-                x.group_id = eg.group_id
-                AND x.con = 1
+
+            FROM movement_observations x
+
+            WHERE x.group_id = eg.group_id
+              AND x.con = 1
+
         )
+
         THEN 1
+
         ELSE 0
+
     END AS received_concession,
 
 
@@ -1798,15 +1826,22 @@ SELECT
     -------------------------------------------- */
 
     CASE
+
         WHEN EXISTS (
+
             SELECT 1
-            FROM filtered_observations x
-            WHERE
-                x.group_id = eg.group_id
-                AND x.res = 1
+
+            FROM movement_observations x
+
+            WHERE x.group_id = eg.group_id
+              AND x.res = 1
+
         )
+
         THEN 1
+
         ELSE 0
+
     END AS faced_restriction,
 
 
@@ -1819,8 +1854,8 @@ SELECT
 
         FROM movement_observations x
 
-        WHERE
-            x.group_id = eg.group_id
+        WHERE x.group_id = eg.group_id
+
     ) AS start_year,
 
 
@@ -1859,8 +1894,7 @@ LEFT JOIN movement_claims mc
 
 WHERE c.country_name = ?
 
-ORDER BY
-    start_year ASC;
+ORDER BY start_year ASC;
 `,
 
     // =====================================================

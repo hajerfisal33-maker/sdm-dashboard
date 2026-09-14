@@ -1744,7 +1744,7 @@ const countryMapping = {
   "South Vietnam": "Vietnam"
 };
 
-  // ============================================================
+// ============================================================
 // GLOBE COUNTRIES
 // ============================================================
 
@@ -1796,7 +1796,6 @@ exports.globeCountries = async (req, res) => {
 };
 
 
-
 // ============================================================
 // COUNTRY DETAILS
 // ============================================================
@@ -1810,31 +1809,9 @@ exports.getCountryDetails = async (req, res) => {
         } = req.params;
 
 
-        const {
-            year = ""
-        } = req.query;
-
-
-        /*
-        --------------------------------------------------------
-        Year filter
-
-        Empty string = All Years
-        Otherwise = observations up to selected year
-        --------------------------------------------------------
-        */
-
-        const selectedYear =
-            year === ""
-                ? ""
-                : Number(year);
-
-
-        /*
-        --------------------------------------------------------
-        Reverse country mapping
-        --------------------------------------------------------
-        */
+        // --------------------------------------------------------
+        // Reverse country mapping
+        // --------------------------------------------------------
 
         const reverseMapping = {
 
@@ -1885,59 +1862,10 @@ exports.getCountryDetails = async (req, res) => {
             countryName;
 
 
-        /*
-        --------------------------------------------------------
-        Country Summary
-        --------------------------------------------------------
-
-        Query parameters:
-
-        1. selectedYear
-        2. selectedYear
-        3. country
-
-        --------------------------------------------------------
-        */
-
-        const summaryParams = [
-
-            selectedYear,
-            selectedYear,
-
-            dbCountryName
-
-        ];
-
-
-        /*
-        --------------------------------------------------------
-        Country Movements
-        --------------------------------------------------------
-
-        Query parameters:
-
-        1. selectedYear
-        2. selectedYear
-        3. country
-
-        --------------------------------------------------------
-        */
-
-        const movementParams = [
-
-            selectedYear,
-            selectedYear,
-
-            dbCountryName
-
-        ];
-
-
-        /*
-        --------------------------------------------------------
-        Execute queries
-        --------------------------------------------------------
-        */
+        // --------------------------------------------------------
+        // Country Summary
+        // No year filter
+        // --------------------------------------------------------
 
         const [
             summaryRows
@@ -1945,10 +1873,17 @@ exports.getCountryDetails = async (req, res) => {
 
             queries.countrySummaryQuery,
 
-            summaryParams
+            [
+                dbCountryName
+            ]
 
         );
 
+
+        // --------------------------------------------------------
+        // Country Movements
+        // No year filter
+        // --------------------------------------------------------
 
         const [
             movementRows
@@ -1956,16 +1891,16 @@ exports.getCountryDetails = async (req, res) => {
 
             queries.countryMovementsQuery,
 
-            movementParams
+            [
+                dbCountryName
+            ]
 
         );
 
 
-        /*
-        --------------------------------------------------------
-        Check country
-        --------------------------------------------------------
-        */
+        // --------------------------------------------------------
+        // Check country
+        // --------------------------------------------------------
 
         if (
             !summaryRows ||
@@ -1983,11 +1918,9 @@ exports.getCountryDetails = async (req, res) => {
         }
 
 
-        /*
-        --------------------------------------------------------
-        Response
-        --------------------------------------------------------
-        */
+        // --------------------------------------------------------
+        // Response
+        // --------------------------------------------------------
 
         return res.json({
 
