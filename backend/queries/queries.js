@@ -1897,219 +1897,104 @@ WHERE c.country_name = ?
 ORDER BY start_year ASC;
 `,
 
-    // =====================================================
-    // COMPARISON
-    // Countries or Regions
-    // =====================================================
-
-    compareEntities: `
-        WITH
-
-        first_observation AS (
-
-            SELECT
-
-                mo.group_id,
-
-                mo.violsd,
-
-                ROW_NUMBER() OVER (
-
-                    PARTITION BY mo.group_id
-
-                    ORDER BY mo.year ASC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
-        ),
-
-
-        latest_observation AS (
-
-            SELECT
-
-                mo.group_id,
-
-                mo.violsd,
-
-                ROW_NUMBER() OVER (
-
-                    PARTITION BY mo.group_id
-
-                    ORDER BY mo.year DESC
-
-                ) AS rn
-
-            FROM movement_observations mo
-
-        )
-
-
-        SELECT
-
-            CASE
-
-                WHEN ? = 'country'
-
-                    THEN c.country_name
-
-                WHEN ? = 'region'
-
-                    THEN eg.region
-
-            END AS entity_name,
-
-
-            COUNT(
-                DISTINCT eg.group_id
-            ) AS total_movements,
-
-
-            COUNT(
-                DISTINCT CASE
-
-                    WHEN mo.sovdec = 1
-
-                        THEN mo.group_id
-
-                END
-            ) AS sovereignty_movements,
-
-
-            COUNT(
-                DISTINCT CASE
-
-                    WHEN mo.violsd = 1
-
-                        THEN mo.group_id
-
-                END
-            ) AS experienced_violence,
-
-
-            COUNT(
-                DISTINCT CASE
-
-                    WHEN fo.rn = 1
-                    AND fo.violsd = 1
-
-                        THEN fo.group_id
-
-                END
-            ) AS started_violence,
-
-
-            COUNT(
-                DISTINCT CASE
-
-                    WHEN lo.rn = 1
-                    AND lo.violsd = 0
-
-                        THEN lo.group_id
-
-                END
-            ) AS latest_peaceful_movements,
-
-
-            SUM(
-                CASE
-
-                    WHEN mo.con = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS total_concessions,
-
-
-            SUM(
-                CASE
-
-                    WHEN mo.res = 1
-
-                        THEN 1
-
-                    ELSE 0
-
-                END
-            ) AS total_restrictions
-
-
-        FROM countries c
-
-        JOIN ethnic_groups eg
-            ON c.country_id = eg.country_id
-
-        JOIN movement_observations mo
-            ON eg.group_id = mo.group_id
-
-        LEFT JOIN first_observation fo
-            ON eg.group_id = fo.group_id
-            AND fo.rn = 1
-
-        LEFT JOIN latest_observation lo
-            ON eg.group_id = lo.group_id
-            AND lo.rn = 1
-
-
-        WHERE
-
-            (
-
-                (
-                    ? = 'country'
-
-                    AND c.country_name IN (?, ?)
-
-                )
-
-                OR
-
-                (
-
-                    ? = 'region'
-
-                    AND eg.region IN (?, ?)
-
-                )
-
-            )
-
-
-            AND (
-                ? IS NULL
-                OR mo.year >= ?
-            )
-
-
-            AND (
-                ? IS NULL
-                OR mo.year <= ?
-            )
-
-
-        GROUP BY
-
-            CASE
-
-                WHEN ? = 'country'
-
-                    THEN c.country_name
-
-                WHEN ? = 'region'
-
-                    THEN eg.region
-
-            END
-
-
-        ORDER BY
-            entity_name;
-    `
+   compareCountries: `
+WITH first_observation AS (
+    SELECT
+        mo.group_id,
+        mo.violsd,
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year ASC
+        ) AS rn
+    FROM movement_observations mo
+),
+
+latest_observation AS (
+    SELECT
+        mo.group_id,
+        mo.violsd,
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year DESC
+        ) AS rn
+    FROM movement_observations mo
+)
+
+SELECT
+    c.country_id,
+    c.country_name,
+
+    COUNT(DISTINCT eg.group_id) AS total_movements,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.sovdec = 1
+            THEN mo.group_id
+        END
+    ) AS sovereignty_movements,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.violsd = 1
+            THEN mo.group_id
+        END
+    ) AS experienced_violence,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN fo.rn = 1
+             AND fo.violsd = 1
+            THEN fo.group_id
+        END
+    ) AS started_violence,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN lo.rn = 1
+             AND lo.violsd = 0
+            THEN lo.group_id
+        END
+    ) AS latest_peaceful_movements,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.con = 1
+            THEN mo.group_id
+        END
+    ) AS concession_movements,
+
+    COUNT(
+        DISTINCT CASE
+            WHEN mo.res = 1
+            THEN mo.group_id
+        END
+    ) AS restriction_movements
+
+FROM countries c
+
+JOIN ethnic_groups eg
+    ON c.country_id = eg.country_id
+
+JOIN movement_observations mo
+    ON eg.group_id = mo.group_id
+
+LEFT JOIN first_observation fo
+    ON eg.group_id = fo.group_id
+    AND fo.rn = 1
+
+LEFT JOIN latest_observation lo
+    ON eg.group_id = lo.group_id
+    AND lo.rn = 1
+
+WHERE c.country_id IN (?, ?)
+
+GROUP BY
+    c.country_id,
+    c.country_name
+
+ORDER BY
+    c.country_name;
+`
 
 };
 

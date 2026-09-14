@@ -205,5 +205,10 @@ router.get(
     controller.getCountryDetails
 );
 
+router.get(
+    "/compare/countries",
+    controller.compareCountries
+);
+
 
 module.exports = router;

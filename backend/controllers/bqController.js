@@ -1952,3 +1952,71 @@ exports.getCountryDetails = async (req, res) => {
     }
 
 };
+
+exports.compareCountries = async (req, res) => {
+    console.log("COMPARE COUNTRIES");
+
+    try {
+        const {
+            country1 = "",
+            country2 = ""
+        } = req.query;
+
+        // Make sure both countries were selected
+        if (!country1 || !country2) {
+            return res.status(400).json({
+                error: "Two countries are required"
+            });
+        }
+
+        // Prevent comparing a country with itself
+        if (country1 === country2) {
+            return res.status(400).json({
+                error: "Please select two different countries"
+            });
+        }
+
+        // Convert the IDs to numbers
+        const countryId1 = Number(country1);
+        const countryId2 = Number(country2);
+
+        // Make sure the IDs are valid numbers
+        if (
+            !Number.isInteger(countryId1) ||
+            !Number.isInteger(countryId2)
+        ) {
+            return res.status(400).json({
+                error: "Invalid country IDs"
+            });
+        }
+
+        const params = [
+            countryId1,
+            countryId2
+        ];
+
+        const [rows] = await db.query(
+            queries.compareCountries,
+            params
+        );
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({
+                error: "No comparison data found for the selected countries"
+            });
+        }
+
+        res.json(rows);
+
+    } catch (error) {
+
+        console.error(
+            "Compare countries error:",
+            error
+        );
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
