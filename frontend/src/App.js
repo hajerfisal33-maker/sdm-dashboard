@@ -7,8 +7,6 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 
-
-
 // Analytics pages
 import GeographicalAndHistoricalDistribution from "./pages/GeographicalAndHistoricalDistribution";
 import ClaimsAndMovementDuration from "./pages/ClaimsAndMovementDuration";
@@ -21,7 +19,7 @@ import GroupCharacteristics from "./pages/GroupCharacteristics";
 // Exploration
 import Globe from "./pages/Globe";
 
-// Comparison page
+// Comparison
 import ContinentComparison from "./pages/ContinentComparison";
 
 
@@ -59,11 +57,6 @@ function App() {
                 {/* =========================
                     DATA ANALYTICS
                 ========================= */}
-
-                <Route
-                    path="/analytics"
-                    element={<DataAnalytics />}
-                />
 
                 <Route
                     path="/bq1"
@@ -126,13 +119,8 @@ function App() {
 
 
                 {/* =========================
-                    COMPARISONS
+                    CONTINENT COMPARISON
                 ========================= */}
-
-                <Route
-                    path="/comparisons"
-                    element={<Comparisons />}
-                />
 
                 <Route
                     path="/continent-comparison"
