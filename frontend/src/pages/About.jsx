@@ -1,503 +1,715 @@
 import React from "react";
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Badge,
-  Alert
+    Container,
+    Row,
+    Col,
+    Card,
+    Badge
 } from "react-bootstrap";
 
 function About() {
 
-  const analyticalCapabilities = [
-    {
-      title: "Geographical & Historical Distribution",
-      desc: "Explore where self-determination movements are located across countries and regions, and examine how movement activity changes over the historical period from 1945 to 2020.",
-      icon: "🌍",
-    },
-    {
-      title: "Claims & Movement Duration",
-      desc: "Examine the political objectives pursued by self-determination movements and compare how long movements remain active across different claim categories.",
-      icon: "📜",
-    },
-    {
-      title: "Sovereignty Declarations",
-      desc: "Investigate when unilateral sovereignty declarations occurred, how they are distributed across claim types, and whether claim categories are statistically associated with declarations.",
-      icon: "🏛️",
-    },
-    {
-      title: "Violence & Conflict Dynamics",
-      desc: "Explore the relationship between self-determination movements and separatist armed conflict, including violent involvement, escalation, and the onset of violence.",
-      icon: "⚔️",
-    },
-    {
-      title: "Governmental Concessions",
-      desc: "Examine state policies that increase ethnic rights, including cultural, autonomy-related, and independence-related concessions.",
-      icon: "🤝",
-    },
-    {
-      title: "Governmental Restrictions",
-      desc: "Analyze state policies that reduce ethnic rights through cultural, autonomy-related, and independence-related restrictions.",
-      icon: "⚖️",
-    },
-    {
-      title: "Group Characteristics",
-      desc: "Explore structural characteristics associated with the groups represented by self-determination movements, including relative group size, geographic concentration, and access to political power.",
-      icon: "👥",
-    },
-  ];
+    const researchDimensions = [
+        {
+            number: "01",
+            title: "Geographical & Historical",
+            description:
+                "The geographical and temporal distribution of self-determination movements across countries, regions, and the period covered by the dataset."
+        },
+        {
+            number: "02",
+            title: "Political Claims",
+            description:
+                "The types of self-determination claims pursued by movements, including different forms of political and territorial demands."
+        },
+        {
+            number: "03",
+            title: "Conflict & Violence",
+            description:
+                "Violence involvement, escalation, and the onset of violent conflict associated with self-determination movements."
+        },
+        {
+            number: "04",
+            title: "Government Responses",
+            description:
+                "Governmental concessions and restrictions affecting the political and cultural rights associated with self-determination demands."
+        },
+        {
+            number: "05",
+            title: "Group Characteristics",
+            description:
+                "Structural characteristics of the groups represented in the dataset, including group size, geographic concentration, and political power."
+        },
+        {
+            number: "06",
+            title: "Sovereignty",
+            description:
+                "The occurrence of unilateral sovereignty declarations and their relationship with movement characteristics and claim types."
+        }
+    ];
+
+    const systemComponents = [
+        {
+            title: "Data Preparation",
+            icon: "01",
+            description:
+                "The original SDM data is prepared and validated before being incorporated into the database structure used by the platform."
+        },
+        {
+            title: "Database Layer",
+            icon: "02",
+            description:
+                "A relational MySQL database organizes countries, ethnic groups, and movement observations to support structured analytical queries."
+        },
+        {
+            title: "Backend Services",
+            icon: "03",
+            description:
+                "A Node.js and Express backend connects the analytical interface to the database and provides API endpoints for retrieving research results."
+        },
+        {
+            title: "Interactive Interface",
+            icon: "04",
+            description:
+                "A React-based interface presents the processed results through interactive visualizations, geographical exploration, and analytical sections."
+        }
+    ];
+
+    return (
+        <Container className="about-page mt-5 mb-5">
+
+            {/* =====================================================
+                HERO
+            ====================================================== */}
+
+            <section className="about-hero mb-5">
+
+                <div className="about-hero-inner">
+
+                    <Badge
+                        bg="primary"
+                        className="px-3 py-2 rounded-pill mb-3"
+                    >
+                        Research Context
+                    </Badge>
+
+                    <h1 className="display-4 fw-bold text-dark mb-3">
+                        About the Research
+                    </h1>
+
+                    <p
+                        className="lead text-muted mb-0"
+                        style={{ maxWidth: "850px" }}
+                    >
+                        An Information Systems and data analytics project
+                        focused on transforming complex self-determination
+                        movement data into an accessible, structured, and
+                        interactive research environment.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            {/* =====================================================
+                RESEARCH CONTEXT
+            ====================================================== */}
+
+            <section className="mb-5">
 
-  return (
+                <Row className="g-4 align-items-stretch">
 
-    <Container className="mt-5 mb-5">
+                    <Col lg={7}>
 
-      {/* =====================================================
-          PAGE HEADER
-      ====================================================== */}
+                        <Card className="about-content-card border-0 shadow-sm rounded-4 h-100">
 
-      <Card className="border-0 shadow-sm p-4 p-md-5 mb-5 bg-white rounded-4 text-center">
+                            <Card.Body className="p-4 p-lg-5">
 
-        <div className="py-2">
+                                <Badge
+                                    bg="light"
+                                    text="primary"
+                                    className="px-3 py-2 rounded-pill mb-3"
+                                >
+                                    Research Context
+                                </Badge>
 
-          <Badge
-            bg="primary"
-            className="px-3 py-2 fs-6 mb-3 rounded-pill"
-          >
+                                <h2 className="fw-bold mb-4">
+                                    From Complex Data to Research Insight
+                                </h2>
 
-            About the Research Dashboard
+                                <p className="text-muted">
+                                    Research datasets on self-determination
+                                    movements contain a large number of
+                                    political, historical, geographical,
+                                    conflict-related, and group-level
+                                    variables. Although such datasets provide
+                                    valuable empirical information, their
+                                    complexity can make direct exploration
+                                    difficult.
+                                </p>
 
-          </Badge>
+                                <p className="text-muted mb-0">
+                                    This research addresses this information
+                                    accessibility challenge by developing an
+                                    interactive, database-backed dashboard
+                                    that organizes selected SDM 2.0 variables
+                                    into clearly defined analytical areas.
+                                    The system is intended to support
+                                    structured exploration and interpretation
+                                    of the dataset without requiring users to
+                                    work directly with the underlying raw
+                                    tables.
+                                </p>
 
+                            </Card.Body>
 
-          <h1 className="fw-bold text-dark display-5">
+                        </Card>
 
-            SDM 2.0 Research & Visual Analytics Platform
+                    </Col>
 
-          </h1>
 
+                    <Col lg={5}>
 
-          <p
-            className="lead text-muted mx-auto mt-3 mb-0"
-            style={{ maxWidth: "850px" }}
-          >
+                        <Card className="about-highlight-card border-0 shadow-sm rounded-4 h-100">
 
-            This dashboard provides an interactive environment for
-            exploring and interpreting the SDM 2.0 dataset on
-            self-determination movements. It brings together
-            geographical, historical, political, conflict-related,
-            and structural dimensions of self-determination into
-            a single research-oriented interface.
+                            <Card.Body className="p-4 p-lg-5">
 
-          </p>
+                                <div className="about-stat-label mb-3">
+                                    DATASET IN FOCUS
+                                </div>
 
-        </div>
+                                <h3 className="fw-bold mb-4">
+                                    SDM 2.0
+                                </h3>
 
-      </Card>
+                                <div className="about-stat mb-4">
+                                    <span className="about-stat-number">
+                                        502
+                                    </span>
+                                    <span className="about-stat-text">
+                                        self-determination movements
+                                    </span>
+                                </div>
 
+                                <div className="about-stat mb-4">
+                                    <span className="about-stat-number">
+                                        124
+                                    </span>
+                                    <span className="about-stat-text">
+                                        countries
+                                    </span>
+                                </div>
 
-      {/* =====================================================
-          ABOUT THE DATASET
-      ====================================================== */}
+                                <div className="about-stat">
+                                    <span className="about-stat-number">
+                                        1945–2020
+                                    </span>
+                                    <span className="about-stat-text">
+                                        historical coverage
+                                    </span>
+                                </div>
 
-      <Row className="g-4 mb-5">
+                            </Card.Body>
 
-        <Col lg={8}>
+                        </Card>
 
-          <Card className="border-0 shadow-sm p-4 p-md-5 rounded-4 h-100">
+                    </Col>
 
-            <Badge
-              bg="info"
-              text="dark"
-              className="px-3 py-2 mb-3 rounded-pill"
-              style={{ width: "fit-content" }}
-            >
+                </Row>
 
-              Dataset Overview
+            </section>
 
-            </Badge>
 
+            {/* =====================================================
+                ABOUT DATASET
+            ====================================================== */}
 
-            <h2 className="fw-bold mb-3">
+            <section className="mb-5">
 
-              About SDM 2.0
+                <Card className="about-content-card border-0 shadow-sm rounded-4">
 
-            </h2>
+                    <Card.Body className="p-4 p-lg-5">
 
+                        <div className="d-flex align-items-center mb-4">
 
-            <p className="text-muted">
+                            <div className="about-section-icon">
+                                📊
+                            </div>
 
-              SDM 2.0 is a global dataset covering
-              <strong> 502 self-determination movements</strong>
-              across <strong>124 countries</strong> between
-              <strong> 1945 and 2020</strong>.
+                            <div className="ms-3">
 
-            </p>
+                                <Badge
+                                    bg="light"
+                                    text="dark"
+                                    className="px-3 py-2 rounded-pill mb-2"
+                                >
+                                    Data Source
+                                </Badge>
 
+                                <h2 className="fw-bold mb-0">
+                                    The SDM 2.0 Dataset
+                                </h2>
 
-            <p className="text-muted">
+                            </div>
 
-              The dataset focuses on politically significant
-              self-determination movements connected to ethnic
-              groups. It captures a broad range of political
-              demands, including claims for internal autonomy,
-              territorial self-government, independence, and
-              irredentist outcomes.
+                        </div>
 
-            </p>
+                        <Row className="g-4">
 
+                            <Col lg={6}>
 
-            <p className="text-muted mb-0">
+                                <p className="text-muted">
+                                    SDM 2.0 is a global research dataset
+                                    covering self-determination movements
+                                    associated with ethnic groups. It provides
+                                    information on movements and their
+                                    political claims across countries and
+                                    over time.
+                                </p>
 
-              In addition to political claims, SDM 2.0 includes
-              information on separatist armed conflict,
-              unilateral sovereignty declarations, governmental
-              concessions and restrictions affecting ethnic rights,
-              and several structural characteristics of the groups
-              associated with these movements.
+                                <p className="text-muted mb-0">
+                                    The dataset covers the historical period
+                                    from 1945 to 2020 and includes movements
+                                    pursuing different forms of
+                                    self-determination.
+                                </p>
 
-            </p>
+                            </Col>
 
-          </Card>
+                            <Col lg={6}>
 
-        </Col>
+                                <p className="text-muted">
+                                    In addition to political claims, the data
+                                    includes variables related to violence,
+                                    sovereignty declarations, government
+                                    responses, and structural characteristics
+                                    of the groups involved.
+                                </p>
 
+                                <p className="text-muted mb-0">
+                                    These dimensions provide the empirical
+                                    basis for the analytical sections
+                                    implemented in the dashboard.
+                                </p>
 
-        <Col lg={4}>
+                            </Col>
 
-          <Card className="border-0 shadow-sm p-4 rounded-4 h-100 bg-light">
+                        </Row>
 
-            <h5 className="fw-bold mb-4">
+                    </Card.Body>
 
-              Dataset at a Glance
+                </Card>
 
-            </h5>
+            </section>
 
 
-            <div className="mb-4">
+            {/* =====================================================
+                RESEARCH PURPOSE
+            ====================================================== */}
 
-              <h3 className="fw-bold text-primary mb-1">
+            <section className="mb-5">
 
-                502
+                <Row className="g-4">
 
-              </h3>
+                    <Col lg={5}>
 
-              <span className="text-muted">
+                        <div className="about-section-heading h-100">
 
-                Self-Determination Movements
+                            <Badge
+                                bg="primary"
+                                className="px-3 py-2 rounded-pill mb-3"
+                            >
+                                Research Purpose
+                            </Badge>
 
-              </span>
+                            <h2 className="fw-bold mb-3">
+                                Why Was the System Developed?
+                            </h2>
 
-            </div>
+                            <p className="text-muted">
+                                The main purpose is to improve the
+                                accessibility and interpretability of a
+                                complex research dataset through an
+                                information system designed for analytical
+                                exploration.
+                            </p>
 
+                        </div>
 
-            <div className="mb-4">
+                    </Col>
 
-              <h3 className="fw-bold text-success mb-1">
 
-                124
+                    <Col lg={7}>
 
-              </h3>
+                        <Card className="border-0 shadow-sm rounded-4 h-100">
 
-              <span className="text-muted">
+                            <Card.Body className="p-4 p-lg-5">
 
-                Countries
+                                <div className="about-purpose-item mb-4">
 
-              </span>
+                                    <span className="purpose-number">
+                                        01
+                                    </span>
 
-            </div>
+                                    <div>
+                                        <h5 className="fw-bold">
+                                            Improve Data Accessibility
+                                        </h5>
 
+                                        <p className="text-muted mb-0">
+                                            Present selected research
+                                            variables in a structured
+                                            interface rather than requiring
+                                            direct interaction with complex
+                                            raw data tables.
+                                        </p>
+                                    </div>
 
-            <div>
+                                </div>
 
-              <h3 className="fw-bold text-danger mb-1">
 
-                1945–2020
+                                <div className="about-purpose-item mb-4">
 
-              </h3>
+                                    <span className="purpose-number">
+                                        02
+                                    </span>
 
-              <span className="text-muted">
+                                    <div>
+                                        <h5 className="fw-bold">
+                                            Support Exploratory Analysis
+                                        </h5>
 
-                Historical Coverage
+                                        <p className="text-muted mb-0">
+                                            Help users identify distributions,
+                                            patterns, differences, and
+                                            relationships that can guide
+                                            further research.
+                                        </p>
+                                    </div>
 
-              </span>
+                                </div>
 
-            </div>
 
-          </Card>
+                                <div className="about-purpose-item">
 
-        </Col>
+                                    <span className="purpose-number">
+                                        03
+                                    </span>
 
-      </Row>
+                                    <div>
+                                        <h5 className="fw-bold">
+                                            Integrate Research Data and
+                                            Visualization
+                                        </h5>
 
+                                        <p className="text-muted mb-0">
+                                            Connect a structured database and
+                                            analytical queries with an
+                                            interactive visualization layer.
+                                        </p>
+                                    </div>
 
-      {/* =====================================================
-          PURPOSE
-      ====================================================== */}
+                                </div>
 
-      <Row className="g-4 mb-5">
+                            </Card.Body>
 
-        <Col lg={12}>
+                        </Card>
 
-          <Card className="border-0 shadow-sm p-4 p-md-5 rounded-4">
+                    </Col>
 
-            <h2 className="fw-bold mb-3">
+                </Row>
 
-              Purpose of the Dashboard
+            </section>
 
-            </h2>
 
+            {/* =====================================================
+                ANALYTICAL SCOPE
+            ====================================================== */}
 
-            <p className="text-muted">
+            <section className="mb-5">
 
-              The purpose of this dashboard is to make a complex
-              research dataset easier to access, explore, and
-              interpret. Rather than requiring users to work
-              directly with raw data tables, the platform organizes
-              key variables into thematic analytical sections and
-              presents results through interactive visualizations
-              and selected statistical analyses.
+                <div className="text-center mb-4">
 
-            </p>
+                    <Badge
+                        bg="dark"
+                        className="px-3 py-2 rounded-pill mb-3"
+                    >
+                        Analytical Scope
+                    </Badge>
 
+                    <h2 className="fw-bold">
+                        Research Dimensions
+                    </h2>
 
-            <p className="text-muted mb-0">
+                    <p
+                        className="text-muted mx-auto"
+                        style={{ maxWidth: "760px" }}
+                    >
+                        The dashboard translates the dataset into several
+                        complementary analytical dimensions rather than
+                        treating the data as a single undifferentiated
+                        collection of variables.
+                    </p>
 
-              The dashboard is designed primarily as a research
-              support tool. It can help users identify patterns,
-              compare movement characteristics, explore government
-              responses, and develop questions for further empirical
-              investigation.
+                </div>
 
-            </p>
 
-          </Card>
+                <Row className="g-4">
 
-        </Col>
+                    {researchDimensions.map((item) => (
 
-      </Row>
+                        <Col md={6} lg={4} key={item.number}>
 
+                            <Card className="about-dimension-card border-0 shadow-sm rounded-4 h-100">
 
-      {/* =====================================================
-          ANALYTICAL DOMAINS
-      ====================================================== */}
+                                <Card.Body className="p-4">
 
-      <div className="text-center mb-4">
+                                    <div className="about-dimension-number mb-4">
+                                        {item.number}
+                                    </div>
 
-        <Badge
-          bg="dark"
-          className="px-3 py-2 fs-6 mb-3 rounded-pill"
-        >
+                                    <h5 className="fw-bold mb-3">
+                                        {item.title}
+                                    </h5>
 
-          Analytical Scope
+                                    <p className="text-muted small mb-0">
+                                        {item.description}
+                                    </p>
 
-        </Badge>
+                                </Card.Body>
 
+                            </Card>
 
-        <h2 className="fw-bold text-dark">
+                        </Col>
 
-          Key Analytical Domains
+                    ))}
 
-        </h2>
+                </Row>
 
+            </section>
 
-        <p
-          className="text-muted mx-auto"
-          style={{ maxWidth: "800px" }}
-        >
 
-          The dashboard organizes the dataset into seven major
-          analytical domains, each focusing on a different
-          dimension of self-determination movements.
+            {/* =====================================================
+                SYSTEM APPROACH
+            ====================================================== */}
 
-        </p>
+            <section className="mb-5">
 
-      </div>
+                <Card className="about-system-card border-0 shadow-sm rounded-4">
 
+                    <Card.Body className="p-4 p-lg-5">
 
-      <Row className="g-4 mb-5">
+                        <div className="text-center mb-5">
 
-        {analyticalCapabilities.map((item, index) => (
+                            <Badge
+                                bg="light"
+                                text="primary"
+                                className="px-3 py-2 rounded-pill mb-3"
+                            >
+                                Information System Structure
+                            </Badge>
 
-          <Col key={index} md={6} lg={4}>
+                            <h2 className="fw-bold">
+                                From Data to Interactive Analysis
+                            </h2>
 
-            <Card
-              className="h-100 border-0 shadow-sm p-4 rounded-4"
-            >
+                            <p
+                                className="text-muted mx-auto mb-0"
+                                style={{ maxWidth: "750px" }}
+                            >
+                                The platform combines data preparation,
+                                relational database storage, backend
+                                services, and an interactive frontend.
+                            </p>
 
-              <div className="d-flex align-items-center mb-3">
+                        </div>
 
-                <span className="fs-2 me-3">
 
-                  {item.icon}
+                        <Row className="g-4">
 
-                </span>
+                            {systemComponents.map((item) => (
 
+                                <Col md={6} lg={3} key={item.icon}>
 
-                <h5 className="fw-bold mb-0 text-dark">
+                                    <div className="about-system-step h-100">
 
-                  {item.title}
+                                        <div className="system-step-number">
+                                            {item.icon}
+                                        </div>
 
-                </h5>
+                                        <h5 className="fw-bold mt-4 mb-3">
+                                            {item.title}
+                                        </h5>
 
-              </div>
+                                        <p className="text-muted small mb-0">
+                                            {item.description}
+                                        </p>
 
+                                    </div>
 
-              <p className="text-muted small mb-0">
+                                </Col>
 
-                {item.desc}
+                            ))}
 
-              </p>
+                        </Row>
 
-            </Card>
+                    </Card.Body>
 
-          </Col>
+                </Card>
 
-        ))}
+            </section>
 
-      </Row>
 
+            {/* =====================================================
+                RESEARCH CHARACTER
+            ====================================================== */}
 
-      {/* =====================================================
-          HOW TO USE
-      ====================================================== */}
+            <section className="mb-5">
 
-      <Row className="g-4 mb-5">
+                <Row className="g-4">
 
-        <Col lg={6}>
+                    <Col lg={6}>
 
-          <Card className="border-0 shadow-sm p-4 p-md-5 rounded-4 h-100">
+                        <Card className="border-0 shadow-sm rounded-4 h-100">
 
-            <h3 className="fw-bold mb-3">
+                            <Card.Body className="p-4 p-lg-5">
 
-              How Researchers Can Use the Platform
+                                <Badge
+                                    bg="light"
+                                    text="success"
+                                    className="px-3 py-2 rounded-pill mb-3"
+                                >
+                                    Research-Oriented Design
+                                </Badge>
 
-            </h3>
+                                <h3 className="fw-bold mb-3">
+                                    Designed for Exploration
+                                </h3>
 
+                                <p className="text-muted">
+                                    The platform is designed as a research
+                                    support system. Its visualizations help
+                                    users examine the distribution of
+                                    movements, compare selected dimensions,
+                                    and explore relationships between
+                                    political, conflict-related, governmental,
+                                    and structural variables.
+                                </p>
 
-            <p className="text-muted">
+                                <p className="text-muted mb-0">
+                                    The dashboard therefore emphasizes
+                                    structured presentation and exploratory
+                                    analysis rather than replacing formal
+                                    statistical or qualitative research.
+                                </p>
 
-              Researchers can use the dashboard to explore the
-              distribution and evolution of self-determination
-              movements, compare political claims, examine conflict
-              patterns, and investigate how governments respond to
-              self-determination demands.
+                            </Card.Body>
 
-            </p>
+                        </Card>
 
+                    </Col>
 
-            <p className="text-muted mb-0">
 
-              The visualizations can also serve as a starting point
-              for identifying trends, comparing groups or regions,
-              and developing more focused research questions for
-              subsequent statistical or qualitative investigation.
+                    <Col lg={6}>
 
-            </p>
+                        <Card className="border-0 shadow-sm rounded-4 h-100">
 
-          </Card>
+                            <Card.Body className="p-4 p-lg-5">
 
-        </Col>
+                                <Badge
+                                    bg="light"
+                                    text="warning"
+                                    className="px-3 py-2 rounded-pill mb-3"
+                                >
+                                    Analytical Boundaries
+                                </Badge>
 
+                                <h3 className="fw-bold mb-3">
+                                    Interpreting the Results
+                                </h3>
 
-        <Col lg={6}>
+                                <p className="text-muted">
+                                    The dashboard presents descriptive
+                                    summaries and selected statistical
+                                    analyses based on the variables and
+                                    observations available in SDM 2.0.
+                                </p>
 
-          <Card className="border-0 shadow-sm p-4 p-md-5 rounded-4 h-100">
+                                <p className="text-muted mb-0">
+                                    Because the dataset contains both
+                                    movement-level characteristics and
+                                    time-varying observations, different
+                                    analytical sections may operate at
+                                    different levels of analysis. Results
+                                    should therefore be interpreted according
+                                    to the specific measure and analytical
+                                    definition used in each section.
+                                </p>
 
-            <h3 className="fw-bold mb-3">
+                            </Card.Body>
 
-              Research-Oriented Features
+                        </Card>
 
-            </h3>
+                    </Col>
 
+                </Row>
 
-            <ul className="text-muted">
+            </section>
 
-              <li className="mb-3">
 
-                Interactive visualizations designed to support
-                exploration and comparison.
+            {/* =====================================================
+                DATA INTERPRETATION NOTE
+            ====================================================== */}
 
-              </li>
+            <section>
 
+                <Card className="about-note-card border-0 rounded-4">
 
-              <li className="mb-3">
+                    <Card.Body className="p-4 p-lg-5">
 
-                Thematic organization of complex variables into
-                clearly defined analytical domains.
+                        <Row className="align-items-start">
 
-              </li>
+                            <Col lg={1} className="text-center mb-3 mb-lg-0">
 
+                                <div className="about-note-icon">
+                                    ℹ
+                                </div>
 
-              <li className="mb-3">
+                            </Col>
 
-                Descriptive summaries of movements, observations,
-                events, and government responses.
+                            <Col lg={11}>
 
-              </li>
+                                <h5 className="fw-bold mb-3">
+                                    Note on Data Interpretation
+                                </h5>
 
+                                <p className="text-muted mb-0">
+                                    The dashboard should be understood as an
+                                    interactive research interface built on
+                                    the SDM 2.0 dataset. Counts and summaries
+                                    may represent distinct movements,
+                                    movement-year observations, or recorded
+                                    events depending on the analytical
+                                    question. These measures are therefore
+                                    not necessarily equivalent and should be
+                                    interpreted using the definitions
+                                    provided within the relevant analytical
+                                    section and the SDM 2.0 Codebook.
+                                </p>
 
-              <li className="mb-3">
+                            </Col>
 
-                Selected inferential analyses, including
-                Chi-Square tests of independence.
+                        </Row>
 
-              </li>
+                    </Card.Body>
 
+                </Card>
 
-              <li>
+            </section>
 
-                Explanatory descriptions that clarify the meaning
-                of variables and visual results for users who may
-                be unfamiliar with the SDM dataset.
-
-              </li>
-
-            </ul>
-
-          </Card>
-
-        </Col>
-
-      </Row>
-
-
-      {/* =====================================================
-          IMPORTANT METHODOLOGICAL NOTE
-      ====================================================== */}
-
-      <Alert
-        variant="secondary"
-        className="border-0 shadow-sm rounded-4 p-4"
-      >
-
-        <h5 className="fw-bold">
-
-          Important Note for Interpreting Results
-
-        </h5>
-
-
-        <p className="mb-0 text-muted">
-
-          The SDM 2.0 dataset contains both movement-level and
-          time-varying information. As a result, different
-          visualizations may summarize distinct movements,
-          annual observations, or recorded events. These analytical
-          levels should not be interpreted as equivalent measures.
-          Users are encouraged to read the explanations provided
-          within each analytical section and consult the SDM 2.0
-          Codebook when interpreting results or conducting further
-          research.
-
-        </p>
-
-      </Alert>
-
-    </Container>
-
-  );
-
+        </Container>
+    );
 }
 
 export default About;

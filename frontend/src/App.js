@@ -2,10 +2,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import NavbarComponent from "./components/NavbarComponent";
 
+// Main pages
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 
+// Navigation pages
+import DataAnalytics from "./pages/DataAnalytics";
+import Comparisons from "./pages/Comparisons";
+
+// Analytics pages
 import GeographicalAndHistoricalDistribution from "./pages/GeographicalAndHistoricalDistribution";
 import ClaimsAndMovementDuration from "./pages/ClaimsAndMovementDuration";
 import SovereigntyDeclarations from "./pages/SovereigntyDeclarations";
@@ -13,7 +19,13 @@ import PatternsOfViolence from "./pages/PatternsOfViolence";
 import GovernmentConcessions from "./pages/GovernmentConcessions";
 import GovernmentRestrictions from "./pages/GovernmentRestrictions";
 import GroupCharacteristics from "./pages/GroupCharacteristics";
+
+// Exploration
 import Globe from "./pages/Globe";
+
+// Comparison page
+import ContinentComparison from "./pages/ContinentComparison";
+
 
 function App() {
 
@@ -21,32 +33,114 @@ function App() {
 
         <BrowserRouter>
 
+            {/* Global Navigation */}
             <NavbarComponent />
 
             <Routes>
 
-                <Route path="/" element={<Home />} />
+                {/* =========================
+                    MAIN PAGES
+                ========================= */}
 
-                <Route path="/about" element={<About />} />
+                <Route
+                    path="/"
+                    element={<Home />}
+                />
 
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                    path="/dashboard"
+                    element={<Dashboard />}
+                />
 
-                <Route path="/bq1" element={<GeographicalAndHistoricalDistribution />} />
+                <Route
+                    path="/about"
+                    element={<About />}
+                />
 
-                <Route path="/bq2" element={<ClaimsAndMovementDuration />} />
 
-                <Route path="/bq3" element={<SovereigntyDeclarations />} />
+                {/* =========================
+                    DATA ANALYTICS
+                ========================= */}
 
-                <Route path="/bq4" element={<PatternsOfViolence />} />
+                <Route
+                    path="/analytics"
+                    element={<DataAnalytics />}
+                />
 
-                <Route path="/bq5" element={<GovernmentConcessions />} />
+                <Route
+                    path="/bq1"
+                    element={
+                        <GeographicalAndHistoricalDistribution />
+                    }
+                />
 
-                <Route path="/bq6" element={<GovernmentRestrictions />} />
+                <Route
+                    path="/bq2"
+                    element={
+                        <ClaimsAndMovementDuration />
+                    }
+                />
 
-                <Route path="/bq7" element={<GroupCharacteristics />} />
+                <Route
+                    path="/bq3"
+                    element={
+                        <SovereigntyDeclarations />
+                    }
+                />
 
-                <Route path="/globe" element={<Globe />} />
-                
+                <Route
+                    path="/bq4"
+                    element={
+                        <PatternsOfViolence />
+                    }
+                />
+
+                <Route
+                    path="/bq5"
+                    element={
+                        <GovernmentConcessions />
+                    }
+                />
+
+                <Route
+                    path="/bq6"
+                    element={
+                        <GovernmentRestrictions />
+                    }
+                />
+
+                <Route
+                    path="/bq7"
+                    element={
+                        <GroupCharacteristics />
+                    }
+                />
+
+
+                {/* =========================
+                    EXPLORATION
+                ========================= */}
+
+                <Route
+                    path="/globe"
+                    element={<Globe />}
+                />
+
+
+                {/* =========================
+                    COMPARISONS
+                ========================= */}
+
+                <Route
+                    path="/comparisons"
+                    element={<Comparisons />}
+                />
+
+                <Route
+                    path="/continent-comparison"
+                    element={<ContinentComparison />}
+                />
+
             </Routes>
 
         </BrowserRouter>
