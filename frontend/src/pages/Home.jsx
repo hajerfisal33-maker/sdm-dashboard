@@ -48,8 +48,6 @@ function Home() {
                 }}
             >
 
-                {/* Soft background circle */}
-
                 <div
                     style={{
                         position: "absolute",
@@ -62,7 +60,6 @@ function Home() {
                         pointerEvents: "none"
                     }}
                 />
-
 
                 <div
                     style={{
@@ -95,10 +92,6 @@ function Home() {
                             className="mx-auto text-center"
                         >
 
-                            {/* =================================================
-                                BADGE
-                            ================================================== */}
-
                             <Badge
                                 style={{
                                     background: "#eaf2ff",
@@ -114,10 +107,6 @@ function Home() {
                                 SDM 2.0 Research Platform
                             </Badge>
 
-
-                            {/* =================================================
-                                TITLE
-                            ================================================== */}
 
                             <h1
                                 style={{
@@ -147,10 +136,6 @@ function Home() {
                             </h1>
 
 
-                            {/* =================================================
-                                DESCRIPTION
-                            ================================================== */}
-
                             <p
                                 style={{
                                     color: "#64748b",
@@ -160,16 +145,12 @@ function Home() {
                                     margin: "0 auto 34px"
                                 }}
                             >
-                                An interactive research platform for exploring
+                                An interactive platform for exploring
                                 self-determination movement data through
                                 geographical exploration, analytical
-                                visualizations, and comparative research.
+                                visualizations, and comparative analysis.
                             </p>
 
-
-                            {/* =================================================
-                                ACTION BUTTONS
-                            ================================================== */}
 
                             <div
                                 style={{
@@ -266,15 +247,11 @@ function Home() {
                                             "#cbd5e1";
                                     }}
                                 >
-                                    About the Research
+                                    About the Platform
                                 </Link>
 
                             </div>
 
-
-                            {/* =================================================
-                                SMALL DATA INDICATORS
-                            ================================================== */}
 
                             <div
                                 style={{
@@ -460,10 +437,6 @@ function Home() {
 
                     <Row className="g-4 justify-content-center">
 
-                        {/* =================================================
-                            DASHBOARD CARD
-                        ================================================== */}
-
                         <Col md={6} lg={5}>
 
                             <Card
@@ -472,17 +445,12 @@ function Home() {
                                 style={{
                                     height: "100%",
                                     textDecoration: "none",
-
                                     background: "#ffffff",
-
                                     border: "1px solid #e2e8f0",
                                     borderRadius: "22px",
-
                                     overflow: "hidden",
-
                                     boxShadow:
                                         "0 8px 28px rgba(15,23,42,0.055)",
-
                                     transition:
                                         "transform .22s ease, box-shadow .22s ease"
                                 }}
@@ -566,9 +534,9 @@ function Home() {
                                             marginBottom: "23px"
                                         }}
                                     >
-                                        Access the interactive research
-                                        sections, geographical exploration,
-                                        and comparative analysis tools.
+                                        Access the interactive sections,
+                                        geographical exploration, and
+                                        comparative analysis tools.
                                     </p>
 
 
@@ -592,10 +560,6 @@ function Home() {
                         </Col>
 
 
-                        {/* =================================================
-                            ABOUT CARD
-                        ================================================== */}
-
                         <Col md={6} lg={5}>
 
                             <Card
@@ -604,17 +568,12 @@ function Home() {
                                 style={{
                                     height: "100%",
                                     textDecoration: "none",
-
                                     background: "#ffffff",
-
                                     border: "1px solid #e2e8f0",
                                     borderRadius: "22px",
-
                                     overflow: "hidden",
-
                                     boxShadow:
                                         "0 8px 28px rgba(15,23,42,0.055)",
-
                                     transition:
                                         "transform .22s ease, box-shadow .22s ease"
                                 }}
@@ -688,7 +647,7 @@ function Home() {
                                             marginBottom: "12px"
                                         }}
                                     >
-                                        About the Research
+                                        About the Platform
                                     </h3>
 
 
@@ -699,10 +658,9 @@ function Home() {
                                             marginBottom: "23px"
                                         }}
                                     >
-                                        Learn about the research context,
-                                        dataset, analytical scope, and
-                                        information-system approach behind
-                                        the platform.
+                                        Learn about the SDM 2.0 dataset,
+                                        the content of the platform, and
+                                        the analytical dimensions available.
                                     </p>
 
 
@@ -715,7 +673,7 @@ function Home() {
                                             gap: "8px"
                                         }}
                                     >
-                                        Learn About the Project
+                                        Learn More
                                         <span>→</span>
                                     </div>
 
@@ -769,7 +727,7 @@ function Home() {
                                         marginBottom: "13px"
                                     }}
                                 >
-                                    Research Journey
+                                    Explore
                                 </Badge>
 
 
@@ -791,9 +749,8 @@ function Home() {
                                         marginBottom: 0
                                     }}
                                 >
-                                    Move from an overview of the research
-                                    system to detailed exploration and
-                                    comparison.
+                                    Move from geographical exploration to
+                                    detailed analysis and comparison.
                                 </p>
 
                             </Col>
@@ -810,8 +767,6 @@ function Home() {
                                         flexWrap: "wrap"
                                     }}
                                 >
-
-                                    {/* STEP 1 */}
 
                                     <div
                                         style={{
@@ -875,8 +830,6 @@ function Home() {
                                     </span>
 
 
-                                    {/* STEP 2 */}
-
                                     <div
                                         style={{
                                             display: "flex",
@@ -938,8 +891,6 @@ function Home() {
                                         →
                                     </span>
 
-
-                                    {/* STEP 3 */}
 
                                     <div
                                         style={{
@@ -1006,33 +957,99 @@ function Home() {
 
 
             {/* =====================================================
-                FOOTER INTRO
+                OFFICIAL FOOTER
             ====================================================== */}
 
-            <section
+            <footer
                 style={{
-                    background: "#f8fafc",
-                    borderTop: "1px solid #e5e7eb",
-                    padding: "25px 0"
+                    background: "#111827",
+                    borderTop: "1px solid #1f2937",
+                    padding: "38px 0"
                 }}
             >
 
-                <Container className="text-center">
+                <Container>
 
-                    <p
+                    <Row className="align-items-center g-4">
+
+                        <Col
+                            md={7}
+                            className="text-center text-md-start"
+                        >
+
+                            <div
+                                style={{
+                                    color: "#ffffff",
+                                    fontSize: "1rem",
+                                    fontWeight: 800,
+                                    marginBottom: "7px"
+                                }}
+                            >
+                                SDM Dashboard
+                            </div>
+
+                            <div
+                                style={{
+                                    color: "#94a3b8",
+                                    fontSize: "0.82rem",
+                                    lineHeight: 1.6
+                                }}
+                            >
+                                Exploring self-determination movement data
+                                through interactive geographical,
+                                analytical, and comparative views.
+                            </div>
+
+                        </Col>
+
+
+                        <Col
+                            md={5}
+                            className="text-center text-md-end"
+                        >
+
+                            <div
+                                style={{
+                                    color: "#e2e8f0",
+                                    fontSize: "0.88rem",
+                                    fontWeight: 700,
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                University of Khartoum
+                            </div>
+
+                            <div
+                                style={{
+                                    color: "#64748b",
+                                    fontSize: "0.75rem"
+                                }}
+                            >
+                                Sudan
+                            </div>
+
+                        </Col>
+
+                    </Row>
+
+
+                    <div
                         style={{
-                            color: "#94a3b8",
-                            fontSize: "0.78rem",
-                            marginBottom: 0
+                            borderTop: "1px solid #1f2937",
+                            marginTop: "28px",
+                            paddingTop: "18px",
+                            textAlign: "center",
+                            color: "#64748b",
+                            fontSize: "0.72rem"
                         }}
                     >
-                        An academic research project in Information Systems
-                        and Data Analytics.
-                    </p>
+                        © {new Date().getFullYear()} SDM Dashboard. All rights reserved.
+                    </div>
 
                 </Container>
 
-            </section>
+            </footer>
+
 
         </div>
 

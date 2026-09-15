@@ -2,8 +2,7 @@ import {
     Container,
     Row,
     Col,
-    Card,
-    Badge
+    Card
 } from "react-bootstrap";
 
 import { Link } from "react-router-dom";
@@ -77,7 +76,7 @@ function Dashboard() {
             style={{
                 minHeight: "100vh",
                 background:
-                    "radial-gradient(circle at 8% 12%, rgba(37,99,235,0.06), transparent 24%), radial-gradient(circle at 92% 18%, rgba(124,58,237,0.05), transparent 22%), #f8fafc",
+                    "radial-gradient(circle at 8% 8%, rgba(37,99,235,0.045), transparent 24%), radial-gradient(circle at 92% 12%, rgba(124,58,237,0.04), transparent 22%), #f8fafc",
                 color: "#172033",
                 position: "relative",
                 overflow: "hidden"
@@ -91,12 +90,12 @@ function Dashboard() {
             <div
                 style={{
                     position: "absolute",
-                    width: "420px",
-                    height: "420px",
+                    width: "430px",
+                    height: "430px",
                     borderRadius: "50%",
-                    border: "1px solid rgba(37,99,235,0.055)",
-                    right: "-190px",
-                    top: "100px",
+                    border: "1px solid rgba(37,99,235,0.045)",
+                    right: "-210px",
+                    top: "120px",
                     pointerEvents: "none"
                 }}
             />
@@ -104,12 +103,12 @@ function Dashboard() {
             <div
                 style={{
                     position: "absolute",
-                    width: "300px",
-                    height: "300px",
+                    width: "280px",
+                    height: "280px",
                     borderRadius: "50%",
-                    border: "1px solid rgba(124,58,237,0.05)",
-                    left: "-160px",
-                    top: "550px",
+                    border: "1px solid rgba(124,58,237,0.04)",
+                    left: "-150px",
+                    top: "620px",
                     pointerEvents: "none"
                 }}
             />
@@ -128,37 +127,41 @@ function Dashboard() {
                     HEADER
                 ====================================================== */}
 
-                <div
+                <section
                     style={{
-                        background: "rgba(255,255,255,0.96)",
+                        background:
+                            "linear-gradient(135deg, #ffffff 0%, #f8faff 100%)",
                         border: "1px solid #e5e9f0",
-                        borderRadius: "26px",
-                        padding: "48px 45px",
-                        marginBottom: "42px",
-                        boxShadow: "0 10px 35px rgba(15,23,42,0.045)"
+                        borderRadius: "28px",
+                        padding: "55px 48px",
+                        marginBottom: "55px",
+                        boxShadow:
+                            "0 10px 35px rgba(15,23,42,0.045)"
                     }}
                 >
 
-                    <Badge
+                    <div
                         style={{
-                            background: "#f1f5f9",
-                            color: "#475569",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            background: "#eef4ff",
+                            color: "#2563eb",
+                            padding: "8px 15px",
+                            borderRadius: "50px",
                             fontSize: "0.75rem",
                             fontWeight: 700,
-                            padding: "8px 14px",
-                            borderRadius: "50px",
-                            marginBottom: "18px"
+                            marginBottom: "20px"
                         }}
                     >
-                        Research Dashboard
-                    </Badge>
+                        SDM 2.0 Dashboard
+                    </div>
 
 
                     <h1
                         style={{
-                            fontSize: "clamp(2.2rem, 5vw, 3.7rem)",
+                            fontSize: "clamp(2.3rem, 5vw, 3.8rem)",
                             fontWeight: 800,
-                            letterSpacing: "-1.5px",
+                            letterSpacing: "-1.7px",
                             lineHeight: 1.08,
                             color: "#111827",
                             marginBottom: "18px"
@@ -170,28 +173,29 @@ function Dashboard() {
 
                     <p
                         style={{
-                            maxWidth: "820px",
+                            maxWidth: "800px",
                             fontSize: "1.05rem",
-                            lineHeight: 1.8,
+                            lineHeight: 1.85,
                             color: "#64748b",
                             marginBottom: 0
                         }}
                     >
                         Explore self-determination movements through
-                        geographical perspectives and research-focused
-                        analytical questions covering the SDM 2.0 dataset.
+                        geographical perspectives, historical patterns,
+                        political claims, conflict dynamics, government
+                        responses, and group characteristics.
                     </p>
 
-                </div>
+                </section>
 
 
                 {/* =====================================================
-                    EXPLORATION HUB
+                    EXPLORE
                 ====================================================== */}
 
-                <section style={{ marginBottom: "55px" }}>
+                <section style={{ marginBottom: "60px" }}>
 
-                    <div style={{ marginBottom: "24px" }}>
+                    <div style={{ marginBottom: "25px" }}>
 
                         <div
                             style={{
@@ -209,7 +213,7 @@ function Dashboard() {
 
                         <h2
                             style={{
-                                fontSize: "1.9rem",
+                                fontSize: "1.95rem",
                                 fontWeight: 800,
                                 color: "#111827",
                                 marginBottom: "8px"
@@ -227,7 +231,7 @@ function Dashboard() {
                             }}
                         >
                             Choose a geographical perspective to begin
-                            exploring the dataset.
+                            exploring the data.
                         </p>
 
                     </div>
@@ -235,9 +239,9 @@ function Dashboard() {
 
                     <Row className="g-4">
 
-                        {/* =================================================
-                            EXPLORE COUNTRIES
-                        ================================================== */}
+                        {/* ================================
+                            COUNTRIES
+                        ================================= */}
 
                         <Col lg={6}>
 
@@ -247,32 +251,30 @@ function Dashboard() {
                                 style={{
                                     height: "100%",
                                     textDecoration: "none",
-                                    border: "1px solid #e1e7ef",
-                                    borderRadius: "23px",
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "24px",
                                     background: "#ffffff",
                                     boxShadow:
-                                        "0 8px 28px rgba(15,23,42,0.055)",
+                                        "0 8px 30px rgba(15,23,42,0.045)",
                                     overflow: "hidden",
                                     transition:
-                                        "transform 0.25s ease, box-shadow 0.25s ease"
+                                        "transform .25s ease, box-shadow .25s ease"
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform =
-                                        "translateY(-5px)";
+                                        "translateY(-6px)";
 
                                     e.currentTarget.style.boxShadow =
-                                        "0 18px 40px rgba(37,99,235,0.12)";
+                                        "0 18px 42px rgba(37,99,235,0.10)";
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform =
-                                        "none";
+                                        "translateY(0)";
 
                                     e.currentTarget.style.boxShadow =
-                                        "0 8px 28px rgba(15,23,42,0.055)";
+                                        "0 8px 30px rgba(15,23,42,0.045)";
                                 }}
                             >
-
-                                {/* Blue top line */}
 
                                 <div
                                     style={{
@@ -284,16 +286,16 @@ function Dashboard() {
 
                                 <Card.Body
                                     style={{
-                                        padding: "36px"
+                                        padding: "38px"
                                     }}
                                 >
 
                                     <div
                                         style={{
-                                            width: "62px",
-                                            height: "62px",
+                                            width: "64px",
+                                            height: "64px",
                                             borderRadius: "18px",
-                                            background: "#edf4ff",
+                                            background: "#eef4ff",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -305,21 +307,20 @@ function Dashboard() {
                                     </div>
 
 
-                                    {/* Neutral badge */}
-
-                                    <Badge
+                                    <div
                                         style={{
+                                            display: "inline-block",
                                             background: "#f1f5f9",
                                             color: "#64748b",
-                                            padding: "7px 12px",
+                                            padding: "7px 13px",
                                             borderRadius: "50px",
                                             fontWeight: 700,
                                             fontSize: "0.7rem",
-                                            marginBottom: "14px"
+                                            marginBottom: "15px"
                                         }}
                                     >
                                         Countries
-                                    </Badge>
+                                    </div>
 
 
                                     <h3
@@ -336,8 +337,8 @@ function Dashboard() {
                                     <p
                                         style={{
                                             color: "#64748b",
-                                            lineHeight: 1.75,
-                                            marginBottom: "22px"
+                                            lineHeight: 1.8,
+                                            marginBottom: "24px"
                                         }}
                                     >
                                         Explore self-determination movements
@@ -367,9 +368,9 @@ function Dashboard() {
                         </Col>
 
 
-                        {/* =================================================
-                            EXPLORE CONTINENTS
-                        ================================================== */}
+                        {/* ================================
+                            CONTINENTS
+                        ================================= */}
 
                         <Col lg={6}>
 
@@ -379,32 +380,30 @@ function Dashboard() {
                                 style={{
                                     height: "100%",
                                     textDecoration: "none",
-                                    border: "1px solid #e1e7ef",
-                                    borderRadius: "23px",
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "24px",
                                     background: "#ffffff",
                                     boxShadow:
-                                        "0 8px 28px rgba(15,23,42,0.055)",
+                                        "0 8px 30px rgba(15,23,42,0.045)",
                                     overflow: "hidden",
                                     transition:
-                                        "transform 0.25s ease, box-shadow 0.25s ease"
+                                        "transform .25s ease, box-shadow .25s ease"
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform =
-                                        "translateY(-5px)";
+                                        "translateY(-6px)";
 
                                     e.currentTarget.style.boxShadow =
-                                        "0 18px 40px rgba(5,150,105,0.11)";
+                                        "0 18px 42px rgba(5,150,105,0.10)";
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform =
-                                        "none";
+                                        "translateY(0)";
 
                                     e.currentTarget.style.boxShadow =
-                                        "0 8px 28px rgba(15,23,42,0.055)";
+                                        "0 8px 30px rgba(15,23,42,0.045)";
                                 }}
                             >
-
-                                {/* Green top line */}
 
                                 <div
                                     style={{
@@ -416,14 +415,14 @@ function Dashboard() {
 
                                 <Card.Body
                                     style={{
-                                        padding: "36px"
+                                        padding: "38px"
                                     }}
                                 >
 
                                     <div
                                         style={{
-                                            width: "62px",
-                                            height: "62px",
+                                            width: "64px",
+                                            height: "64px",
                                             borderRadius: "18px",
                                             background: "#ecfdf5",
                                             display: "flex",
@@ -437,21 +436,20 @@ function Dashboard() {
                                     </div>
 
 
-                                    {/* Neutral badge */}
-
-                                    <Badge
+                                    <div
                                         style={{
+                                            display: "inline-block",
                                             background: "#f1f5f9",
                                             color: "#64748b",
-                                            padding: "7px 12px",
+                                            padding: "7px 13px",
                                             borderRadius: "50px",
                                             fontWeight: 700,
                                             fontSize: "0.7rem",
-                                            marginBottom: "14px"
+                                            marginBottom: "15px"
                                         }}
                                     >
                                         Continents
-                                    </Badge>
+                                    </div>
 
 
                                     <h3
@@ -468,8 +466,8 @@ function Dashboard() {
                                     <p
                                         style={{
                                             color: "#64748b",
-                                            lineHeight: 1.75,
-                                            marginBottom: "22px"
+                                            lineHeight: 1.8,
+                                            marginBottom: "24px"
                                         }}
                                     >
                                         Explore the distribution of
@@ -509,7 +507,7 @@ function Dashboard() {
 
                 <section>
 
-                    <div style={{ marginBottom: "24px" }}>
+                    <div style={{ marginBottom: "25px" }}>
 
                         <div
                             style={{
@@ -521,13 +519,13 @@ function Dashboard() {
                                 marginBottom: "7px"
                             }}
                         >
-                            Research Analysis
+                            Analysis
                         </div>
 
 
                         <h2
                             style={{
-                                fontSize: "1.9rem",
+                                fontSize: "1.95rem",
                                 fontWeight: 800,
                                 color: "#111827",
                                 marginBottom: "8px"
@@ -545,9 +543,10 @@ function Dashboard() {
                                 marginBottom: 0
                             }}
                         >
-                            Explore seven research-focused analytical areas
-                            covering geography, claims, conflict, government
-                            responses, and group characteristics.
+                            Explore seven analytical areas covering the
+                            geographical, political, conflict, governmental,
+                            and structural dimensions of self-determination
+                            movements.
                         </p>
 
                     </div>
@@ -570,31 +569,29 @@ function Dashboard() {
                                         height: "100%",
                                         textDecoration: "none",
                                         border: "1px solid #e4e9f1",
-                                        borderRadius: "20px",
+                                        borderRadius: "21px",
                                         background: "#ffffff",
                                         boxShadow:
-                                            "0 6px 22px rgba(15,23,42,0.045)",
+                                            "0 6px 24px rgba(15,23,42,0.04)",
                                         overflow: "hidden",
                                         transition:
-                                            "transform 0.22s ease, box-shadow 0.22s ease"
+                                            "transform .22s ease, box-shadow .22s ease"
                                     }}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.transform =
-                                            "translateY(-4px)";
+                                            "translateY(-5px)";
 
                                         e.currentTarget.style.boxShadow =
-                                            "0 15px 32px rgba(15,23,42,0.09)";
+                                            "0 16px 35px rgba(15,23,42,0.08)";
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.transform =
-                                            "none";
+                                            "translateY(0)";
 
                                         e.currentTarget.style.boxShadow =
-                                            "0 6px 22px rgba(15,23,42,0.045)";
+                                            "0 6px 24px rgba(15,23,42,0.04)";
                                     }}
                                 >
-
-                                    {/* Colored accent */}
 
                                     <div
                                         style={{
@@ -606,7 +603,7 @@ function Dashboard() {
 
                                     <Card.Body
                                         style={{
-                                            padding: "25px"
+                                            padding: "27px"
                                         }}
                                     >
 
@@ -633,8 +630,8 @@ function Dashboard() {
 
                                             <span
                                                 style={{
-                                                    width: "32px",
-                                                    height: "32px",
+                                                    width: "34px",
+                                                    height: "34px",
                                                     borderRadius: "10px",
                                                     background: "#f8fafc",
                                                     color: "#64748b",
@@ -654,8 +651,8 @@ function Dashboard() {
                                             style={{
                                                 fontWeight: 800,
                                                 color: "#111827",
-                                                lineHeight: 1.4,
-                                                marginBottom: "11px"
+                                                lineHeight: 1.45,
+                                                marginBottom: "12px"
                                             }}
                                         >
                                             {section.title}
@@ -666,7 +663,7 @@ function Dashboard() {
                                             style={{
                                                 color: "#64748b",
                                                 fontSize: "0.88rem",
-                                                lineHeight: 1.7,
+                                                lineHeight: 1.75,
                                                 marginBottom: 0
                                             }}
                                         >
@@ -692,12 +689,11 @@ function Dashboard() {
 
                 <div
                     style={{
-                        marginTop: "45px",
-                        marginBottom: "15px",
-                        padding: "20px 23px",
+                        marginTop: "50px",
+                        padding: "20px 24px",
                         background: "#f1f5f9",
                         border: "1px solid #e2e8f0",
-                        borderRadius: "15px"
+                        borderRadius: "16px"
                     }}
                 >
 
@@ -705,7 +701,7 @@ function Dashboard() {
                         style={{
                             color: "#64748b",
                             fontSize: "0.82rem",
-                            lineHeight: 1.7,
+                            lineHeight: 1.75,
                             marginBottom: 0
                         }}
                     >
@@ -714,7 +710,7 @@ function Dashboard() {
                             Reading the dashboard:
                         </strong>{" "}
 
-                        Depending on the research question, visualizations
+                        Depending on the analytical question, visualizations
                         may summarize distinct self-determination movements
                         or annual movement observations. Results should
                         therefore be interpreted according to the analytical
