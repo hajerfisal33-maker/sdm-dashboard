@@ -7,474 +7,240 @@ import {
     Badge
 } from "react-bootstrap";
 
+import { Link } from "react-router-dom";
+
 function About() {
 
-    const researchDimensions = [
+    const topics = [
         {
-            number: "01",
-            title: "Geographical & Historical",
-            description:
-                "The geographical and temporal distribution of self-determination movements across countries, regions, and the period covered by the dataset."
+            icon: "🌍",
+            title: "Geographical Distribution",
+            text: "Explore self-determination movements across countries and regions around the world."
         },
         {
-            number: "02",
+            icon: "📜",
             title: "Political Claims",
-            description:
-                "The types of self-determination claims pursued by movements, including different forms of political and territorial demands."
+            text: "Discover the different types of claims pursued by self-determination movements."
         },
         {
-            number: "03",
-            title: "Conflict & Violence",
-            description:
-                "Violence involvement, escalation, and the onset of violent conflict associated with self-determination movements."
+            icon: "⚔️",
+            title: "Violence & Conflict",
+            text: "Explore patterns of violence, escalation, and conflict associated with movements."
         },
         {
-            number: "04",
+            icon: "🏛️",
             title: "Government Responses",
-            description:
-                "Governmental concessions and restrictions affecting the political and cultural rights associated with self-determination demands."
+            text: "Examine government concessions and restrictions related to self-determination demands."
         },
         {
-            number: "05",
-            title: "Group Characteristics",
-            description:
-                "Structural characteristics of the groups represented in the dataset, including group size, geographic concentration, and political power."
-        },
-        {
-            number: "06",
+            icon: "🕊️",
             title: "Sovereignty",
-            description:
-                "The occurrence of unilateral sovereignty declarations and their relationship with movement characteristics and claim types."
-        }
-    ];
-
-    const systemComponents = [
-        {
-            title: "Data Preparation",
-            icon: "01",
-            description:
-                "The original SDM data is prepared and validated before being incorporated into the database structure used by the platform."
+            text: "Explore sovereignty declarations and their relationship with movements and political claims."
         },
         {
-            title: "Database Layer",
-            icon: "02",
-            description:
-                "A relational MySQL database organizes countries, ethnic groups, and movement observations to support structured analytical queries."
-        },
-        {
-            title: "Backend Services",
-            icon: "03",
-            description:
-                "A Node.js and Express backend connects the analytical interface to the database and provides API endpoints for retrieving research results."
-        },
-        {
-            title: "Interactive Interface",
-            icon: "04",
-            description:
-                "A React-based interface presents the processed results through interactive visualizations, geographical exploration, and analytical sections."
+            icon: "👥",
+            title: "Group Characteristics",
+            text: "Learn about characteristics such as group size, geographic concentration, and political power."
         }
     ];
 
     return (
-        <Container className="about-page mt-5 mb-5">
+
+        <div
+            style={{
+                minHeight: "100vh",
+                background: "#f7f9fc",
+                color: "#172033"
+            }}
+        >
 
             {/* =====================================================
                 HERO
             ====================================================== */}
 
-            <section className="about-hero mb-5">
-
-                <div className="about-hero-inner">
-
-                    <Badge
-                        bg="primary"
-                        className="px-3 py-2 rounded-pill mb-3"
-                    >
-                        Research Context
-                    </Badge>
-
-                    <h1 className="display-4 fw-bold text-dark mb-3">
-                        About the Research
-                    </h1>
-
-                    <p
-                        className="lead text-muted mb-0"
-                        style={{ maxWidth: "850px" }}
-                    >
-                        An Information Systems and data analytics project
-                        focused on transforming complex self-determination
-                        movement data into an accessible, structured, and
-                        interactive research environment.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            {/* =====================================================
-                RESEARCH CONTEXT
-            ====================================================== */}
-
-            <section className="mb-5">
-
-                <Row className="g-4 align-items-stretch">
-
-                    <Col lg={7}>
-
-                        <Card className="about-content-card border-0 shadow-sm rounded-4 h-100">
-
-                            <Card.Body className="p-4 p-lg-5">
-
-                                <Badge
-                                    bg="light"
-                                    text="primary"
-                                    className="px-3 py-2 rounded-pill mb-3"
-                                >
-                                    Research Context
-                                </Badge>
-
-                                <h2 className="fw-bold mb-4">
-                                    From Complex Data to Research Insight
-                                </h2>
-
-                                <p className="text-muted">
-                                    Research datasets on self-determination
-                                    movements contain a large number of
-                                    political, historical, geographical,
-                                    conflict-related, and group-level
-                                    variables. Although such datasets provide
-                                    valuable empirical information, their
-                                    complexity can make direct exploration
-                                    difficult.
-                                </p>
-
-                                <p className="text-muted mb-0">
-                                    This research addresses this information
-                                    accessibility challenge by developing an
-                                    interactive, database-backed dashboard
-                                    that organizes selected SDM 2.0 variables
-                                    into clearly defined analytical areas.
-                                    The system is intended to support
-                                    structured exploration and interpretation
-                                    of the dataset without requiring users to
-                                    work directly with the underlying raw
-                                    tables.
-                                </p>
-
-                            </Card.Body>
-
-                        </Card>
-
-                    </Col>
-
-
-                    <Col lg={5}>
-
-                        <Card className="about-highlight-card border-0 shadow-sm rounded-4 h-100">
-
-                            <Card.Body className="p-4 p-lg-5">
-
-                                <div className="about-stat-label mb-3">
-                                    DATASET IN FOCUS
-                                </div>
-
-                                <h3 className="fw-bold mb-4">
-                                    SDM 2.0
-                                </h3>
-
-                                <div className="about-stat mb-4">
-                                    <span className="about-stat-number">
-                                        502
-                                    </span>
-                                    <span className="about-stat-text">
-                                        self-determination movements
-                                    </span>
-                                </div>
-
-                                <div className="about-stat mb-4">
-                                    <span className="about-stat-number">
-                                        124
-                                    </span>
-                                    <span className="about-stat-text">
-                                        countries
-                                    </span>
-                                </div>
-
-                                <div className="about-stat">
-                                    <span className="about-stat-number">
-                                        1945–2020
-                                    </span>
-                                    <span className="about-stat-text">
-                                        historical coverage
-                                    </span>
-                                </div>
-
-                            </Card.Body>
-
-                        </Card>
-
-                    </Col>
-
-                </Row>
-
-            </section>
-
-
-            {/* =====================================================
-                ABOUT DATASET
-            ====================================================== */}
-
-            <section className="mb-5">
-
-                <Card className="about-content-card border-0 shadow-sm rounded-4">
-
-                    <Card.Body className="p-4 p-lg-5">
-
-                        <div className="d-flex align-items-center mb-4">
-
-                            <div className="about-section-icon">
-                                📊
-                            </div>
-
-                            <div className="ms-3">
-
-                                <Badge
-                                    bg="light"
-                                    text="dark"
-                                    className="px-3 py-2 rounded-pill mb-2"
-                                >
-                                    Data Source
-                                </Badge>
-
-                                <h2 className="fw-bold mb-0">
-                                    The SDM 2.0 Dataset
-                                </h2>
-
-                            </div>
-
-                        </div>
-
-                        <Row className="g-4">
-
-                            <Col lg={6}>
-
-                                <p className="text-muted">
-                                    SDM 2.0 is a global research dataset
-                                    covering self-determination movements
-                                    associated with ethnic groups. It provides
-                                    information on movements and their
-                                    political claims across countries and
-                                    over time.
-                                </p>
-
-                                <p className="text-muted mb-0">
-                                    The dataset covers the historical period
-                                    from 1945 to 2020 and includes movements
-                                    pursuing different forms of
-                                    self-determination.
-                                </p>
-
-                            </Col>
-
-                            <Col lg={6}>
-
-                                <p className="text-muted">
-                                    In addition to political claims, the data
-                                    includes variables related to violence,
-                                    sovereignty declarations, government
-                                    responses, and structural characteristics
-                                    of the groups involved.
-                                </p>
-
-                                <p className="text-muted mb-0">
-                                    These dimensions provide the empirical
-                                    basis for the analytical sections
-                                    implemented in the dashboard.
-                                </p>
-
-                            </Col>
-
-                        </Row>
-
-                    </Card.Body>
-
-                </Card>
-
-            </section>
-
-
-            {/* =====================================================
-                RESEARCH PURPOSE
-            ====================================================== */}
-
-            <section className="mb-5">
-
-                <Row className="g-4">
-
-                    <Col lg={5}>
-
-                        <div className="about-section-heading h-100">
+            <section
+                style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    background:
+                        "linear-gradient(135deg, #0f172a 0%, #172554 55%, #1e3a8a 100%)",
+                    padding: "90px 0 100px"
+                }}
+            >
+
+                {/* Background decoration */}
+
+                <div
+                    style={{
+                        position: "absolute",
+                        width: "420px",
+                        height: "420px",
+                        borderRadius: "50%",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        right: "-160px",
+                        top: "-180px"
+                    }}
+                />
+
+                <div
+                    style={{
+                        position: "absolute",
+                        width: "300px",
+                        height: "300px",
+                        borderRadius: "50%",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        left: "-150px",
+                        bottom: "-150px"
+                    }}
+                />
+
+                <Container
+                    style={{
+                        position: "relative",
+                        zIndex: 2
+                    }}
+                >
+
+                    <Row>
+
+                        <Col
+                            lg={8}
+                            className="mx-auto text-center"
+                        >
 
                             <Badge
-                                bg="primary"
-                                className="px-3 py-2 rounded-pill mb-3"
+                                style={{
+                                    background: "rgba(255,255,255,0.12)",
+                                    color: "#dbeafe",
+                                    border: "1px solid rgba(255,255,255,0.12)",
+                                    padding: "10px 18px",
+                                    borderRadius: "999px",
+                                    fontWeight: "600",
+                                    marginBottom: "24px"
+                                }}
                             >
-                                Research Purpose
+                                SDM 2.0 Data Platform
                             </Badge>
 
-                            <h2 className="fw-bold mb-3">
-                                Why Was the System Developed?
-                            </h2>
+                            <h1
+                                style={{
+                                    color: "#ffffff",
+                                    fontSize: "clamp(2.6rem, 6vw, 4.8rem)",
+                                    fontWeight: "800",
+                                    letterSpacing: "-2px",
+                                    lineHeight: "1.05",
+                                    marginBottom: "25px"
+                                }}
+                            >
+                                About the Platform
+                            </h1>
 
-                            <p className="text-muted">
-                                The main purpose is to improve the
-                                accessibility and interpretability of a
-                                complex research dataset through an
-                                information system designed for analytical
-                                exploration.
+                            <p
+                                style={{
+                                    color: "rgba(255,255,255,0.78)",
+                                    fontSize: "1.12rem",
+                                    lineHeight: "1.8",
+                                    maxWidth: "760px",
+                                    margin: "0 auto"
+                                }}
+                            >
+                                An interactive platform for exploring
+                                self-determination movements, their political
+                                claims, geographical distribution, conflict
+                                patterns, and government responses.
                             </p>
 
-                        </div>
+                        </Col>
 
-                    </Col>
+                    </Row>
 
-
-                    <Col lg={7}>
-
-                        <Card className="border-0 shadow-sm rounded-4 h-100">
-
-                            <Card.Body className="p-4 p-lg-5">
-
-                                <div className="about-purpose-item mb-4">
-
-                                    <span className="purpose-number">
-                                        01
-                                    </span>
-
-                                    <div>
-                                        <h5 className="fw-bold">
-                                            Improve Data Accessibility
-                                        </h5>
-
-                                        <p className="text-muted mb-0">
-                                            Present selected research
-                                            variables in a structured
-                                            interface rather than requiring
-                                            direct interaction with complex
-                                            raw data tables.
-                                        </p>
-                                    </div>
-
-                                </div>
-
-
-                                <div className="about-purpose-item mb-4">
-
-                                    <span className="purpose-number">
-                                        02
-                                    </span>
-
-                                    <div>
-                                        <h5 className="fw-bold">
-                                            Support Exploratory Analysis
-                                        </h5>
-
-                                        <p className="text-muted mb-0">
-                                            Help users identify distributions,
-                                            patterns, differences, and
-                                            relationships that can guide
-                                            further research.
-                                        </p>
-                                    </div>
-
-                                </div>
-
-
-                                <div className="about-purpose-item">
-
-                                    <span className="purpose-number">
-                                        03
-                                    </span>
-
-                                    <div>
-                                        <h5 className="fw-bold">
-                                            Integrate Research Data and
-                                            Visualization
-                                        </h5>
-
-                                        <p className="text-muted mb-0">
-                                            Connect a structured database and
-                                            analytical queries with an
-                                            interactive visualization layer.
-                                        </p>
-                                    </div>
-
-                                </div>
-
-                            </Card.Body>
-
-                        </Card>
-
-                    </Col>
-
-                </Row>
+                </Container>
 
             </section>
 
 
             {/* =====================================================
-                ANALYTICAL SCOPE
+                INTRODUCTION
             ====================================================== */}
 
-            <section className="mb-5">
+            <section
+                style={{
+                    padding: "70px 0 30px"
+                }}
+            >
 
-                <div className="text-center mb-4">
+                <Container>
 
-                    <Badge
-                        bg="dark"
-                        className="px-3 py-2 rounded-pill mb-3"
+                    <Row
+                        className="g-4 align-items-stretch"
                     >
-                        Analytical Scope
-                    </Badge>
 
-                    <h2 className="fw-bold">
-                        Research Dimensions
-                    </h2>
+                        <Col lg={7}>
 
-                    <p
-                        className="text-muted mx-auto"
-                        style={{ maxWidth: "760px" }}
-                    >
-                        The dashboard translates the dataset into several
-                        complementary analytical dimensions rather than
-                        treating the data as a single undifferentiated
-                        collection of variables.
-                    </p>
+                            <Card
+                                style={{
+                                    height: "100%",
+                                    border: "1px solid #e8edf5",
+                                    borderRadius: "24px",
+                                    background: "#ffffff",
+                                    boxShadow: "0 8px 30px rgba(15,23,42,0.05)"
+                                }}
+                            >
 
-                </div>
+                                <Card.Body
+                                    style={{
+                                        padding: "42px"
+                                    }}
+                                >
 
+                                    <Badge
+                                        style={{
+                                            background: "#eef4ff",
+                                            color: "#2563eb",
+                                            padding: "9px 15px",
+                                            borderRadius: "999px",
+                                            marginBottom: "18px"
+                                        }}
+                                    >
+                                        About SDM 2.0
+                                    </Badge>
 
-                <Row className="g-4">
+                                    <h2
+                                        style={{
+                                            fontWeight: "750",
+                                            marginBottom: "20px",
+                                            color: "#111827"
+                                        }}
+                                    >
+                                        Exploring Self-Determination Movements
+                                    </h2>
 
-                    {researchDimensions.map((item) => (
+                                    <p
+                                        style={{
+                                            color: "#667085",
+                                            lineHeight: "1.85",
+                                            marginBottom: "18px"
+                                        }}
+                                    >
+                                        Self-determination movements have
+                                        played an important role in the
+                                        political history of many countries
+                                        and regions around the world.
+                                    </p>
 
-                        <Col md={6} lg={4} key={item.number}>
-
-                            <Card className="about-dimension-card border-0 shadow-sm rounded-4 h-100">
-
-                                <Card.Body className="p-4">
-
-                                    <div className="about-dimension-number mb-4">
-                                        {item.number}
-                                    </div>
-
-                                    <h5 className="fw-bold mb-3">
-                                        {item.title}
-                                    </h5>
-
-                                    <p className="text-muted small mb-0">
-                                        {item.description}
+                                    <p
+                                        style={{
+                                            color: "#667085",
+                                            lineHeight: "1.85",
+                                            marginBottom: "0"
+                                        }}
+                                    >
+                                        This platform provides an accessible
+                                        way to explore information about these
+                                        movements and examine their claims,
+                                        development, conflict experiences,
+                                        sovereignty declarations, and
+                                        interactions with governments.
                                     </p>
 
                                 </Card.Body>
@@ -483,232 +249,501 @@ function About() {
 
                         </Col>
 
-                    ))}
 
-                </Row>
+                        {/* DATASET SUMMARY */}
 
-            </section>
+                        <Col lg={5}>
 
-
-            {/* =====================================================
-                SYSTEM APPROACH
-            ====================================================== */}
-
-            <section className="mb-5">
-
-                <Card className="about-system-card border-0 shadow-sm rounded-4">
-
-                    <Card.Body className="p-4 p-lg-5">
-
-                        <div className="text-center mb-5">
-
-                            <Badge
-                                bg="light"
-                                text="primary"
-                                className="px-3 py-2 rounded-pill mb-3"
+                            <Card
+                                style={{
+                                    height: "100%",
+                                    border: "none",
+                                    borderRadius: "24px",
+                                    background:
+                                        "linear-gradient(145deg,#172033,#1e293b)",
+                                    color: "#ffffff",
+                                    boxShadow: "0 12px 35px rgba(15,23,42,0.15)"
+                                }}
                             >
-                                Information System Structure
-                            </Badge>
 
-                            <h2 className="fw-bold">
-                                From Data to Interactive Analysis
-                            </h2>
+                                <Card.Body
+                                    style={{
+                                        padding: "42px"
+                                    }}
+                                >
 
-                            <p
-                                className="text-muted mx-auto mb-0"
-                                style={{ maxWidth: "750px" }}
-                            >
-                                The platform combines data preparation,
-                                relational database storage, backend
-                                services, and an interactive frontend.
-                            </p>
-
-                        </div>
-
-
-                        <Row className="g-4">
-
-                            {systemComponents.map((item) => (
-
-                                <Col md={6} lg={3} key={item.icon}>
-
-                                    <div className="about-system-step h-100">
-
-                                        <div className="system-step-number">
-                                            {item.icon}
-                                        </div>
-
-                                        <h5 className="fw-bold mt-4 mb-3">
-                                            {item.title}
-                                        </h5>
-
-                                        <p className="text-muted small mb-0">
-                                            {item.description}
-                                        </p>
-
+                                    <div
+                                        style={{
+                                            fontSize: "0.75rem",
+                                            fontWeight: "700",
+                                            letterSpacing: "1.5px",
+                                            color: "rgba(255,255,255,0.55)",
+                                            marginBottom: "12px"
+                                        }}
+                                    >
+                                        DATASET
                                     </div>
 
-                                </Col>
-
-                            ))}
-
-                        </Row>
-
-                    </Card.Body>
-
-                </Card>
-
-            </section>
+                                    <h3
+                                        style={{
+                                            fontWeight: "800",
+                                            marginBottom: "30px"
+                                        }}
+                                    >
+                                        SDM 2.0
+                                    </h3>
 
 
-            {/* =====================================================
-                RESEARCH CHARACTER
-            ====================================================== */}
+                                    <Row className="g-4">
 
-            <section className="mb-5">
+                                        <Col xs={6}>
 
-                <Row className="g-4">
+                                            <div
+                                                style={{
+                                                    fontSize: "2rem",
+                                                    fontWeight: "800"
+                                                }}
+                                            >
+                                                502
+                                            </div>
 
-                    <Col lg={6}>
+                                            <div
+                                                style={{
+                                                    color: "rgba(255,255,255,0.65)",
+                                                    fontSize: "0.9rem",
+                                                    marginTop: "5px"
+                                                }}
+                                            >
+                                                Movements
+                                            </div>
 
-                        <Card className="border-0 shadow-sm rounded-4 h-100">
-
-                            <Card.Body className="p-4 p-lg-5">
-
-                                <Badge
-                                    bg="light"
-                                    text="success"
-                                    className="px-3 py-2 rounded-pill mb-3"
-                                >
-                                    Research-Oriented Design
-                                </Badge>
-
-                                <h3 className="fw-bold mb-3">
-                                    Designed for Exploration
-                                </h3>
-
-                                <p className="text-muted">
-                                    The platform is designed as a research
-                                    support system. Its visualizations help
-                                    users examine the distribution of
-                                    movements, compare selected dimensions,
-                                    and explore relationships between
-                                    political, conflict-related, governmental,
-                                    and structural variables.
-                                </p>
-
-                                <p className="text-muted mb-0">
-                                    The dashboard therefore emphasizes
-                                    structured presentation and exploratory
-                                    analysis rather than replacing formal
-                                    statistical or qualitative research.
-                                </p>
-
-                            </Card.Body>
-
-                        </Card>
-
-                    </Col>
+                                        </Col>
 
 
-                    <Col lg={6}>
+                                        <Col xs={6}>
 
-                        <Card className="border-0 shadow-sm rounded-4 h-100">
+                                            <div
+                                                style={{
+                                                    fontSize: "2rem",
+                                                    fontWeight: "800"
+                                                }}
+                                            >
+                                                124
+                                            </div>
 
-                            <Card.Body className="p-4 p-lg-5">
+                                            <div
+                                                style={{
+                                                    color: "rgba(255,255,255,0.65)",
+                                                    fontSize: "0.9rem",
+                                                    marginTop: "5px"
+                                                }}
+                                            >
+                                                Countries
+                                            </div>
 
-                                <Badge
-                                    bg="light"
-                                    text="warning"
-                                    className="px-3 py-2 rounded-pill mb-3"
-                                >
-                                    Analytical Boundaries
-                                </Badge>
+                                        </Col>
 
-                                <h3 className="fw-bold mb-3">
-                                    Interpreting the Results
-                                </h3>
 
-                                <p className="text-muted">
-                                    The dashboard presents descriptive
-                                    summaries and selected statistical
-                                    analyses based on the variables and
-                                    observations available in SDM 2.0.
-                                </p>
+                                        <Col xs={12}>
 
-                                <p className="text-muted mb-0">
-                                    Because the dataset contains both
-                                    movement-level characteristics and
-                                    time-varying observations, different
-                                    analytical sections may operate at
-                                    different levels of analysis. Results
-                                    should therefore be interpreted according
-                                    to the specific measure and analytical
-                                    definition used in each section.
-                                </p>
+                                            <div
+                                                style={{
+                                                    fontSize: "2rem",
+                                                    fontWeight: "800"
+                                                }}
+                                            >
+                                                1945–2020
+                                            </div>
 
-                            </Card.Body>
+                                            <div
+                                                style={{
+                                                    color: "rgba(255,255,255,0.65)",
+                                                    fontSize: "0.9rem",
+                                                    marginTop: "5px"
+                                                }}
+                                            >
+                                                Historical coverage
+                                            </div>
 
-                        </Card>
+                                        </Col>
 
-                    </Col>
+                                    </Row>
 
-                </Row>
+                                </Card.Body>
+
+                            </Card>
+
+                        </Col>
+
+                    </Row>
+
+                </Container>
 
             </section>
 
 
             {/* =====================================================
-                DATA INTERPRETATION NOTE
+                WHAT YOU CAN EXPLORE
             ====================================================== */}
 
-            <section>
+            <section
+                style={{
+                    padding: "55px 0 75px"
+                }}
+            >
 
-                <Card className="about-note-card border-0 rounded-4">
+                <Container>
 
-                    <Card.Body className="p-4 p-lg-5">
+                    <div
+                        className="text-center"
+                        style={{
+                            marginBottom: "42px"
+                        }}
+                    >
 
-                        <Row className="align-items-start">
+                        <Badge
+                            style={{
+                                background: "#eef4ff",
+                                color: "#2563eb",
+                                padding: "9px 15px",
+                                borderRadius: "999px",
+                                marginBottom: "15px"
+                            }}
+                        >
+                            Explore
+                        </Badge>
 
-                            <Col lg={1} className="text-center mb-3 mb-lg-0">
+                        <h2
+                            style={{
+                                fontWeight: "800",
+                                color: "#111827",
+                                marginBottom: "12px"
+                            }}
+                        >
+                            What Can You Explore?
+                        </h2>
 
-                                <div className="about-note-icon">
-                                    ℹ
-                                </div>
+                        <p
+                            style={{
+                                color: "#667085",
+                                maxWidth: "700px",
+                                margin: "0 auto",
+                                lineHeight: "1.7"
+                            }}
+                        >
+                            Explore different aspects of self-determination
+                            movements through the platform's interactive
+                            sections.
+                        </p>
+
+                    </div>
+
+
+                    <Row className="g-4">
+
+                        {topics.map((topic) => (
+
+                            <Col
+                                md={6}
+                                lg={4}
+                                key={topic.title}
+                            >
+
+                                <Card
+                                    style={{
+                                        height: "100%",
+                                        border: "1px solid #e8edf5",
+                                        borderRadius: "22px",
+                                        background: "#ffffff",
+                                        boxShadow: "0 7px 24px rgba(15,23,42,0.045)",
+                                        transition:
+                                            "transform .2s ease, box-shadow .2s ease"
+                                    }}
+                                    className="about-topic-card"
+                                >
+
+                                    <Card.Body
+                                        style={{
+                                            padding: "30px"
+                                        }}
+                                    >
+
+                                        <div
+                                            style={{
+                                                width: "52px",
+                                                height: "52px",
+                                                borderRadius: "15px",
+                                                background: "#eef4ff",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: "1.45rem",
+                                                marginBottom: "20px"
+                                            }}
+                                        >
+                                            {topic.icon}
+                                        </div>
+
+
+                                        <h5
+                                            style={{
+                                                fontWeight: "750",
+                                                color: "#172033",
+                                                marginBottom: "12px"
+                                            }}
+                                        >
+                                            {topic.title}
+                                        </h5>
+
+
+                                        <p
+                                            style={{
+                                                color: "#667085",
+                                                fontSize: "0.92rem",
+                                                lineHeight: "1.7",
+                                                marginBottom: "0"
+                                            }}
+                                        >
+                                            {topic.text}
+                                        </p>
+
+                                    </Card.Body>
+
+                                </Card>
 
                             </Col>
 
-                            <Col lg={11}>
+                        ))}
 
-                                <h5 className="fw-bold mb-3">
-                                    Note on Data Interpretation
-                                </h5>
+                    </Row>
 
-                                <p className="text-muted mb-0">
-                                    The dashboard should be understood as an
-                                    interactive research interface built on
-                                    the SDM 2.0 dataset. Counts and summaries
-                                    may represent distinct movements,
-                                    movement-year observations, or recorded
-                                    events depending on the analytical
-                                    question. These measures are therefore
-                                    not necessarily equivalent and should be
-                                    interpreted using the definitions
-                                    provided within the relevant analytical
-                                    section and the SDM 2.0 Codebook.
-                                </p>
-
-                            </Col>
-
-                        </Row>
-
-                    </Card.Body>
-
-                </Card>
+                </Container>
 
             </section>
 
-        </Container>
+
+            {/* =====================================================
+                EXPLORE CALL TO ACTION
+            ====================================================== */}
+
+            <section
+                style={{
+                    padding: "0 0 75px"
+                }}
+            >
+
+                <Container>
+
+                    <div
+                        style={{
+                            background:
+                                "linear-gradient(135deg,#eff6ff,#f8fafc)",
+                            border: "1px solid #dbe7f8",
+                            borderRadius: "28px",
+                            padding: "45px",
+                            textAlign: "center"
+                        }}
+                    >
+
+                        <h3
+                            style={{
+                                fontWeight: "800",
+                                color: "#172033",
+                                marginBottom: "12px"
+                            }}
+                        >
+                            Ready to Explore?
+                        </h3>
+
+                        <p
+                            style={{
+                                color: "#667085",
+                                marginBottom: "25px"
+                            }}
+                        >
+                            Explore the platform and discover the data.
+                        </p>
+
+                        <Link
+                            to="/dashboard"
+                            className="btn btn-primary rounded-pill px-5 py-3 fw-semibold"
+                        >
+                            Explore the Dashboard →
+                        </Link>
+
+                    </div>
+
+                </Container>
+
+            </section>
+
+
+            {/* =====================================================
+                FOOTER
+            ====================================================== */}
+
+            <footer
+                style={{
+                    background: "#111827",
+                    color: "#ffffff",
+                    padding: "50px 0 25px",
+                    marginTop: "20px"
+                }}
+            >
+
+                <Container>
+
+                    <Row className="g-4">
+
+                        {/* BRAND */}
+
+                        <Col md={5}>
+
+                            <h4
+                                style={{
+                                    fontWeight: "800",
+                                    marginBottom: "15px"
+                                }}
+                            >
+                                SDM Dashboard
+                            </h4>
+
+                            <p
+                                style={{
+                                    color: "rgba(255,255,255,0.65)",
+                                    lineHeight: "1.7",
+                                    maxWidth: "430px"
+                                }}
+                            >
+                                An interactive platform for exploring
+                                self-determination movements and related
+                                political, geographical, and historical
+                                information.
+                            </p>
+
+                        </Col>
+
+
+                        {/* DATA */}
+
+                        <Col md={3}>
+
+                            <h6
+                                style={{
+                                    fontWeight: "700",
+                                    marginBottom: "15px"
+                                }}
+                            >
+                                Data Source
+                            </h6>
+
+                            <p
+                                style={{
+                                    color: "rgba(255,255,255,0.65)",
+                                    fontSize: "0.9rem",
+                                    lineHeight: "1.7"
+                                }}
+                            >
+                                Self-Determination Movements (SDM 2.0)
+                                dataset.
+                            </p>
+
+                        </Col>
+
+
+                        {/* PLATFORM */}
+
+                        <Col md={4}>
+
+                            <h6
+                                style={{
+                                    fontWeight: "700",
+                                    marginBottom: "15px"
+                                }}
+                            >
+                                Platform
+                            </h6>
+
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "9px"
+                                }}
+                            >
+
+                                <Link
+                                    to="/dashboard"
+                                    style={{
+                                        color: "rgba(255,255,255,0.65)",
+                                        textDecoration: "none"
+                                    }}
+                                >
+                                    Dashboard
+                                </Link>
+
+                                <Link
+                                    to="/globe"
+                                    style={{
+                                        color: "rgba(255,255,255,0.65)",
+                                        textDecoration: "none"
+                                    }}
+                                >
+                                    Explore Countries
+                                </Link>
+
+                                <Link
+                                    to="/continent-comparison"
+                                    style={{
+                                        color: "rgba(255,255,255,0.65)",
+                                        textDecoration: "none"
+                                    }}
+                                >
+                                    Compare Continents
+                                </Link>
+
+                            </div>
+
+                        </Col>
+
+                    </Row>
+
+
+                    <hr
+                        style={{
+                            borderColor: "rgba(255,255,255,0.12)",
+                            margin: "35px 0 20px"
+                        }}
+                    />
+
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "20px",
+                            flexWrap: "wrap",
+                            color: "rgba(255,255,255,0.5)",
+                            fontSize: "0.82rem"
+                        }}
+                    >
+
+                        <span>
+                            © {new Date().getFullYear()} SDM Dashboard
+                        </span>
+
+                        <span>
+                            Developed by: [Your Name / Institution]
+                        </span>
+
+                    </div>
+
+                </Container>
+
+            </footer>
+
+        </div>
     );
 }
 
