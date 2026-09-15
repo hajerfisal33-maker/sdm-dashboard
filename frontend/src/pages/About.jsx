@@ -734,7 +734,8 @@ function About() {
                         </span>
 
                         <span>
-                            Developed by: [Your Name / Institution]
+                            University of Khartoum
+Sudan
                         </span>
 
                     </div>

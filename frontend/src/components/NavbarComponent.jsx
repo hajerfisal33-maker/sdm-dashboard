@@ -40,30 +40,10 @@ function NavbarComponent() {
 
                     <Nav className="ms-auto align-items-lg-center">
 
-                        {/* Data Analytics */}
-                        <Nav.Link
-                            as={Link}
-                            to="/analytics"
-                        >
-                            Data Analytics
-                        </Nav.Link>
-
-
-                        {/* Comparisons */}
-                        <Nav.Link
-                            as={Link}
-                            to="/comparisons"
-                            className="ms-lg-2"
-                        >
-                            Comparisons
-                        </Nav.Link>
-
-
                         {/* Dashboard */}
                         <Nav.Link
                             as={Link}
                             to="/dashboard"
-                            className="ms-lg-2"
                         >
                             Dashboard
                         </Nav.Link>
