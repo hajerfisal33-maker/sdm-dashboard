@@ -7,9 +7,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 
-// Navigation pages
-import DataAnalytics from "./pages/DataAnalytics";
-import Comparisons from "./pages/Comparisons";
+
 
 // Analytics pages
 import GeographicalAndHistoricalDistribution from "./pages/GeographicalAndHistoricalDistribution";
