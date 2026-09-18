@@ -20,7 +20,7 @@ import GroupCharacteristics from "./pages/GroupCharacteristics";
 import Globe from "./pages/Globe";
 
 // Comparison
-import ContinentComparison from "./pages/ContinentComparison";
+import RegionComparison from './pages/RegionComparison';
 
 
 function App() {
@@ -119,12 +119,12 @@ function App() {
 
 
                 {/* =========================
-                    CONTINENT COMPARISON
+                    REGION COMPARISON
                 ========================= */}
 
                 <Route
-                    path="/continent-comparison"
-                    element={<ContinentComparison />}
+                    path="/region-comparison"
+                    element={<RegionComparison />}
                 />
 
             </Routes>
