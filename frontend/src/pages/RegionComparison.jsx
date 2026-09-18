@@ -713,7 +713,7 @@ function ComparisonBar({ label, value1, value2, name1, name2 }) {
   );
 }
 
-function ContinentComparison() {
+function RegionComparison() {
   const [summaryRows, setSummaryRows] = useState([]);
   const [powerRows, setPowerRows] = useState([]);
 
