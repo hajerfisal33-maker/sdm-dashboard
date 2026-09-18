@@ -177,23 +177,12 @@ function GlobePage() {
                     countries.find(
                         country => {
 
-                            const databaseName =
-                                country.country_name;
+                           const databaseName = country.country_name;
 
-                            const expectedGeoName =
-                                geoCountryMapping[
-                                    databaseName
-                                ] || databaseName;
-
-
-                            return (
-                                expectedGeoName
-                                    ?.trim()
-                                    .toLowerCase() ===
-                                geoName
-                                    .trim()
-                                    .toLowerCase()
-                            );
+return (
+    databaseName?.trim().toLowerCase() ===
+    geoName.trim().toLowerCase()
+);
 
                         }
                     );
@@ -225,23 +214,12 @@ function GlobePage() {
             countries.find(
                 country => {
 
-                    const databaseName =
-                        country.country_name;
+                   const databaseName = country.country_name;
 
-                    const expectedGeoName =
-                        geoCountryMapping[
-                            databaseName
-                        ] || databaseName;
-
-
-                    return (
-                        expectedGeoName
-                            ?.trim()
-                            .toLowerCase() ===
-                        countryName
-                            .trim()
-                            .toLowerCase()
-                    );
+return (
+    databaseName?.trim().toLowerCase() ===
+    countryName.trim().toLowerCase()
+);
 
                 }
             );
