@@ -2026,20 +2026,20 @@ exports.compareCountries = async (req, res) => {
 // ============================================================
 
 exports.regionSummary = async (req, res) => {
-    try {
-        const [rows] = await db.query(
-            queries.regionSummary
-        );
+  try {
+    const [rows] = await db.query(
+      queries.regionSummary
+    );
 
-        res.json(rows);
+    return res.json(rows);
 
-    } catch (error) {
-        console.error("Region summary error:", error);
+  } catch (error) {
+    console.error("Region summary error:", error);
 
-        res.status(500).json({
-            error: "Failed to load region summary"
-        });
-    }
+    return res.status(500).json({
+      error: "Failed to load region summary"
+    });
+  }
 };
 
 
@@ -2048,84 +2048,86 @@ exports.regionSummary = async (req, res) => {
 // ============================================================
 
 exports.regionPowerStatus = async (req, res) => {
-    try {
-        const [rows] = await db.query(
-            queries.regionPowerStatus
-        );
+  try {
+    const [rows] = await db.query(
+      queries.regionPowerStatus
+    );
 
-        res.json(rows);
+    return res.json(rows);
 
-    } catch (error) {
-        console.error("Region power status error:", error);
+  } catch (error) {
+    console.error("Region power status error:", error);
 
-        res.status(500).json({
-            error: "Failed to load region power status"
-        });
-    }
+    return res.status(500).json({
+      error: "Failed to load region power status"
+    });
+  }
 };
 
 
- // ============================================================
- // COMPARE REGIONS
- // ============================================================
+// ============================================================
+// COMPARE REGIONS
+// ============================================================
 
- exports.compareRegions = async (req, res) => {
-     try {
-         const {
-             region1 = "",
-             region2 = ""
-         } = req.query;
+exports.compareRegions = async (req, res) => {
+  try {
+    const {
+      region1 = "",
+      region2 = ""
+    } = req.query;
 
-         // Check required inputs
-         if (!region1 || !region2) {
-             return res.status(400).json({
-                 error: "Two regions are required"
-             });
-         }
+    // Check required inputs
+    if (!region1 || !region2) {
+      return res.status(400).json({
+        error: "Two regions are required"
+      });
+    }
 
-         // Prevent comparing the same region
-         if (region1 === region2) {
-             return res.status(400).json({
-                 error: "Please select two different regions"
-             });
-         }
+    // Prevent comparing the same region
+    if (region1 === region2) {
+      return res.status(400).json({
+        error: "Please select two different regions"
+      });
+    }
 
-         // Allowed regions from the dataset
-         const allowedRegions = [
-             "Central Asia",
-             "Europe",
-             "Latin America",
-             "M East & N Africa",
-             "N America",
-             "Oceania",
-             "SE Asia",
-             "SS Africa"
-         ];
+    // Allowed regions from the dataset
+    const allowedRegions = [
+      "Central Asia",
+      "Europe",
+      "Latin America",
+      "M East & N Africa",
+      "N America",
+      "Oceania",
+      "SE Asia",
+      "SS Africa"
+    ];
 
-         if (
-             !allowedRegions.includes(region1) ||
-             !allowedRegions.includes(region2)
-         ) {
-             return res.status(400).json({
-                 error: "Invalid region selection"
-             });
-         }
+    // Validate region names
+    if (
+      !allowedRegions.includes(region1) ||
+      !allowedRegions.includes(region2)
+    ) {
+      return res.status(400).json({
+        error: "Invalid region selection"
+      });
+    }
 
-         const [rows] = await db.query(
-             queries.compareRegions,
-             [region1, region2]
-         );
+    // Get comparison data from the database
+    const [rows] = await db.query(
+      queries.compareRegions,
+      [region1, region2]
+    );
 
-         return res.json(rows || []);
+    return res.json(rows || []);
 
-     } catch (error) {
-         console.error(
-             "Compare regions error:",
-             error
-         );
+  } catch (error) {
+    console.error(
+      "Compare regions error:",
+      error
+    );
 
-         return res.status(500).json({
-             error: "Failed to compare regions"
-         });
-     }
- };
+    return res.status(500).json({
+      error: "Failed to compare regions"
+    });
+  }
+};
