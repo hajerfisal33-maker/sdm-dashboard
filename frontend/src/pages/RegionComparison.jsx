@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   Container,
   Row,
@@ -13,19 +14,10 @@ import {
   Table,
 } from "react-bootstrap";
 
-/*
-  نفس رابط الـ API المستخدم في مشروعك.
-  ممكن تغيّريه عن طريق REACT_APP_API_URL لو هو معرف
-  عندك في إعدادات React.
-*/
 const API_BASE =
   process.env.REACT_APP_API_URL ||
   "https://sdm-dashboard-pe46.onrender.com/api";
 
-/*
-  الأقاليم المسموح بيها في compareRegions
-  حسب الكنترولر البعتّيه.
-*/
 const REGIONS = [
   "Central Asia",
   "Europe",
@@ -37,10 +29,6 @@ const REGIONS = [
   "SS Africa",
 ];
 
-/*
-  مواقع توضيحية للأقاليم على الكرة الأرضية.
-  دي نقاط تفاعلية تقريبية، وليست حدوداً جغرافية دقيقة.
-*/
 const REGION_POSITIONS = {
   "Central Asia": { x: 65, y: 39 },
   Europe: { x: 51, y: 30 },
@@ -55,7 +43,6 @@ const REGION_POSITIONS = {
 const COLORS = {
   navy: "#10254a",
   blue: "#2563eb",
-  cyan: "#38bdf8",
   green: "#16a085",
   orange: "#f59e0b",
   red: "#e45757",
@@ -66,51 +53,9 @@ const COLORS = {
   background: "#f4f7fb",
 };
 
-/*
-  نقرأ الحقول بأكثر من اسم محتمل.
-  لازم نراجع queries.js عشان نثبت الاسم الحقيقي
-  لكل metric بدل الاعتماد على احتمالات.
-*/
-function readValue(row, keys, fallback = 0) {
-  if (!row) return fallback;
-
-  for (const key of keys) {
-    if (
-      row[key] !== undefined &&
-      row[key] !== null &&
-      row[key] !== ""
-    ) {
-      const value = Number(row[key]);
-      return Number.isFinite(value) ? value : row[key];
-    }
-  }
-
-  return fallback;
-}
-
-function readText(row, keys, fallback = "") {
-  if (!row) return fallback;
-
-  for (const key of keys) {
-    if (
-      row[key] !== undefined &&
-      row[key] !== null &&
-      row[key] !== ""
-    ) {
-      return String(row[key]);
-    }
-  }
-
-  return fallback;
-}
-
-function getRegionName(row) {
-  return readText(
-    row,
-    ["region", "region_name", "regionName"],
-    ""
-  );
-}
+const api = axios.create({
+  baseURL: API_BASE,
+});
 
 function formatNumber(value) {
   if (value === null || value === undefined || value === "") {
@@ -136,50 +81,45 @@ function percent(value, total) {
 }
 
 /*
-  توحيد أسماء الحقول الراجعة من مقارنة الأقاليم.
-  لو queries.compareRegions بيرجع aliases مختلفة،
-  أضيفيها هنا.
+  The API aliases below match the supplied SQL queries.
 */
+
+function normalizeSummaryRow(row) {
+  return {
+    region: row.region ?? "",
+    movements: Number(row.total_movements) || 0,
+    sovereignty: Number(row.sovereignty_movements) || 0,
+    violent: Number(row.experienced_violence) || 0,
+    startedViolent: Number(row.started_violent) || 0,
+    latestNonviolent: Number(row.latest_nonviolent) || 0,
+    concessions: Number(row.concession_movements) || 0,
+    restrictions: Number(row.restriction_movements) || 0,
+    concentrated: Number(row.concentrated_movements) || 0,
+    nonConcentrated: Number(row.non_concentrated_movements) || 0,
+    concentratedPercentage:
+      Number(row.concentrated_percentage) || 0,
+    nonConcentratedPercentage:
+      Number(row.non_concentrated_percentage) || 0,
+    raw: row,
+  };
+}
+
 function normalizeComparisonRow(row) {
   return {
-    region: getRegionName(row),
-
-    movements: readValue(row, [
-      "movement_count",
-      "total_movements",
-      "movements",
-      "movementCount",
-      "total",
-    ]),
-
-    violent: readValue(row, [
-      "violent_count",
-      "violent_movements",
-      "violent",
-      "violence_count",
-    ]),
-
-    sovereignty: readValue(row, [
-      "sovereignty_count",
-      "sovereignty_declarations",
-      "sovereignty",
-      "declarations",
-    ]),
-
-    concessions: readValue(row, [
-      "concession_count",
-      "government_concessions",
-      "concessions",
-      "con",
-    ]),
-
-    restrictions: readValue(row, [
-      "restriction_count",
-      "government_restrictions",
-      "restrictions",
-      "res",
-    ]),
-
+    region: row.region ?? "",
+    movements: Number(row.total_movements) || 0,
+    sovereignty: Number(row.sovereignty_movements) || 0,
+    violent: Number(row.experienced_violence) || 0,
+    startedViolent: Number(row.started_violent) || 0,
+    latestNonviolent: Number(row.latest_nonviolent) || 0,
+    concessions: Number(row.concession_movements) || 0,
+    restrictions: Number(row.restriction_movements) || 0,
+    concentrated: Number(row.concentrated_movements) || 0,
+    nonConcentrated: Number(row.non_concentrated_movements) || 0,
+    concentratedPercentage:
+      Number(row.concentrated_percentage) || 0,
+    nonConcentratedPercentage:
+      Number(row.non_concentrated_percentage) || 0,
     raw: row,
   };
 }
@@ -337,7 +277,6 @@ function InteractiveGlobe({
         justifyContent: "center",
       }}
     >
-      {/* Orbit lines */}
       <div
         style={{
           position: "absolute",
@@ -360,7 +299,6 @@ function InteractiveGlobe({
         }}
       />
 
-      {/* Globe sphere */}
       <div
         style={{
           position: "relative",
@@ -374,7 +312,6 @@ function InteractiveGlobe({
             "inset -28px -24px 45px rgba(0,10,35,0.45), inset 12px 10px 24px rgba(255,255,255,0.3), 0 25px 55px rgba(15,55,110,0.24)",
         }}
       >
-        {/* Globe longitude/latitude grid */}
         <div
           style={{
             position: "absolute",
@@ -400,94 +337,77 @@ function InteractiveGlobe({
           }}
         />
 
-        {/* Simplified land shapes */}
-        <div
-          style={{
-            position: "absolute",
+        {/* Simplified illustrative land shapes */}
+        {[
+          {
             left: "8%",
             top: "18%",
             width: "31%",
             height: "29%",
-            background: "#8bd3a7",
             clipPath:
               "polygon(5% 20%, 30% 0%, 80% 8%, 100% 35%, 75% 55%, 60% 70%, 45% 100%, 25% 72%, 0% 48%)",
-            transform: "rotate(-18deg)",
-            zIndex: 1,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
+            rotate: "-18deg",
+          },
+          {
             left: "34%",
             top: "47%",
             width: "17%",
             height: "39%",
-            background: "#8bd3a7",
             clipPath:
               "polygon(20% 0%, 90% 12%, 100% 45%, 70% 60%, 50% 100%, 28% 75%, 0% 40%)",
-            transform: "rotate(-13deg)",
-            zIndex: 1,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
+            rotate: "-13deg",
+          },
+          {
             left: "46%",
             top: "26%",
             width: "19%",
             height: "17%",
-            background: "#9bddae",
             clipPath:
               "polygon(0% 25%, 32% 0%, 75% 8%, 100% 45%, 70% 75%, 45% 100%, 20% 68%)",
-            zIndex: 1,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
+          },
+          {
             left: "47%",
             top: "40%",
             width: "23%",
             height: "38%",
-            background: "#8bd3a7",
             clipPath:
               "polygon(20% 0%, 80% 8%, 100% 35%, 70% 60%, 50% 100%, 28% 75%, 0% 30%)",
-            zIndex: 1,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
+          },
+          {
             left: "59%",
             top: "20%",
             width: "36%",
             height: "35%",
-            background: "#8bd3a7",
             clipPath:
               "polygon(0% 15%, 40% 0%, 80% 12%, 100% 45%, 75% 60%, 50% 55%, 40% 100%, 18% 65%)",
-            zIndex: 1,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
+          },
+          {
             left: "73%",
             top: "62%",
             width: "23%",
             height: "19%",
-            background: "#8bd3a7",
             clipPath:
               "polygon(10% 25%, 45% 0%, 100% 30%, 85% 75%, 45% 100%, 0% 65%)",
-            zIndex: 1,
-          }}
-        />
+          },
+        ].map((shape, index) => (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: shape.left,
+              top: shape.top,
+              width: shape.width,
+              height: shape.height,
+              background: "#8bd3a7",
+              clipPath: shape.clipPath,
+              transform: shape.rotate
+                ? `rotate(${shape.rotate})`
+                : undefined,
+              zIndex: 1,
+            }}
+          />
+        ))}
 
-        {/* Globe highlight */}
         <div
           style={{
             position: "absolute",
@@ -500,7 +420,6 @@ function InteractiveGlobe({
           }}
         />
 
-        {/* Clickable region markers */}
         {REGIONS.map((region) => (
           <RegionMarker
             key={region}
@@ -557,35 +476,49 @@ function RegionDetails({ region }) {
       value: region.movements,
       icon: "📊",
       color: COLORS.blue,
-      note: "Movement count returned by the API",
+      note: "Distinct movements recorded in this region",
     },
     {
-      title: "Violent movements",
+      title: "Experienced violence",
       value: region.violent,
       icon: "⚡",
       color: COLORS.red,
-      note: "Violence-related indicator",
+      note: "Movements with a violence indicator",
     },
     {
       title: "Sovereignty declarations",
       value: region.sovereignty,
       icon: "🏛️",
       color: COLORS.purple,
-      note: "Sovereignty-related indicator",
+      note: "Movements with a sovereignty declaration",
     },
     {
       title: "Government concessions",
       value: region.concessions,
       icon: "🤝",
       color: COLORS.green,
-      note: "Concession-related indicator",
+      note: "Movements with a concession indicator",
     },
     {
       title: "Restrictions",
       value: region.restrictions,
       icon: "📋",
       color: COLORS.orange,
-      note: "Restriction-related indicator",
+      note: "Movements with a restriction indicator",
+    },
+    {
+      title: "Started violently",
+      value: region.startedViolent,
+      icon: "🔥",
+      color: COLORS.red,
+      note: "Violence indicator in the first observation",
+    },
+    {
+      title: "Latest nonviolent status",
+      value: region.latestNonviolent,
+      icon: "🕊️",
+      color: COLORS.green,
+      note: "Latest observation has violsd = 0",
     },
   ];
 
@@ -628,12 +561,62 @@ function RegionDetails({ region }) {
           </Col>
         ))}
       </Row>
+
+      <Card
+        className="border-0 mt-4"
+        style={{
+          borderRadius: 18,
+          background: "#f7f9fc",
+        }}
+      >
+        <Card.Body>
+          <h6
+            style={{
+              color: COLORS.navy,
+              fontWeight: 800,
+            }}
+          >
+            Group concentration
+          </h6>
+
+          <div className="d-flex justify-content-between mb-2">
+            <span>Concentrated movements</span>
+            <strong>{formatNumber(region.concentrated)}</strong>
+          </div>
+
+          <div className="d-flex justify-content-between mb-2">
+            <span>Non-concentrated movements</span>
+            <strong>{formatNumber(region.nonConcentrated)}</strong>
+          </div>
+
+          <div className="d-flex justify-content-between">
+            <span>Concentrated percentage</span>
+            <strong>{region.concentratedPercentage}%</strong>
+          </div>
+
+          <div className="d-flex justify-content-between mt-2">
+            <span>Non-concentrated percentage</span>
+            <strong>{region.nonConcentratedPercentage}%</strong>
+          </div>
+        </Card.Body>
+      </Card>
     </>
   );
 }
 
-function ComparisonBar({ label, value1, value2, name1, name2 }) {
-  const max = Math.max(Number(value1) || 0, Number(value2) || 0, 1);
+function ComparisonBar({
+  label,
+  value1,
+  value2,
+  name1,
+  name2,
+}) {
+  const max = Math.max(
+    Number(value1) || 0,
+    Number(value2) || 0,
+    1
+  );
+
   const width1 = ((Number(value1) || 0) / max) * 100;
   const width2 = ((Number(value2) || 0) / max) * 100;
 
@@ -650,65 +633,51 @@ function ComparisonBar({ label, value1, value2, name1, name2 }) {
         {label}
       </div>
 
-      <div className="mb-2">
-        <div className="d-flex justify-content-between mb-1">
-          <span style={{ fontSize: 12, color: COLORS.muted }}>
-            {name1}
-          </span>
-          <strong style={{ fontSize: 12 }}>
-            {formatNumber(value1)}
-          </strong>
-        </div>
+      {[
+        {
+          name: name1,
+          value: value1,
+          width: width1,
+          color: COLORS.blue,
+        },
+        {
+          name: name2,
+          value: value2,
+          width: width2,
+          color: COLORS.green,
+        },
+      ].map((item) => (
+        <div className="mb-3" key={item.name}>
+          <div className="d-flex justify-content-between mb-1">
+            <span style={{ fontSize: 12, color: COLORS.muted }}>
+              {item.name}
+            </span>
 
-        <div
-          style={{
-            height: 10,
-            background: "#e9eef6",
-            borderRadius: 20,
-            overflow: "hidden",
-          }}
-        >
+            <strong style={{ fontSize: 12 }}>
+              {formatNumber(item.value)}
+            </strong>
+          </div>
+
           <div
             style={{
-              height: "100%",
-              width: `${width1}%`,
+              height: 10,
+              background: "#e9eef6",
               borderRadius: 20,
-              background: COLORS.blue,
-              transition: "width 0.3s ease",
+              overflow: "hidden",
             }}
-          />
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${item.width}%`,
+                borderRadius: 20,
+                background: item.color,
+                transition: "width 0.3s ease",
+              }}
+            />
+          </div>
         </div>
-      </div>
-
-      <div>
-        <div className="d-flex justify-content-between mb-1">
-          <span style={{ fontSize: 12, color: COLORS.muted }}>
-            {name2}
-          </span>
-          <strong style={{ fontSize: 12 }}>
-            {formatNumber(value2)}
-          </strong>
-        </div>
-
-        <div
-          style={{
-            height: 10,
-            background: "#e9eef6",
-            borderRadius: 20,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: `${width2}%`,
-              borderRadius: 20,
-              background: COLORS.green,
-              transition: "width 0.3s ease",
-            }}
-          />
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -725,12 +694,13 @@ function RegionComparison() {
 
   const [loading, setLoading] = useState(true);
   const [comparing, setComparing] = useState(false);
+
   const [error, setError] = useState("");
   const [compareError, setCompareError] = useState("");
 
   /*
-    Load region summary and power status using
-    the previously discussed API endpoints.
+    Load the region summary and power-status data.
+    These endpoints match the supplied backend routes.
   */
   useEffect(() => {
     let active = true;
@@ -740,41 +710,27 @@ function RegionComparison() {
       setError("");
 
       try {
-        const [summaryResponse, powerResponse] = await Promise.all([
-          fetch(`${API_BASE}/region/summary`),
-          fetch(`${API_BASE}/region/power-status`),
-        ]);
+        const [summaryResponse, powerResponse] =
+          await Promise.all([
+            api.get("/regions/summary"),
+            api.get("/regions/power-status"),
+          ]);
 
-        if (!summaryResponse.ok) {
-          throw new Error(
-            `Region summary request failed (${summaryResponse.status})`
-          );
-        }
+        const summaryData = Array.isArray(summaryResponse.data)
+          ? summaryResponse.data
+          : summaryResponse.data?.data;
 
-        if (!powerResponse.ok) {
-          throw new Error(
-            `Region power-status request failed (${powerResponse.status})`
-          );
-        }
+        const powerData = Array.isArray(powerResponse.data)
+          ? powerResponse.data
+          : powerResponse.data?.data;
 
-        const summaryJson = await summaryResponse.json();
-        const powerJson = await powerResponse.json();
-
-        const summary = Array.isArray(summaryJson)
-          ? summaryJson
-          : summaryJson.data;
-
-        const power = Array.isArray(powerJson)
-          ? powerJson
-          : powerJson.data;
-
-        if (!Array.isArray(summary)) {
+        if (!Array.isArray(summaryData)) {
           throw new Error(
             "Region summary did not return an array."
           );
         }
 
-        if (!Array.isArray(power)) {
+        if (!Array.isArray(powerData)) {
           throw new Error(
             "Region power-status did not return an array."
           );
@@ -782,34 +738,34 @@ function RegionComparison() {
 
         if (!active) return;
 
-        setSummaryRows(summary);
-        setPowerRows(power);
+        const normalized = summaryData.map(normalizeSummaryRow);
 
-        const returnedRegions = summary
-          .map(getRegionName)
+        setSummaryRows(normalized);
+        setPowerRows(powerData);
+
+        const returnedRegions = normalized
+          .map((item) => item.region)
           .filter(Boolean);
 
-        const initialRegion =
-          returnedRegions.find((name) => REGIONS.includes(name)) ||
-          returnedRegions[0] ||
-          "";
-
-        setSelectedRegion(initialRegion);
-
-        const valid = REGIONS.filter((name) =>
-          returnedRegions.includes(name)
+        const validRegions = REGIONS.filter((region) =>
+          returnedRegions.includes(region)
         );
 
-        setRegion1(valid[0] || "");
-        setRegion2(valid[1] || "");
+        setSelectedRegion(validRegions[0] || "");
+        setRegion1(validRegions[0] || "");
+        setRegion2(validRegions[1] || "");
       } catch (err) {
         if (active) {
           setError(
-            err.message || "Failed to load regional data."
+            err.response?.data?.error ||
+              err.message ||
+              "Failed to load regional data."
           );
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
@@ -820,30 +776,29 @@ function RegionComparison() {
     };
   }, []);
 
-  const normalizedSummary = useMemo(
-    () => summaryRows.map(normalizeComparisonRow),
-    [summaryRows]
-  );
-
   const availableRegions = useMemo(
     () =>
-      normalizedSummary
+      summaryRows
         .map((item) => item.region)
         .filter(Boolean),
-    [normalizedSummary]
+    [summaryRows]
   );
 
   const selected = useMemo(
     () =>
-      normalizedSummary.find(
+      summaryRows.find(
         (item) => item.region === selectedRegion
       ),
-    [normalizedSummary, selectedRegion]
+    [summaryRows, selectedRegion]
   );
 
-  const totalMovements = normalizedSummary.reduce(
-    (sum, item) => sum + (Number(item.movements) || 0),
-    0
+  const totalMovements = useMemo(
+    () =>
+      summaryRows.reduce(
+        (sum, item) => sum + item.movements,
+        0
+      ),
+    [summaryRows]
   );
 
   const selectedMovementShare = percent(
@@ -854,27 +809,31 @@ function RegionComparison() {
   const selectedPowerRows = useMemo(
     () =>
       powerRows.filter(
-        (item) => getRegionName(item) === selectedRegion
+        (item) => item.region === selectedRegion
       ),
     [powerRows, selectedRegion]
   );
 
   const compare1 = useMemo(
     () =>
-      comparisonRows
-        .map(normalizeComparisonRow)
-        .find((item) => item.region === region1),
+      comparisonRows.find(
+        (item) => item.region === region1
+      ),
     [comparisonRows, region1]
   );
 
   const compare2 = useMemo(
     () =>
-      comparisonRows
-        .map(normalizeComparisonRow)
-        .find((item) => item.region === region2),
+      comparisonRows.find(
+        (item) => item.region === region2
+      ),
     [comparisonRows, region2]
   );
 
+  /*
+    Request comparison data from the backend.
+    The backend route is /compare/regions.
+  */
   async function handleCompare() {
     setCompareError("");
     setComparisonRows([]);
@@ -894,22 +853,16 @@ function RegionComparison() {
     setComparing(true);
 
     try {
-      const params = new URLSearchParams({
-        region1,
-        region2,
+      const response = await api.get("/compare/regions", {
+        params: {
+          region1,
+          region2,
+        },
       });
 
-      const response = await fetch(
-        `${API_BASE}/regions/compare?${params.toString()}`
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Region comparison request failed."
-        );
-      }
+      const data = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data;
 
       if (!Array.isArray(data)) {
         throw new Error(
@@ -917,10 +870,12 @@ function RegionComparison() {
         );
       }
 
-      setComparisonRows(data);
+      setComparisonRows(data.map(normalizeComparisonRow));
     } catch (err) {
       setCompareError(
-        err.message || "Could not compare the selected regions."
+        err.response?.data?.error ||
+          err.message ||
+          "Could not compare the selected regions."
       );
     } finally {
       setComparing(false);
@@ -939,7 +894,10 @@ function RegionComparison() {
         {/* Page header */}
         <div
           className="text-center mb-5"
-          style={{ maxWidth: 800, marginInline: "auto" }}
+          style={{
+            maxWidth: 800,
+            marginInline: "auto",
+          }}
         >
           <Badge
             bg="primary"
@@ -980,6 +938,7 @@ function RegionComparison() {
           </p>
         </div>
 
+        {/* Loading state */}
         {loading && (
           <div
             className="text-center py-5"
@@ -990,14 +949,11 @@ function RegionComparison() {
           </div>
         )}
 
+        {/* Main data-loading error */}
         {error && !loading && (
           <Alert variant="danger">
             <strong>Could not load regional data.</strong>
             <div>{error}</div>
-            <div className="mt-2">
-              Check the regional API routes and make sure
-              the backend is running.
-            </div>
           </Alert>
         )}
 
@@ -1038,14 +994,12 @@ function RegionComparison() {
 
             {availableRegions.length === 0 && (
               <Alert variant="warning">
-                The summary API returned no region names.
-                Check the field names returned by
-                queries.regionSummary.
+                No region names were returned by the summary API.
               </Alert>
             )}
 
             <Row className="g-4">
-              {/* Globe panel */}
+              {/* Interactive globe */}
               <Col xs={12} lg={7}>
                 <Card
                   className="h-100 border-0"
@@ -1138,7 +1092,7 @@ function RegionComparison() {
                 </Card>
               </Col>
 
-              {/* Region details */}
+              {/* Selected region details */}
               <Col xs={12} lg={5}>
                 <Card
                   className="h-100 border-0"
@@ -1151,7 +1105,7 @@ function RegionComparison() {
                   <Card.Body className="p-3 p-md-4">
                     <RegionDetails region={selected} />
 
-                    {/* Power status information */}
+                    {/* Power status */}
                     <div
                       className="mt-4 p-3"
                       style={{
@@ -1182,42 +1136,28 @@ function RegionComparison() {
                           for this region.
                         </p>
                       ) : (
-                        selectedPowerRows.map((item, index) => {
-                          const status = readText(
-                            item,
-                            [
-                              "pwrstat",
-                              "power_status",
-                              "powerStatus",
-                              "status",
-                            ],
-                            "Not specified"
-                          );
+                        selectedPowerRows.map((item, index) => (
+                          <div
+                            key={`${item.pwrstat}-${index}`}
+                            className="d-flex justify-content-between align-items-center py-2"
+                            style={{
+                              borderBottom:
+                                index ===
+                                selectedPowerRows.length - 1
+                                  ? "none"
+                                  : `1px solid ${COLORS.border}`,
+                              fontSize: 12,
+                            }}
+                          >
+                            <span>
+                              {item.pwrstat ?? "Not specified"}
+                            </span>
 
-                          const count = readValue(item, [
-                            "movement_count",
-                            "count",
-                            "total",
-                          ]);
-
-                          return (
-                            <div
-                              key={`${status}-${index}`}
-                              className="d-flex justify-content-between align-items-center py-2"
-                              style={{
-                                borderBottom:
-                                  index ===
-                                  selectedPowerRows.length - 1
-                                    ? "none"
-                                    : `1px solid ${COLORS.border}`,
-                                fontSize: 12,
-                              }}
-                            >
-                              <span>{status}</span>
-                              <strong>{formatNumber(count)}</strong>
-                            </div>
-                          );
-                        })
+                            <strong>
+                              {formatNumber(item.movement_count)}
+                            </strong>
+                          </div>
+                        ))
                       )}
                     </div>
                   </Card.Body>
@@ -1225,7 +1165,7 @@ function RegionComparison() {
               </Col>
             </Row>
 
-            {/* Region comparison section */}
+            {/* Region comparison */}
             <Card
               className="border-0 mt-4"
               style={{
@@ -1343,7 +1283,10 @@ function RegionComparison() {
                 </Row>
 
                 {compareError && (
-                  <Alert variant="danger" className="mt-3 mb-0">
+                  <Alert
+                    variant="danger"
+                    className="mt-3 mb-0"
+                  >
                     {compareError}
                   </Alert>
                 )}
@@ -1381,9 +1324,25 @@ function RegionComparison() {
                       />
 
                       <ComparisonBar
-                        label="Violent movements"
+                        label="Experienced violence"
                         value1={compare1.violent}
                         value2={compare2.violent}
+                        name1={region1}
+                        name2={region2}
+                      />
+
+                      <ComparisonBar
+                        label="Started violently"
+                        value1={compare1.startedViolent}
+                        value2={compare2.startedViolent}
+                        name1={region1}
+                        name2={region2}
+                      />
+
+                      <ComparisonBar
+                        label="Latest nonviolent status"
+                        value1={compare1.latestNonviolent}
+                        value2={compare2.latestNonviolent}
                         name1={region1}
                         name2={region2}
                       />
@@ -1412,7 +1371,23 @@ function RegionComparison() {
                         name2={region2}
                       />
 
-                      {/* Numeric comparison table */}
+                      <ComparisonBar
+                        label="Concentrated movements"
+                        value1={compare1.concentrated}
+                        value2={compare2.concentrated}
+                        name1={region1}
+                        name2={region2}
+                      />
+
+                      <ComparisonBar
+                        label="Non-concentrated movements"
+                        value1={compare1.nonConcentrated}
+                        value2={compare2.nonConcentrated}
+                        name1={region1}
+                        name2={region2}
+                      />
+
+                      {/* Comparison table */}
                       <div className="table-responsive mt-4">
                         <Table
                           bordered
@@ -1429,55 +1404,69 @@ function RegionComparison() {
                           </thead>
 
                           <tbody>
-                            <tr>
-                              <td>Movements</td>
-                              <td>
-                                {formatNumber(compare1.movements)}
-                              </td>
-                              <td>
-                                {formatNumber(compare2.movements)}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Violent movements</td>
-                              <td>
-                                {formatNumber(compare1.violent)}
-                              </td>
-                              <td>
-                                {formatNumber(compare2.violent)}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Sovereignty declarations</td>
-                              <td>
-                                {formatNumber(compare1.sovereignty)}
-                              </td>
-                              <td>
-                                {formatNumber(compare2.sovereignty)}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Government concessions</td>
-                              <td>
-                                {formatNumber(compare1.concessions)}
-                              </td>
-                              <td>
-                                {formatNumber(compare2.concessions)}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Restrictions</td>
-                              <td>
-                                {formatNumber(compare1.restrictions)}
-                              </td>
-                              <td>
-                                {formatNumber(compare2.restrictions)}
-                              </td>
-                            </tr>
+                            {[
+                              [
+                                "Movements",
+                                compare1.movements,
+                                compare2.movements,
+                              ],
+                              [
+                                "Experienced violence",
+                                compare1.violent,
+                                compare2.violent,
+                              ],
+                              [
+                                "Started violently",
+                                compare1.startedViolent,
+                                compare2.startedViolent,
+                              ],
+                              [
+                                "Latest nonviolent status",
+                                compare1.latestNonviolent,
+                                compare2.latestNonviolent,
+                              ],
+                              [
+                                "Sovereignty declarations",
+                                compare1.sovereignty,
+                                compare2.sovereignty,
+                              ],
+                              [
+                                "Government concessions",
+                                compare1.concessions,
+                                compare2.concessions,
+                              ],
+                              [
+                                "Restrictions",
+                                compare1.restrictions,
+                                compare2.restrictions,
+                              ],
+                              [
+                                "Concentrated movements",
+                                compare1.concentrated,
+                                compare2.concentrated,
+                              ],
+                              [
+                                "Non-concentrated movements",
+                                compare1.nonConcentrated,
+                                compare2.nonConcentrated,
+                              ],
+                              [
+                                "Concentrated percentage",
+                                `${compare1.concentratedPercentage}%`,
+                                `${compare2.concentratedPercentage}%`,
+                              ],
+                              [
+                                "Non-concentrated percentage",
+                                `${compare1.nonConcentratedPercentage}%`,
+                                `${compare2.nonConcentratedPercentage}%`,
+                              ],
+                            ].map(([label, value1, value2]) => (
+                              <tr key={label}>
+                                <td>{label}</td>
+                                <td>{formatNumber(value1)}</td>
+                                <td>{formatNumber(value2)}</td>
+                              </tr>
+                            ))}
                           </tbody>
                         </Table>
                       </div>
