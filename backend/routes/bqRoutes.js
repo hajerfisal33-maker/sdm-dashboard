@@ -211,4 +211,38 @@ router.get(
 );
 
 
+ // ======================================
+ // REGION EXPLORATION AND COMPARISON
+ // ======================================
+
+ router.get(
+     "/regions/summary",
+     controller.regionSummary
+ );
+
+ router.get(
+     "/regions/power-status",
+     controller.regionPowerStatus
+ );
+
+ // ======================================
+ // REGION EXPLORATION AND COMPARISON
+ // ======================================
+
+ router.get(
+     "/regions/summary",
+     controller.regionSummary
+ );
+
+ router.get(
+     "/regions/power-status",
+     controller.regionPowerStatus
+ );
+
+ router.get(
+     "/compare/regions",
+     controller.compareRegions
+ );
+
+
 module.exports = router;

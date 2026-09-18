@@ -1994,7 +1994,255 @@ GROUP BY
 
 ORDER BY
     c.country_name;
-`
+`,
+
+
+ // ============================================================
+ // REGION SUMMARY
+ // ============================================================
+
+ regionSummary: `
+ WITH ranked_observations AS (
+     SELECT
+         mo.*,
+         ROW_NUMBER() OVER (
+             PARTITION BY mo.group_id
+             ORDER BY mo.year ASC
+         ) AS first_rn,
+         ROW_NUMBER() OVER (
+             PARTITION BY mo.group_id
+             ORDER BY mo.year DESC
+         ) AS latest_rn
+     FROM movement_observations mo
+ ),
+
+ movement_metrics AS (
+     SELECT
+         group_id,
+
+         /* Use the region recorded in the latest observation */
+         MAX(CASE WHEN latest_rn = 1 THEN region END) AS region,
+
+         MAX(CASE WHEN sovdec = 1 THEN 1 ELSE 0 END)
+             AS sovereignty_declared,
+
+         MAX(CASE WHEN violsd = 1 THEN 1 ELSE 0 END)
+             AS experienced_violence,
+
+         MAX(CASE
+             WHEN first_rn = 1 AND violsd = 1
+             THEN 1 ELSE 0
+         END) AS started_violent,
+
+         MAX(CASE
+             WHEN latest_rn = 1 AND violsd = 0
+             THEN 1 ELSE 0
+         END) AS latest_nonviolent,
+
+         MAX(CASE WHEN con = 1 THEN 1 ELSE 0 END)
+             AS received_concession,
+
+         MAX(CASE WHEN res = 1 THEN 1 ELSE 0 END)
+             AS faced_restriction,
+
+         MAX(CASE
+             WHEN latest_rn = 1 THEN groupcon
+         END) AS groupcon,
+
+         MAX(CASE
+             WHEN latest_rn = 1 THEN pwrstat
+         END) AS pwrstat
+
+     FROM ranked_observations
+     GROUP BY group_id
+ )
+
+ SELECT
+     region,
+
+     COUNT(DISTINCT group_id) AS total_movements,
+
+     SUM(sovereignty_declared) AS sovereignty_movements,
+     SUM(experienced_violence) AS experienced_violence,
+     SUM(started_violent) AS started_violent,
+     SUM(latest_nonviolent) AS latest_nonviolent,
+     SUM(received_concession) AS concession_movements,
+     SUM(faced_restriction) AS restriction_movements,
+
+     SUM(CASE WHEN groupcon = 1 THEN 1 ELSE 0 END)
+         AS concentrated_movements,
+
+     SUM(CASE WHEN groupcon = 0 THEN 1 ELSE 0 END)
+         AS non_concentrated_movements,
+
+     ROUND(
+         100.0 * SUM(CASE WHEN groupcon = 1 THEN 1 ELSE 0 END)
+         / NULLIF(COUNT(DISTINCT group_id), 0),
+         1
+     ) AS concentrated_percentage,
+
+     ROUND(
+         100.0 * SUM(CASE WHEN groupcon = 0 THEN 1 ELSE 0 END)
+         / NULLIF(COUNT(DISTINCT group_id), 0),
+         1
+     ) AS non_concentrated_percentage
+
+ FROM movement_metrics
+ WHERE region IS NOT NULL
+   AND TRIM(region) <> ''
+ GROUP BY region
+ ORDER BY region;
+ `,
+
+
+ // ============================================================
+ // REGION POWER STATUS DISTRIBUTION
+ // ============================================================
+
+ regionPowerStatus: `
+ WITH ranked_observations AS (
+     SELECT
+         mo.group_id,
+         mo.region,
+         mo.pwrstat,
+         ROW_NUMBER() OVER (
+             PARTITION BY mo.group_id
+             ORDER BY mo.year DESC
+         ) AS rn
+     FROM movement_observations mo
+ )
+
+ SELECT
+     region,
+     pwrstat,
+     COUNT(DISTINCT group_id) AS movement_count
+
+ FROM ranked_observations
+ WHERE rn = 1
+   AND region IS NOT NULL
+   AND TRIM(region) <> ''
+   AND pwrstat IS NOT NULL
+ GROUP BY region, pwrstat
+ ORDER BY region, pwrstat;
+ `,
+
+ 
+compareRegions: `
+WITH ranked_observations AS (
+    SELECT
+        mo.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year ASC
+        ) AS first_rn,
+        ROW_NUMBER() OVER (
+            PARTITION BY mo.group_id
+            ORDER BY mo.year DESC
+        ) AS latest_rn
+    FROM movement_observations mo
+),
+
+movement_metrics AS (
+    SELECT
+        group_id,
+
+        MAX(
+            CASE WHEN latest_rn = 1 THEN region END
+        ) AS region,
+
+        MAX(CASE WHEN sovdec = 1 THEN 1 ELSE 0 END)
+            AS sovereignty_movements,
+
+        MAX(CASE WHEN violsd = 1 THEN 1 ELSE 0 END)
+            AS experienced_violence,
+
+        MAX(
+            CASE
+                WHEN first_rn = 1 AND violsd = 1
+                THEN 1 ELSE 0
+            END
+        ) AS started_violent,
+
+        MAX(
+            CASE
+                WHEN latest_rn = 1 AND violsd = 0
+                THEN 1 ELSE 0
+            END
+        ) AS latest_nonviolent,
+
+        MAX(CASE WHEN con = 1 THEN 1 ELSE 0 END)
+            AS concession_movements,
+
+        MAX(CASE WHEN res = 1 THEN 1 ELSE 0 END)
+            AS restriction_movements,
+
+        MAX(
+            CASE WHEN latest_rn = 1 THEN groupcon END
+        ) AS groupcon,
+
+        MAX(
+            CASE WHEN latest_rn = 1 THEN pwrstat END
+        ) AS pwrstat
+
+    FROM ranked_observations
+    GROUP BY group_id
+),
+
+selected_regions AS (
+    SELECT *
+    FROM movement_metrics
+    WHERE region IN (?, ?)
+)
+
+SELECT
+    region,
+
+    COUNT(DISTINCT group_id) AS total_movements,
+
+    SUM(sovereignty_movements)
+        AS sovereignty_movements,
+
+    SUM(experienced_violence)
+        AS experienced_violence,
+
+    SUM(started_violent)
+        AS started_violent,
+
+    SUM(latest_nonviolent)
+        AS latest_nonviolent,
+
+    SUM(concession_movements)
+        AS concession_movements,
+
+    SUM(restriction_movements)
+        AS restriction_movements,
+
+    SUM(
+        CASE WHEN groupcon = 1 THEN 1 ELSE 0 END
+    ) AS concentrated_movements,
+
+    SUM(
+        CASE WHEN groupcon = 0 THEN 1 ELSE 0 END
+    ) AS non_concentrated_movements,
+
+    ROUND(
+        100.0 * SUM(
+            CASE WHEN groupcon = 1 THEN 1 ELSE 0 END
+        ) / NULLIF(COUNT(DISTINCT group_id), 0),
+        1
+    ) AS concentrated_percentage,
+
+    ROUND(
+        100.0 * SUM(
+            CASE WHEN groupcon = 0 THEN 1 ELSE 0 END
+        ) / NULLIF(COUNT(DISTINCT group_id), 0),
+        1
+    ) AS non_concentrated_percentage
+
+FROM selected_regions
+GROUP BY region
+ORDER BY region;
+`,
 
 };
 
