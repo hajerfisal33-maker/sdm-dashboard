@@ -369,14 +369,14 @@ function Dashboard() {
 
 
                         {/* ================================
-                            CONTINENTS
+                            Region
                         ================================= */}
 
                         <Col lg={6}>
 
                             <Card
                                 as={Link}
-                                to="/continent-comparison"
+                                to="/region-comparison"
                                 style={{
                                     height: "100%",
                                     textDecoration: "none",
@@ -448,7 +448,7 @@ function Dashboard() {
                                             marginBottom: "15px"
                                         }}
                                     >
-                                        Continents
+                                        Regions
                                     </div>
 
 
@@ -459,7 +459,7 @@ function Dashboard() {
                                             marginBottom: "12px"
                                         }}
                                     >
-                                        Explore Continents
+                                        Explore Region
                                     </h3>
 
 
@@ -486,7 +486,7 @@ function Dashboard() {
                                             fontWeight: 700
                                         }}
                                     >
-                                        Explore Continents
+                                        Explore Region
                                         <span>→</span>
                                     </div>
 
