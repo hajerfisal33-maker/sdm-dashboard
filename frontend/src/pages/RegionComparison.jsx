@@ -962,7 +962,7 @@ function RegionComparison() {
               letterSpacing: -1,
             }}
           >
-            Compare Continents
+            Compare regions
           </h1>
 
           <p
@@ -1492,4 +1492,4 @@ function RegionComparison() {
   );
 }
 
-export default ContinentComparison;
+export default RegionComparison;

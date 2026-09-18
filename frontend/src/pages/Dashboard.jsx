@@ -472,7 +472,7 @@ function Dashboard() {
                                     >
                                         Explore the distribution of
                                         self-determination movements across
-                                        continents and examine broader
+                                        regions and examine broader
                                         geographical patterns in the dataset.
                                     </p>
 

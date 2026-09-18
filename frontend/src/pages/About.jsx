@@ -693,13 +693,13 @@ function About() {
                                 </Link>
 
                                 <Link
-                                    to="/continent-comparison"
+                                    to="/region-comparison"
                                     style={{
                                         color: "rgba(255,255,255,0.65)",
                                         textDecoration: "none"
                                     }}
                                 >
-                                    Compare Continents
+                                    Compare Regions
                                 </Link>
 
                             </div>
