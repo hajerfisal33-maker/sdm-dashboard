@@ -16,7 +16,7 @@ import {
 
 const API_BASE =
   process.env.REACT_APP_API_URL ||
-  "https://sdm-dashboard-pe46.onrender.com/api";
+  "https://sdm-dashboard-pe46.onrender.com/api/v1";
 
 const REGIONS = [
   "Central Asia",
