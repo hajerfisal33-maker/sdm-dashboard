@@ -2059,7 +2059,7 @@ exports.regionPowerStatus = async (req, res) => {
     console.error("Region power status error:", error);
 
     return res.status(500).json({
-      error: "Failed to load region power status"
+      error: error.message
     });
   }
 };

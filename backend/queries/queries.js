@@ -2051,7 +2051,7 @@ movement_metrics AS (
         MAX(CASE WHEN res = 1 THEN 1 ELSE 0 END)
             AS faced_restriction,
 
-        MAX(CASE WHEN latest_rn = 1 THEN groupcon END)
+        MAX(CASE WHEN latest_rn = 1 THEN group_con END)
             AS groupcon,
 
         MAX(CASE WHEN latest_rn = 1 THEN pwrstat END)
@@ -2186,7 +2186,7 @@ movement_metrics AS (
         MAX(CASE WHEN res = 1 THEN 1 ELSE 0 END)
             AS restriction_movements,
 
-        MAX(CASE WHEN latest_rn = 1 THEN groupcon END)
+        MAX(CASE WHEN latest_rn = 1 THEN group_con END)
             AS groupcon,
 
         MAX(CASE WHEN latest_rn = 1 THEN pwrstat END)
