@@ -703,78 +703,102 @@ function RegionComparison() {
     These endpoints match the supplied backend routes.
   */
   useEffect(() => {
-    let active = true;
+  let active = true;
 
-    async function loadRegionalData() {
-      setLoading(true);
-      setError("");
+  async function loadRegionalData() {
+    setLoading(true);
+    setError("");
 
-      try {
-        const [summaryResponse, powerResponse] =
-          await Promise.all([
-            api.get("/regions/summary"),
-            api.get("/regions/power-status"),
-          ]);
+    try {
+      const [summaryResponse, powerResponse] =
+        await Promise.all([
+          api.get("/regions/summary"),
+          api.get("/regions/power-status"),
+        ]);
 
-        const summaryData = Array.isArray(summaryResponse.data)
-          ? summaryResponse.data
-          : summaryResponse.data?.data;
+      console.log(
+        "SUMMARY RESPONSE STATUS:",
+        summaryResponse.status
+      );
 
-        const powerData = Array.isArray(powerResponse.data)
-          ? powerResponse.data
-          : powerResponse.data?.data;
+      console.log(
+        "SUMMARY RESPONSE DATA:",
+        summaryResponse.data
+      );
 
-        if (!Array.isArray(summaryData)) {
-          throw new Error(
-            "Region summary did not return an array."
-          );
-        }
+      console.log(
+        "POWER RESPONSE STATUS:",
+        powerResponse.status
+      );
 
-        if (!Array.isArray(powerData)) {
-          throw new Error(
-            "Region power-status did not return an array."
-          );
-        }
+      console.log(
+        "POWER RESPONSE DATA:",
+        powerResponse.data
+      );
 
-        if (!active) return;
+      const summaryData = Array.isArray(summaryResponse.data)
+        ? summaryResponse.data
+        : summaryResponse.data?.data;
 
-        const normalized = summaryData.map(normalizeSummaryRow);
+      const powerData = Array.isArray(powerResponse.data)
+        ? powerResponse.data
+        : powerResponse.data?.data;
 
-        setSummaryRows(normalized);
-        setPowerRows(powerData);
-
-        const returnedRegions = normalized
-          .map((item) => item.region)
-          .filter(Boolean);
-
-        const validRegions = REGIONS.filter((region) =>
-          returnedRegions.includes(region)
+      if (!Array.isArray(summaryData)) {
+        throw new Error(
+          "Region summary did not return an array."
         );
+      }
 
-        setSelectedRegion(validRegions[0] || "");
-        setRegion1(validRegions[0] || "");
-        setRegion2(validRegions[1] || "");
-      } catch (err) {
-        if (active) {
-          setError(
-            err.response?.data?.error ||
-              err.message ||
-              "Failed to load regional data."
-          );
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
+      if (!Array.isArray(powerData)) {
+        throw new Error(
+          "Region power-status did not return an array."
+        );
+      }
+
+      if (!active) return;
+
+      const normalized = summaryData.map(normalizeSummaryRow);
+
+      setSummaryRows(normalized);
+      setPowerRows(powerData);
+
+      const returnedRegions = normalized
+        .map((item) => item.region)
+        .filter(Boolean);
+
+      const validRegions = REGIONS.filter((region) =>
+        returnedRegions.includes(region)
+      );
+
+      setSelectedRegion(validRegions[0] || "");
+      setRegion1(validRegions[0] || "");
+      setRegion2(validRegions[1] || "");
+
+    } catch (err) {
+      console.error("REGION PAGE ERROR:", err);
+
+      if (active) {
+        setError(
+          err.response?.data?.error ||
+          err.message ||
+          "Failed to load regional data."
+        );
+      }
+
+    } finally {
+      if (active) {
+        setLoading(false);
       }
     }
+  }
 
-    loadRegionalData();
+  loadRegionalData();
 
-    return () => {
-      active = false;
-    };
-  }, []);
+  return () => {
+    active = false;
+  };
+}, []);
 
   const availableRegions = useMemo(
     () =>
