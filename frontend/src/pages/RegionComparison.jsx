@@ -745,18 +745,34 @@ function RegionComparison() {
         : powerResponse.data?.data;
 
       if (!Array.isArray(summaryData)) {
-        throw new Error(
-          "Region summary did not return an array."
-        );
-      }
+  console.error(
+    "SUMMARY RAW RESPONSE:",
+    summaryResponse.data
+  );
 
-      if (!Array.isArray(powerData)) {
-        throw new Error(
-          "Region power-status did not return an array."
-        );
-      }
+  throw new Error(
+    `Region summary did not return an array. Received: ${
+      typeof summaryResponse.data === "string"
+        ? summaryResponse.data.slice(0, 300)
+        : JSON.stringify(summaryResponse.data)
+    }`
+  );
+}
 
-      if (!active) return;
+if (!Array.isArray(powerData)) {
+  console.error(
+    "POWER RAW RESPONSE:",
+    powerResponse.data
+  );
+
+  throw new Error(
+    `Region power-status did not return an array. Received: ${
+      typeof powerResponse.data === "string"
+        ? powerResponse.data.slice(0, 300)
+        : JSON.stringify(powerResponse.data)
+    }`
+  );
+}      if (!active) return;
 
       const normalized = summaryData.map(normalizeSummaryRow);
 
