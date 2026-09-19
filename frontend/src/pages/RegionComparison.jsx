@@ -15,9 +15,8 @@ import {
 } from "react-bootstrap";
 
 const API_BASE =
-  process.env.REACT_APP_API_URL ||
-  "https://sdm-dashboard-pe46.onrender.com/api/v1";
-
+  "https://sdm-dashboard-pe46.onrender.com/api";
+  
 const REGIONS = [
   "Central Asia",
   "Europe",
