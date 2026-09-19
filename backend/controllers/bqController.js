@@ -2037,7 +2037,7 @@ exports.regionSummary = async (req, res) => {
     console.error("Region summary error:", error);
 
     return res.status(500).json({
-      error: "Failed to load region summary"
+      error: error.message
     });
   }
 };
